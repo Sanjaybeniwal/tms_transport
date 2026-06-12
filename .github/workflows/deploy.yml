@@ -1,0 +1,39 @@
+name: Deploy to AWS EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy to AWS via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USERNAME }}
+          key: ${{ secrets.AWS_SSH_KEY }}
+          script: |
+            # Navigate to project directory (update this to your actual server path)
+            cd ~/tms_transport || cd /var/www/tms_transport || exit 1
+            
+            # Fetch latest changes
+            git pull origin main
+            
+            # Setup Backend
+            cd backend
+            npm install --production
+            
+            # Setup Frontend
+            cd ../frontend
+            npm install
+            npm run build
+            
+            # Restart Application Process via PM2
+            pm2 restart all || pm2 start server.js --name "tms-backend"
