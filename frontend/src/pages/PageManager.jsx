@@ -246,6 +246,16 @@ const PageManager = () => {
             presets: ['react']
           }).code;
 
+          // Create a safe ReactDOM shim to handle ReactDOM.render with modern React 18 createRoot
+          const safeReactDOM = {
+            render: (element, container) => {
+              if (!container) return;
+              container.innerHTML = '';
+              const root = window.ReactDOMClient.createRoot(container);
+              root.render(element);
+            }
+          };
+
           // 3. Wrap React, ReactDOM, and common hooks in scope and evaluate the code
           const runScript = new Function(
             'React',
@@ -260,7 +270,7 @@ const PageManager = () => {
           );
           runScript(
             window.React,
-            window.ReactDOM,
+            safeReactDOM,
             window.React.useState,
             window.React.useEffect,
             window.React.useContext,

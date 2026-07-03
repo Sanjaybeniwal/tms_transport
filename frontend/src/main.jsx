@@ -6,6 +6,7 @@ import App from './App.jsx';
 // Expose React globally for database-seeded runtime Babel widgets
 window.React = React;
 window.ReactDOM = ReactDOM;
+window.ReactDOMClient = ReactDOMClient;
 
 // Import Google Font families dynamically
 const linkOutfit = document.createElement('link');
