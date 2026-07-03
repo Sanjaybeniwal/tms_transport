@@ -30,7 +30,7 @@ const Login = () => {
     setLoading(false);
     
     if (res.success) {
-      navigate('/');
+      navigate('/admin');
     } else {
       setErrorMsg(res.message);
     }

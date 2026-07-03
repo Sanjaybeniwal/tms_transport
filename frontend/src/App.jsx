@@ -26,7 +26,7 @@ const ProtectedRoute = ({ children }) => {
   const { token, loading } = useContext(AuthContext);
 
   if (loading) return null;
-  if (!token) return <Navigate to="/login" replace />;
+  if (!token) return <Navigate to="/buts/login" replace />;
 
   return children;
 };
@@ -36,7 +36,7 @@ const PublicRoute = ({ children }) => {
   const { token, loading } = useContext(AuthContext);
 
   if (loading) return null;
-  if (token) return <Navigate to="/" replace />;
+  if (token) return <Navigate to="/admin" replace />;
 
   return children;
 };
@@ -111,12 +111,10 @@ const App = () => {
         <BrowserRouter>
           <Routes>
             {/* Public Access */}
-            <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-            <Route path="/site/:slug" element={<PublicSite />} />
-            <Route path="/site" element={<Navigate to="/site/home" replace />} />
+            <Route path="/buts/login" element={<PublicRoute><Login /></PublicRoute>} />
 
             {/* Protected Routes inside layout */}
-            <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+            <Route path="/admin" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
               <Route index element={<Dashboard />} />
               <Route path="change-password" element={<ChangePassword />} />
               <Route path="profile" element={<Profile />} />
@@ -150,8 +148,9 @@ const App = () => {
               <Route path="reports" element={<Reports />} />
             </Route>
 
-            {/* Fallback */}
-            <Route path="*" element={<Navigate to="/" replace />} />
+            {/* Public Website */}
+            <Route path="/:slug" element={<PublicSite />} />
+            <Route path="/" element={<PublicSite />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>

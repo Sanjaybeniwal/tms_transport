@@ -309,8 +309,8 @@ const seedDatabase = async () => {
                 <h1 class="text-5xl md:text-6xl font-extrabold tracking-tight mb-6">Bombay Uttaranchal Tempo Service</h1>
                 <p class="text-xl md:text-2xl text-blue-200 mb-8 max-w-2xl mx-auto">Your most trusted transport partner connecting Mumbai and Mumbai Metropolitan Region to Uttaranchal and beyond.</p>
                 <div class="flex justify-center gap-4">
-                  <a href="/site/services" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition duration-200">Our Services</a>
-                  <a href="/site/contact" class="bg-white hover:bg-gray-100 text-blue-900 font-bold py-3 px-8 rounded-lg shadow-lg transition duration-200">Book Cargo</a>
+                  <a href="/services" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition duration-200">Our Services</a>
+                  <a href="/contact" class="bg-white hover:bg-gray-100 text-blue-900 font-bold py-3 px-8 rounded-lg shadow-lg transition duration-200">Book Cargo</a>
                 </div>
               </div>
             </div>

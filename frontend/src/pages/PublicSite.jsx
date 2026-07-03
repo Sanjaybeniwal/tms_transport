@@ -104,10 +104,10 @@ const PublicSite = () => {
   };
 
   const navItems = [
-    { label: 'Home', path: '/site/home' },
-    { label: 'About Us', path: '/site/about' },
-    { label: 'Services', path: '/site/services' },
-    { label: 'Contact', path: '/site/contact' }
+    { label: 'Home', path: '/home' },
+    { label: 'About Us', path: '/about' },
+    { label: 'Services', path: '/services' },
+    { label: 'Contact', path: '/contact' }
   ];
 
   const drawer = (
@@ -133,7 +133,7 @@ const PublicSite = () => {
       <Button
         variant="contained"
         fullWidth
-        onClick={() => navigate('/login')}
+        onClick={() => navigate('/buts/login')}
         startIcon={<ArrowForwardIcon />}
       >
         Admin Portal
@@ -162,18 +162,6 @@ const PublicSite = () => {
               </IconButton>
               <RouterLink to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
                 <img src="/logo.png" alt="BUTS Logo" style={{ height: '75px', marginTop: '-15px', marginBottom: '-15px', objectFit: 'contain' }} />
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontWeight: 800,
-                    color: '#0f172a',
-                    letterSpacing: '-0.02em',
-                    ml: 1.5,
-                    display: { xs: 'none', sm: 'block' }
-                  }}
-                >
-                  BUTS Express
-                </Typography>
               </RouterLink>
             </Box>
 
@@ -200,7 +188,7 @@ const PublicSite = () => {
             <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
               <Button
                 variant="contained"
-                onClick={() => navigate('/login')}
+                onClick={() => navigate('/buts/login')}
                 endIcon={<ArrowForwardIcon />}
                 sx={{ borderRadius: 2, px: 3, fontWeight: 700 }}
               >
@@ -263,9 +251,6 @@ const PublicSite = () => {
             <Grid item xs={12} md={4}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
                 <img src="/logo.png" alt="BUTS Logo" style={{ height: '70px', filter: 'brightness(0.95)', objectFit: 'contain' }} />
-                <Typography variant="h6" sx={{ fontWeight: 800, color: '#ffffff', ml: 1.5 }}>
-                  BUTS Express
-                </Typography>
               </Box>
               <Typography variant="body2" sx={{ lineHeight: 1.8 }}>
                 Bombay Uttaranchal Tempo Service (BUTS) connects major industrial corridors to Uttarakhand hill stations with modern logistics, real-time safety, and professional dispatch operations.

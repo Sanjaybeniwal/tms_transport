@@ -114,14 +114,14 @@ const Layout = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/buts/login');
   };
 
   const handleNav = (path) => {
-    navigate(path);
+    navigate('/admin' + path);
   };
 
-  const menuActive = (path) => location.pathname === path;
+  const menuActive = (path) => location.pathname === '/admin' + path || location.pathname === '/admin' && path === '/';
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -202,11 +202,11 @@ const Layout = () => {
                 </Box>
               </MenuItem>
               <Divider />
-              <MenuItem onClick={() => { handleCloseUserMenu(); navigate('/profile'); }}>
+              <MenuItem onClick={() => { handleCloseUserMenu(); navigate('/admin/profile'); }}>
                 <ListItemIcon><PersonIcon fontSize="small" /></ListItemIcon>
                 Profile & Settings
               </MenuItem>
-              <MenuItem onClick={() => { handleCloseUserMenu(); navigate('/change-password'); }}>
+              <MenuItem onClick={() => { handleCloseUserMenu(); navigate('/admin/change-password'); }}>
                 <ListItemIcon><LockOpenIcon fontSize="small" /></ListItemIcon>
                 Change Password
               </MenuItem>
@@ -352,19 +352,19 @@ const Layout = () => {
           </ListItemButton>
           <Collapse in={openLedgers && open} timeout="auto" unmountOnExit>
             <List component="div" disablePadding sx={{ pl: 2 }}>
-              <ListItemButton onClick={() => handleNav('/ledgers/pumps')} selected={location.pathname.startsWith('/ledgers/pumps')}>
+              <ListItemButton onClick={() => handleNav('/ledgers/pumps')} selected={location.pathname.startsWith('/admin/ledgers/pumps')}>
                 <ListItemText primary="Pump Ledgers" />
               </ListItemButton>
-              <ListItemButton onClick={() => handleNav('/ledgers/vehicles')} selected={location.pathname.startsWith('/ledgers/vehicles')}>
+              <ListItemButton onClick={() => handleNav('/ledgers/vehicles')} selected={location.pathname.startsWith('/admin/ledgers/vehicles')}>
                 <ListItemText primary="Vehicle Ledgers" />
               </ListItemButton>
-              <ListItemButton onClick={() => handleNav('/ledgers/owners')} selected={location.pathname.startsWith('/ledgers/owners')}>
+              <ListItemButton onClick={() => handleNav('/ledgers/owners')} selected={location.pathname.startsWith('/admin/ledgers/owners')}>
                 <ListItemText primary="Owner Ledgers" />
               </ListItemButton>
-              <ListItemButton onClick={() => handleNav('/ledgers/drivers')} selected={location.pathname.startsWith('/ledgers/drivers')}>
+              <ListItemButton onClick={() => handleNav('/ledgers/drivers')} selected={location.pathname.startsWith('/admin/ledgers/drivers')}>
                 <ListItemText primary="Driver Ledgers" />
               </ListItemButton>
-              <ListItemButton onClick={() => handleNav('/ledgers/parties')} selected={location.pathname.startsWith('/ledgers/parties')}>
+              <ListItemButton onClick={() => handleNav('/ledgers/parties')} selected={location.pathname.startsWith('/admin/ledgers/parties')}>
                 <ListItemText primary="Customer Ledgers" />
               </ListItemButton>
             </List>

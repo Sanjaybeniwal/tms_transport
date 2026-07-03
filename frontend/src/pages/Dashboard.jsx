@@ -104,19 +104,19 @@ const Dashboard = () => {
         <Typography variant="subtitle1" sx={{ fontWeight: 700, mr: 1, color: 'text.secondary' }}>
           Quick Tasks Shortcut:
         </Typography>
-        <Button variant="outlined" color="primary" startIcon={<AltRouteIcon />} onClick={() => navigate('/trips')}>
+        <Button variant="outlined" color="primary" startIcon={<AltRouteIcon />} onClick={() => navigate('/admin/trips')}>
           Formulate New Trip
         </Button>
-        <Button variant="outlined" color="secondary" startIcon={<LocalGasStationIcon />} onClick={() => navigate('/diesels')}>
+        <Button variant="outlined" color="secondary" startIcon={<LocalGasStationIcon />} onClick={() => navigate('/admin/diesels')}>
           Log Fuel Refuel
         </Button>
-        <Button variant="outlined" color="warning" startIcon={<TrendingDownIcon />} onClick={() => navigate('/expenses')}>
+        <Button variant="outlined" color="warning" startIcon={<TrendingDownIcon />} onClick={() => navigate('/admin/expenses')}>
           Log Trip Expense
         </Button>
-        <Button variant="outlined" color="info" startIcon={<LocalShippingIcon />} onClick={() => navigate('/vehicles')}>
+        <Button variant="outlined" color="info" startIcon={<LocalShippingIcon />} onClick={() => navigate('/admin/vehicles')}>
           Register Vehicle
         </Button>
-        <Button variant="outlined" color="success" startIcon={<PersonIcon />} onClick={() => navigate('/drivers')}>
+        <Button variant="outlined" color="success" startIcon={<PersonIcon />} onClick={() => navigate('/admin/drivers')}>
           Register Driver
         </Button>
       </Box>
