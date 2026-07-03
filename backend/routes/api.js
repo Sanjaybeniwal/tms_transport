@@ -244,6 +244,8 @@ router.get('/dashboard/alerts', vehicleController.getExpiryAlerts);
 // SETTINGS MODULE
 // ------------------------------------------
 router.post('/settings/logo', roleMiddleware('Super Admin', 'Admin', 'Manager'), settingsController.uploadLogo);
+router.get('/settings/contact', roleMiddleware('Super Admin', 'Admin', 'Manager'), settingsController.getContactInfo);
+router.put('/settings/contact', roleMiddleware('Super Admin', 'Admin', 'Manager'), settingsController.updateContactInfo);
 
 // ------------------------------------------
 // PAGE CMS MODULE

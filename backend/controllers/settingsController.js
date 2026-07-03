@@ -44,3 +44,103 @@ exports.uploadLogo = async (req, res, next) => {
     next(error);
   }
 };
+
+// ---- Contact Page Info ----
+
+const { Page } = require('../models');
+
+exports.getContactInfo = async (req, res, next) => {
+  try {
+    // Read contact details from a JSON config file
+    const configPath = path.join(__dirname, '../config/contact.json');
+    let contactData = {
+      address: '12, Transport Nagar, Phase-II, New Delhi - 110045',
+      phone: '+91-9876543210',
+      email: 'billing@tmsexpress.com'
+    };
+
+    if (fs.existsSync(configPath)) {
+      const raw = fs.readFileSync(configPath, 'utf8');
+      contactData = JSON.parse(raw);
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: contactData
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.updateContactInfo = async (req, res, next) => {
+  try {
+    const { address, phone, email } = req.body;
+
+    if (!address && !phone && !email) {
+      return next(new AppError('Please provide at least one field to update.', 400));
+    }
+
+    const contactData = {
+      address: address || '',
+      phone: phone || '',
+      email: email || ''
+    };
+
+    // Save to config file
+    const configPath = path.join(__dirname, '../config/contact.json');
+    fs.writeFileSync(configPath, JSON.stringify(contactData, null, 2));
+
+    // Also update the Contact page HTML in the database
+    const contactPage = await Page.findOne({ where: { slug: 'contact' } });
+    if (contactPage) {
+      const updatedHtml = `
+            <div class="bg-gray-50 py-16 px-6">
+              <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-12">
+                <div>
+                  <h1 class="text-4xl font-extrabold text-gray-900 mb-4">Get In Touch</h1>
+                  <p class="text-gray-600 mb-8">Have a shipment ready for Mumbai to Uttarakhand? Fill out the form or reach us via phone or email for a quick quote.</p>
+                  
+                  <div class="space-y-4">
+                    <div class="flex items-center gap-4">
+                      <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">📍</div>
+                      <div>
+                        <h4 class="font-bold">Main Yard Depot</h4>
+                        <p class="text-gray-600 text-sm">${contactData.address}</p>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                      <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">📞</div>
+                      <div>
+                        <h4 class="font-bold">Phone Number</h4>
+                        <p class="text-gray-600 text-sm">${contactData.phone}</p>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                      <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">✉</div>
+                      <div>
+                        <h4 class="font-bold">Email Support</h4>
+                        <p class="text-gray-600 text-sm">${contactData.email}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+                  <div id="contact-form-root"></div>
+                </div>
+              </div>
+            </div>
+          `;
+      contactPage.contentHtml = updatedHtml;
+      await contactPage.save();
+    }
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Contact information updated successfully.'
+    });
+  } catch (error) {
+    next(error);
+  }
+};

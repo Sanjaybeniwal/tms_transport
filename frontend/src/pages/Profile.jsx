@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   Box,
   Card,
@@ -11,11 +11,14 @@ import {
   Container,
   Grid,
   Avatar,
-  Paper
+  Paper,
+  TextField
 } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import BusinessIcon from '@mui/icons-material/Business';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
+import SaveIcon from '@mui/icons-material/Save';
 import { AuthContext } from '../context/AuthContext';
 import API from '../services/api';
 
@@ -26,20 +29,63 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [logoPreview, setLogoPreview] = useState('/logo.png');
 
+  // Contact info state
+  const [contactInfo, setContactInfo] = useState({
+    address: '',
+    phone: '',
+    email: ''
+  });
+  const [contactLoading, setContactLoading] = useState(false);
+  const [contactSuccess, setContactSuccess] = useState('');
+  const [contactError, setContactError] = useState('');
+
   // Check if the current user role is authorized to change the logo
   const canModifyBranding = ['Super Admin', 'Admin', 'Manager'].includes(user?.role);
+
+  // Load contact info on mount
+  useEffect(() => {
+    if (canModifyBranding) {
+      loadContactInfo();
+    }
+  }, []);
+
+  const loadContactInfo = async () => {
+    try {
+      const response = await API.settings.getContactInfo();
+      if (response.data.status === 'success') {
+        setContactInfo(response.data.data);
+      }
+    } catch (err) {
+      console.error('Failed to load contact info', err);
+    }
+  };
+
+  const handleSaveContact = async () => {
+    setContactLoading(true);
+    setContactSuccess('');
+    setContactError('');
+    try {
+      const response = await API.settings.updateContactInfo(contactInfo);
+      if (response.data.status === 'success') {
+        setContactSuccess('Contact page details updated successfully! Changes are live on the public website.');
+      }
+    } catch (err) {
+      console.error(err);
+      setContactError(err.response?.data?.message || 'Failed to update contact details.');
+    } finally {
+      setContactLoading(false);
+    }
+  };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validate file type
     if (!file.type.match('image.*')) {
       setErrorMsg('Please select an image file (PNG, JPG, or JPEG).');
       return;
     }
 
-    // Convert to base64
     const reader = new FileReader();
     reader.onload = async (event) => {
       const base64Data = event.target.result;
@@ -47,13 +93,11 @@ const Profile = () => {
       setSuccessMsg('');
       setErrorMsg('');
 
-      // Auto-upload on file selection
       setLoading(true);
       try {
         const response = await API.settings.uploadLogo({ logo: base64Data });
         if (response.data.status === 'success') {
           setSuccessMsg('Company logo uploaded and updated successfully!');
-          // Force all header logo images to refresh by appending a timestamp query param
           const imgElements = document.querySelectorAll('img[alt="BUTS Logo"]');
           imgElements.forEach(img => {
             img.src = `/logo.png?t=${new Date().getTime()}`;
@@ -132,7 +176,6 @@ const Profile = () => {
               {errorMsg && <Alert severity="error" sx={{ mb: 3 }}>{errorMsg}</Alert>}
 
               <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-                {/* Logo Preview Area */}
                 <Paper
                   variant="outlined"
                   sx={{
@@ -156,7 +199,7 @@ const Profile = () => {
                     alt="Logo Preview"
                     onError={(e) => {
                       e.target.onerror = null;
-                      e.target.src = '/logo.png'; // Fallback
+                      e.target.src = '/logo.png';
                     }}
                     style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }}
                   />
@@ -196,6 +239,76 @@ const Profile = () => {
             </CardContent>
           </Card>
         </Grid>
+
+        {/* Contact Page Details Card */}
+        {canModifyBranding && (
+          <Grid item xs={12}>
+            <Card>
+              <CardContent sx={{ p: 4 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
+                  <Avatar sx={{ bgcolor: '#059669' }}><ContactPhoneIcon /></Avatar>
+                  <Box>
+                    <Typography variant="h5" sx={{ fontWeight: 700 }}>
+                      Contact Page Details
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Update the address, phone number, and email displayed on the public Contact Us page.
+                    </Typography>
+                  </Box>
+                </Box>
+
+                <Divider sx={{ my: 3 }} />
+
+                {contactSuccess && <Alert severity="success" sx={{ mb: 3 }}>{contactSuccess}</Alert>}
+                {contactError && <Alert severity="error" sx={{ mb: 3 }}>{contactError}</Alert>}
+
+                <Grid container spacing={3}>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Office / Depot Address"
+                      placeholder="E.g., 12, Transport Nagar, Phase-II, New Delhi - 110045"
+                      value={contactInfo.address}
+                      onChange={(e) => setContactInfo({ ...contactInfo, address: e.target.value })}
+                      multiline
+                      rows={2}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Phone Number"
+                      placeholder="E.g., +91-9876543210"
+                      value={contactInfo.phone}
+                      onChange={(e) => setContactInfo({ ...contactInfo, phone: e.target.value })}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Email Address"
+                      placeholder="E.g., billing@tmsexpress.com"
+                      value={contactInfo.email}
+                      onChange={(e) => setContactInfo({ ...contactInfo, email: e.target.value })}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Button
+                      variant="contained"
+                      color="success"
+                      startIcon={contactLoading ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />}
+                      disabled={contactLoading}
+                      onClick={handleSaveContact}
+                      size="large"
+                    >
+                      {contactLoading ? 'Saving...' : 'Save Contact Details'}
+                    </Button>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
+          </Grid>
+        )}
       </Grid>
     </Container>
   );

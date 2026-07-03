@@ -182,7 +182,9 @@ const API = {
 
   // Settings
   settings: {
-    uploadLogo: (data) => axios.post('/api/v1/settings/logo', data)
+    uploadLogo: (data) => axios.post('/api/v1/settings/logo', data),
+    getContactInfo: () => axios.get('/api/v1/settings/contact'),
+    updateContactInfo: (data) => axios.put('/api/v1/settings/contact', data)
   },
 
   // Pages CMS
