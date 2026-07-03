@@ -227,10 +227,11 @@ const PageManager = () => {
       // 2. Transpile and execute React script if present
       if (editPage.contentReact) {
         if (!window.Babel) {
-          await new Promise((resolve) => {
+          await new Promise((resolve, reject) => {
             const script = document.createElement('script');
-            script.src = 'https://unpkg.com/@babel/standalone/babel.min.js';
+            script.src = '/babel.min.js';
             script.onload = resolve;
+            script.onerror = () => reject(new Error('Failed to load local Babel compiler.'));
             document.head.appendChild(script);
           });
         }

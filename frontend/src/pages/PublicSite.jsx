@@ -90,10 +90,11 @@ const PublicSite = () => {
       if (page.contentReact) {
         // Load Babel standalone script if not loaded
         if (!window.Babel) {
-          await new Promise((resolve) => {
+          await new Promise((resolve, reject) => {
             const script = document.createElement('script');
-            script.src = 'https://unpkg.com/@babel/standalone/babel.min.js';
+            script.src = '/babel.min.js';
             script.onload = resolve;
+            script.onerror = () => reject(new Error('Failed to load local Babel compiler.'));
             document.head.appendChild(script);
           });
         }
@@ -143,6 +144,13 @@ const PublicSite = () => {
           );
         } catch (err) {
           console.warn('React script execution error:', err);
+          const errDiv = document.createElement('div');
+          errDiv.className = 'max-w-4xl mx-auto my-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm font-sans';
+          errDiv.innerHTML = `
+            <div style="font-weight: 700; margin-bottom: 4px;">⚠️ React Widget Render Error:</div>
+            <div style="font-family: monospace; white-space: pre-wrap;">${err.stack || err.message}</div>
+          `;
+          container.appendChild(errDiv);
         }
       }
     };
