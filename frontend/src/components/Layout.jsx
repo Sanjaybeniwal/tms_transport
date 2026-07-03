@@ -137,13 +137,17 @@ const Layout = () => {
             >
               <MenuIcon />
             </IconButton>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <img src="/logo.png" alt="BUTS Logo" style={{ height: '85px', marginTop: '-20px', marginBottom: '-20px', objectFit: 'contain' }} />
-              <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 800, letterSpacing: '-0.02em', color: '#0f172a' }}>
-                BUTS Express
-              </Typography>
-            </Box>
-          </Box>
+             <Box 
+              component={Link} 
+              to="/admin" 
+              sx={{ display: 'flex', alignItems: 'center', gap: 1.5, textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
+             >
+               <img src="/logo.png" alt="BUTS Logo" style={{ height: '85px', marginTop: '-20px', marginBottom: '-20px', objectFit: 'contain' }} />
+               <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 800, letterSpacing: '-0.02em', color: '#0f172a' }}>
+                 BUTS Express
+               </Typography>
+             </Box>
+           </Box>
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             {/* Expiry Notifications bell */}
