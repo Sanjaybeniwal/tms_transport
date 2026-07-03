@@ -223,163 +223,437 @@ const Layout = () => {
         variant="permanent"
         open={open}
         sx={{
-          width: open ? drawerWidth : 60,
+          width: open ? drawerWidth : 70,
           flexShrink: 0,
           '& .MuiDrawer-paper': {
-            width: open ? drawerWidth : 60,
+            width: open ? drawerWidth : 70,
             boxSizing: 'border-box',
             overflowX: 'hidden',
             transition: 'width 0.2s ease-in-out',
             mt: '64px',
             borderRight: '1px solid #e2e8f0',
-            height: 'calc(100vh - 64px)'
+            height: 'calc(100vh - 64px)',
+            backgroundColor: '#ffffff',
+            boxShadow: '2px 0 12px rgba(15, 23, 42, 0.03)'
           }
         }}
       >
-        <List sx={{ px: 1 }}>
-          <ListItemButton onClick={() => handleNav('/')} selected={menuActive('/')}>
-            <ListItemIcon><DashboardIcon color={menuActive('/') ? "primary" : "inherit"} /></ListItemIcon>
-            {open && <ListItemText primary="Dashboard" />}
+        <List sx={{ px: 1.5, py: 2 }}>
+          <ListItemButton 
+            onClick={() => handleNav('/')} 
+            selected={menuActive('/')}
+            sx={{
+              borderRadius: '8px',
+              mb: 0.5,
+              py: 1,
+              '&.Mui-selected': {
+                background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                color: '#ffffff',
+                '& .MuiListItemIcon-root': { color: '#ffffff' },
+                '&:hover': { background: 'linear-gradient(90deg, #1d4ed8 0%, #1e40af 100%)' }
+              }
+            }}
+          >
+            <ListItemIcon><DashboardIcon color={menuActive('/') ? "inherit" : "primary"} /></ListItemIcon>
+            {open && <ListItemText primary="Dashboard" sx={{ '& .MuiTypography-root': { fontWeight: 700 } }} />}
           </ListItemButton>
         </List>
-        <Divider />
+        <Divider sx={{ mx: 2 }} />
 
         <List
-          sx={{ px: 1 }}
+          sx={{ px: 1.5, py: 1.5 }}
           subheader={
             open && (
-              <ListSubheader component="div" id="nested-list-subheader" sx={{ bgcolor: 'background.paper', py: 0.5, lineHeight: '24px' }}>
+              <ListSubheader component="div" id="nested-list-subheader" sx={{ bgcolor: 'transparent', py: 1, px: 1, fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'text.secondary' }}>
                 Fleet Registry
               </ListSubheader>
             )
           }
         >
           {/* Fleet masters group */}
-          <ListItemButton onClick={() => setOpenFleet(!openFleet)}>
-            <ListItemIcon><LocalShippingIcon /></ListItemIcon>
-            {open && <ListItemText primary="Master Registers" />}
+          <ListItemButton 
+            onClick={() => setOpenFleet(!openFleet)}
+            sx={{ borderRadius: '8px', mb: 0.5 }}
+          >
+            <ListItemIcon><LocalShippingIcon color="primary" /></ListItemIcon>
+            {open && <ListItemText primary="Master Registers" sx={{ '& .MuiTypography-root': { fontWeight: 600 } }} />}
             {open && (openFleet ? <ExpandLess /> : <ExpandMore />)}
           </ListItemButton>
           <Collapse in={openFleet && open} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding sx={{ pl: 2 }}>
-              <ListItemButton onClick={() => handleNav('/owners')} selected={menuActive('/owners')}>
+            <List component="div" disablePadding sx={{ pl: 1 }}>
+              <ListItemButton 
+                onClick={() => handleNav('/owners')} 
+                selected={menuActive('/owners')}
+                sx={{
+                  borderRadius: '8px',
+                  mb: 0.5,
+                  '&.Mui-selected': {
+                    background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                    color: '#ffffff',
+                    '& .MuiListItemIcon-root': { color: '#ffffff' },
+                    '&:hover': { background: 'linear-gradient(90deg, #1d4ed8 0%, #1e40af 100%)' }
+                  }
+                }}
+              >
                 <ListItemIcon><PeopleIcon fontSize="small" /></ListItemIcon>
                 <ListItemText primary="Vehicle Owners" />
               </ListItemButton>
-              <ListItemButton onClick={() => handleNav('/vehicles')} selected={menuActive('/vehicles')}>
+              <ListItemButton 
+                onClick={() => handleNav('/vehicles')} 
+                selected={menuActive('/vehicles')}
+                sx={{
+                  borderRadius: '8px',
+                  mb: 0.5,
+                  '&.Mui-selected': {
+                    background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                    color: '#ffffff',
+                    '& .MuiListItemIcon-root': { color: '#ffffff' },
+                    '&:hover': { background: 'linear-gradient(90deg, #1d4ed8 0%, #1e40af 100%)' }
+                  }
+                }}
+              >
                 <ListItemIcon><LocalShippingIcon fontSize="small" /></ListItemIcon>
                 <ListItemText primary="Vehicles List" />
               </ListItemButton>
-              <ListItemButton onClick={() => handleNav('/drivers')} selected={menuActive('/drivers')}>
+              <ListItemButton 
+                onClick={() => handleNav('/drivers')} 
+                selected={menuActive('/drivers')}
+                sx={{
+                  borderRadius: '8px',
+                  mb: 0.5,
+                  '&.Mui-selected': {
+                    background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                    color: '#ffffff',
+                    '& .MuiListItemIcon-root': { color: '#ffffff' },
+                    '&:hover': { background: 'linear-gradient(90deg, #1d4ed8 0%, #1e40af 100%)' }
+                  }
+                }}
+              >
                 <ListItemIcon><PersonIcon fontSize="small" /></ListItemIcon>
                 <ListItemText primary="Drivers List" />
               </ListItemButton>
-              <ListItemButton onClick={() => handleNav('/locations')} selected={menuActive('/locations')}>
+              <ListItemButton 
+                onClick={() => handleNav('/locations')} 
+                selected={menuActive('/locations')}
+                sx={{
+                  borderRadius: '8px',
+                  mb: 0.5,
+                  '&.Mui-selected': {
+                    background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                    color: '#ffffff',
+                    '& .MuiListItemIcon-root': { color: '#ffffff' },
+                    '&:hover': { background: 'linear-gradient(90deg, #1d4ed8 0%, #1e40af 100%)' }
+                  }
+                }}
+              >
                 <ListItemIcon><LocationOnIcon fontSize="small" /></ListItemIcon>
                 <ListItemText primary="Locations" />
               </ListItemButton>
-              <ListItemButton onClick={() => handleNav('/parties')} selected={menuActive('/parties')}>
+              <ListItemButton 
+                onClick={() => handleNav('/parties')} 
+                selected={menuActive('/parties')}
+                sx={{
+                  borderRadius: '8px',
+                  mb: 0.5,
+                  '&.Mui-selected': {
+                    background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                    color: '#ffffff',
+                    '& .MuiListItemIcon-root': { color: '#ffffff' },
+                    '&:hover': { background: 'linear-gradient(90deg, #1d4ed8 0%, #1e40af 100%)' }
+                  }
+                }}
+              >
                 <ListItemIcon><BusinessIcon fontSize="small" /></ListItemIcon>
                 <ListItemText primary="Customers / Parties" />
               </ListItemButton>
-              <ListItemButton onClick={() => handleNav('/expense-heads')} selected={menuActive('/expense-heads')}>
+              <ListItemButton 
+                onClick={() => handleNav('/expense-heads')} 
+                selected={menuActive('/expense-heads')}
+                sx={{
+                  borderRadius: '8px',
+                  mb: 0.5,
+                  '&.Mui-selected': {
+                    background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                    color: '#ffffff',
+                    '& .MuiListItemIcon-root': { color: '#ffffff' },
+                    '&:hover': { background: 'linear-gradient(90deg, #1d4ed8 0%, #1e40af 100%)' }
+                  }
+                }}
+              >
                 <ListItemIcon><ReceiptIcon fontSize="small" /></ListItemIcon>
                 <ListItemText primary="Expense Heads" />
               </ListItemButton>
-              <ListItemButton onClick={() => handleNav('/pumps')} selected={menuActive('/pumps')}>
+              <ListItemButton 
+                onClick={() => handleNav('/pumps')} 
+                selected={menuActive('/pumps')}
+                sx={{
+                  borderRadius: '8px',
+                  mb: 0.5,
+                  '&.Mui-selected': {
+                    background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                    color: '#ffffff',
+                    '& .MuiListItemIcon-root': { color: '#ffffff' },
+                    '&:hover': { background: 'linear-gradient(90deg, #1d4ed8 0%, #1e40af 100%)' }
+                  }
+                }}
+              >
                 <ListItemIcon><LocalGasStationIcon fontSize="small" /></ListItemIcon>
                 <ListItemText primary="Diesel Pumps" />
               </ListItemButton>
             </List>
           </Collapse>
         </List>
-        <Divider />
+        <Divider sx={{ mx: 2 }} />
 
         <List
-          sx={{ px: 1 }}
+          sx={{ px: 1.5, py: 1.5 }}
           subheader={
             open && (
-              <ListSubheader component="div" sx={{ bgcolor: 'background.paper', py: 0.5, lineHeight: '24px' }}>
+              <ListSubheader component="div" sx={{ bgcolor: 'transparent', py: 1, px: 1, fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'text.secondary' }}>
                 Core Operations
               </ListSubheader>
             )
           }
         >
-          <ListItemButton onClick={() => setOpenOps(!openOps)}>
-            <ListItemIcon><PaymentIcon /></ListItemIcon>
-            {open && <ListItemText primary="Transactions" />}
+          <ListItemButton 
+            onClick={() => setOpenOps(!openOps)}
+            sx={{ borderRadius: '8px', mb: 0.5 }}
+          >
+            <ListItemIcon><PaymentIcon color="primary" /></ListItemIcon>
+            {open && <ListItemText primary="Transactions" sx={{ '& .MuiTypography-root': { fontWeight: 600 } }} />}
             {open && (openOps ? <ExpandLess /> : <ExpandMore />)}
           </ListItemButton>
           <Collapse in={openOps && open} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding sx={{ pl: 2 }}>
-               <ListItemButton onClick={() => handleNav('/trips')} selected={menuActive('/trips')}>
+            <List component="div" disablePadding sx={{ pl: 1 }}>
+               <ListItemButton 
+                 onClick={() => handleNav('/trips')} 
+                 selected={menuActive('/trips')}
+                 sx={{
+                   borderRadius: '8px',
+                   mb: 0.5,
+                   '&.Mui-selected': {
+                     background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                     color: '#ffffff',
+                     '&:hover': { background: 'linear-gradient(90deg, #1d4ed8 0%, #1e40af 100%)' }
+                   }
+                 }}
+               >
                  <ListItemText primary="Delivery Trips Registry" />
                </ListItemButton>
-               <ListItemButton onClick={() => handleNav('/expenses')} selected={menuActive('/expenses')}>
+               <ListItemButton 
+                 onClick={() => handleNav('/expenses')} 
+                 selected={menuActive('/expenses')}
+                 sx={{
+                   borderRadius: '8px',
+                   mb: 0.5,
+                   '&.Mui-selected': {
+                     background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                     color: '#ffffff',
+                     '&:hover': { background: 'linear-gradient(90deg, #1d4ed8 0%, #1e40af 100%)' }
+                   }
+                 }}
+               >
                  <ListItemText primary="Trip & Vehicle Expenses" />
                </ListItemButton>
-               <ListItemButton onClick={() => handleNav('/diesels')} selected={menuActive('/diesels')}>
+               <ListItemButton 
+                 onClick={() => handleNav('/diesels')} 
+                 selected={menuActive('/diesels')}
+                 sx={{
+                   borderRadius: '8px',
+                   mb: 0.5,
+                   '&.Mui-selected': {
+                     background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                     color: '#ffffff',
+                     '&:hover': { background: 'linear-gradient(90deg, #1d4ed8 0%, #1e40af 100%)' }
+                   }
+                 }}
+               >
                  <ListItemText primary="Fuel Refueling Logs" />
                </ListItemButton>
-               <ListItemButton onClick={() => handleNav('/pump-payments')} selected={menuActive('/pump-payments')}>
+               <ListItemButton 
+                 onClick={() => handleNav('/pump-payments')} 
+                 selected={menuActive('/pump-payments')}
+                 sx={{
+                   borderRadius: '8px',
+                   mb: 0.5,
+                   '&.Mui-selected': {
+                     background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                     color: '#ffffff',
+                     '&:hover': { background: 'linear-gradient(90deg, #1d4ed8 0%, #1e40af 100%)' }
+                   }
+                 }}
+               >
                  <ListItemText primary="Fuel Station Payments" />
                </ListItemButton>
-               <ListItemButton onClick={() => handleNav('/driver-advances')} selected={menuActive('/driver-advances')}>
+               <ListItemButton 
+                 onClick={() => handleNav('/driver-advances')} 
+                 selected={menuActive('/driver-advances')}
+                 sx={{
+                   borderRadius: '8px',
+                   mb: 0.5,
+                   '&.Mui-selected': {
+                     background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                     color: '#ffffff',
+                     '&:hover': { background: 'linear-gradient(90deg, #1d4ed8 0%, #1e40af 100%)' }
+                   }
+                 }}
+               >
                  <ListItemText primary="Driver Advances Log" />
                </ListItemButton>
-               <ListItemButton onClick={() => handleNav('/income-logs')} selected={menuActive('/income-logs')}>
+               <ListItemButton 
+                 onClick={() => handleNav('/income-logs')} 
+                 selected={menuActive('/income-logs')}
+                 sx={{
+                   borderRadius: '8px',
+                   mb: 0.5,
+                   '&.Mui-selected': {
+                     background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                     color: '#ffffff',
+                     '&:hover': { background: 'linear-gradient(90deg, #1d4ed8 0%, #1e40af 100%)' }
+                   }
+                 }}
+               >
                  <ListItemText primary="Freight Income Records" />
                </ListItemButton>
             </List>
           </Collapse>
         </List>
-        <Divider />
+        <Divider sx={{ mx: 2 }} />
 
         <List
-          sx={{ px: 1 }}
+          sx={{ px: 1.5, py: 1.5 }}
           subheader={
             open && (
-              <ListSubheader component="div" sx={{ bgcolor: 'background.paper', py: 0.5, lineHeight: '24px' }}>
+              <ListSubheader component="div" sx={{ bgcolor: 'transparent', py: 1, px: 1, fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'text.secondary' }}>
                 Financial Books
               </ListSubheader>
             )
           }
         >
-          <ListItemButton onClick={() => setOpenLedgers(!openLedgers)}>
-            <ListItemIcon><AccountBalanceIcon /></ListItemIcon>
-            {open && <ListItemText primary="Ledger Books" />}
+          <ListItemButton 
+            onClick={() => setOpenLedgers(!openLedgers)}
+            sx={{ borderRadius: '8px', mb: 0.5 }}
+          >
+            <ListItemIcon><AccountBalanceIcon color="primary" /></ListItemIcon>
+            {open && <ListItemText primary="Ledger Books" sx={{ '& .MuiTypography-root': { fontWeight: 600 } }} />}
             {open && (openLedgers ? <ExpandLess /> : <ExpandMore />)}
           </ListItemButton>
           <Collapse in={openLedgers && open} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding sx={{ pl: 2 }}>
-              <ListItemButton onClick={() => handleNav('/ledgers/pumps')} selected={location.pathname.startsWith('/admin/ledgers/pumps')}>
+            <List component="div" disablePadding sx={{ pl: 1 }}>
+              <ListItemButton 
+                onClick={() => handleNav('/ledgers/pumps')} 
+                selected={location.pathname.startsWith('/admin/ledgers/pumps')}
+                sx={{
+                  borderRadius: '8px',
+                  mb: 0.5,
+                  '&.Mui-selected': {
+                    background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                    color: '#ffffff',
+                    '&:hover': { background: 'linear-gradient(90deg, #1d4ed8 0%, #1e40af 100%)' }
+                  }
+                }}
+              >
                 <ListItemText primary="Pump Ledgers" />
               </ListItemButton>
-              <ListItemButton onClick={() => handleNav('/ledgers/vehicles')} selected={location.pathname.startsWith('/admin/ledgers/vehicles')}>
+              <ListItemButton 
+                onClick={() => handleNav('/ledgers/vehicles')} 
+                selected={location.pathname.startsWith('/admin/ledgers/vehicles')}
+                sx={{
+                  borderRadius: '8px',
+                  mb: 0.5,
+                  '&.Mui-selected': {
+                    background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                    color: '#ffffff',
+                    '&:hover': { background: 'linear-gradient(90deg, #1d4ed8 0%, #1e40af 100%)' }
+                  }
+                }}
+              >
                 <ListItemText primary="Vehicle Ledgers" />
               </ListItemButton>
-              <ListItemButton onClick={() => handleNav('/ledgers/owners')} selected={location.pathname.startsWith('/admin/ledgers/owners')}>
+              <ListItemButton 
+                onClick={() => handleNav('/ledgers/owners')} 
+                selected={location.pathname.startsWith('/admin/ledgers/owners')}
+                sx={{
+                  borderRadius: '8px',
+                  mb: 0.5,
+                  '&.Mui-selected': {
+                    background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                    color: '#ffffff',
+                    '&:hover': { background: 'linear-gradient(90deg, #1d4ed8 0%, #1e40af 100%)' }
+                  }
+                }}
+              >
                 <ListItemText primary="Owner Ledgers" />
               </ListItemButton>
-              <ListItemButton onClick={() => handleNav('/ledgers/drivers')} selected={location.pathname.startsWith('/admin/ledgers/drivers')}>
+              <ListItemButton 
+                onClick={() => handleNav('/ledgers/drivers')} 
+                selected={location.pathname.startsWith('/admin/ledgers/drivers')}
+                sx={{
+                  borderRadius: '8px',
+                  mb: 0.5,
+                  '&.Mui-selected': {
+                    background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                    color: '#ffffff',
+                    '&:hover': { background: 'linear-gradient(90deg, #1d4ed8 0%, #1e40af 100%)' }
+                  }
+                }}
+              >
                 <ListItemText primary="Driver Ledgers" />
               </ListItemButton>
-              <ListItemButton onClick={() => handleNav('/ledgers/parties')} selected={location.pathname.startsWith('/admin/ledgers/parties')}>
+              <ListItemButton 
+                onClick={() => handleNav('/ledgers/parties')} 
+                selected={location.pathname.startsWith('/admin/ledgers/parties')}
+                sx={{
+                  borderRadius: '8px',
+                  mb: 0.5,
+                  '&.Mui-selected': {
+                    background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                    color: '#ffffff',
+                    '&:hover': { background: 'linear-gradient(90deg, #1d4ed8 0%, #1e40af 100%)' }
+                  }
+                }}
+              >
                 <ListItemText primary="Customer Ledgers" />
               </ListItemButton>
             </List>
           </Collapse>
         </List>
-        <Divider />
+        <Divider sx={{ mx: 2 }} />
 
-        <List sx={{ px: 1 }}>
-          <ListItemButton onClick={() => handleNav('/reports')} selected={menuActive('/reports')}>
-            <ListItemIcon><BarChartIcon /></ListItemIcon>
-            {open && <ListItemText primary="Reports Center" />}
+        <List sx={{ px: 1.5, py: 1.5 }}>
+          <ListItemButton 
+            onClick={() => handleNav('/reports')} 
+            selected={menuActive('/reports')}
+            sx={{
+              borderRadius: '8px',
+              mb: 0.5,
+              '&.Mui-selected': {
+                background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                color: '#ffffff',
+                '& .MuiListItemIcon-root': { color: '#ffffff' },
+                '&:hover': { background: 'linear-gradient(90deg, #1d4ed8 0%, #1e40af 100%)' }
+              }
+            }}
+          >
+            <ListItemIcon><BarChartIcon color={menuActive('/reports') ? "inherit" : "primary"} /></ListItemIcon>
+            {open && <ListItemText primary="Reports Center" sx={{ '& .MuiTypography-root': { fontWeight: 600 } }} />}
           </ListItemButton>
-          <ListItemButton onClick={() => handleNav('/pages-manager')} selected={menuActive('/pages-manager')}>
-            <ListItemIcon><BusinessIcon /></ListItemIcon>
-            {open && <ListItemText primary="Page CMS Builder" />}
+          <ListItemButton 
+            onClick={() => handleNav('/pages-manager')} 
+            selected={menuActive('/pages-manager')}
+            sx={{
+              borderRadius: '8px',
+              mb: 0.5,
+              '&.Mui-selected': {
+                background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                color: '#ffffff',
+                '& .MuiListItemIcon-root': { color: '#ffffff' },
+                '&:hover': { background: 'linear-gradient(90deg, #1d4ed8 0%, #1e40af 100%)' }
+              }
+            }}
+          >
+            <ListItemIcon><BusinessIcon color={menuActive('/pages-manager') ? "inherit" : "primary"} /></ListItemIcon>
+            {open && <ListItemText primary="Page CMS Builder" sx={{ '& .MuiTypography-root': { fontWeight: 600 } }} />}
           </ListItemButton>
         </List>
       </Drawer>

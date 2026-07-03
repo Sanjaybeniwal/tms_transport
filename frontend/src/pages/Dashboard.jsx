@@ -84,14 +84,20 @@ const Dashboard = () => {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <Typography variant="h4" sx={{ fontWeight: 800, mb: 4, letterSpacing: '-0.02em' }}>
-        Dashboard Analytics
-      </Typography>
+      {/* Welcome Banner / Header */}
+      <Box sx={{ mb: 4, p: 3, borderRadius: 3, background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)', color: '#ffffff', boxShadow: '0 10px 25px -5px rgba(37, 99, 235, 0.15)' }}>
+        <Typography variant="h4" sx={{ fontWeight: 800, mb: 1, letterSpacing: '-0.02em' }}>
+          Welcome back, {user?.name || 'Administrator'}
+        </Typography>
+        <Typography variant="body1" sx={{ opacity: 0.9 }}>
+          Here is your real-time fleet operations overview, active trip logs, and diesel station balances.
+        </Typography>
+      </Box>
 
       {/* Quick Actions Desk */}
       <Box sx={{ 
         mb: 4, 
-        p: 2.5, 
+        p: 3, 
         bgcolor: '#ffffff', 
         borderRadius: 3, 
         border: '1px solid #e2e8f0', 
@@ -99,24 +105,24 @@ const Dashboard = () => {
         flexWrap: 'wrap', 
         gap: 2, 
         alignItems: 'center',
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)'
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.02)'
       }}>
-        <Typography variant="subtitle1" sx={{ fontWeight: 700, mr: 1, color: 'text.secondary' }}>
-          Quick Tasks Shortcut:
+        <Typography variant="subtitle1" sx={{ fontWeight: 800, mr: 1, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 1 }}>
+          <span style={{ fontSize: '1.2rem' }}>⚡</span> Quick Tasks:
         </Typography>
-        <Button variant="outlined" color="primary" startIcon={<AltRouteIcon />} onClick={() => navigate('/admin/trips')}>
+        <Button variant="outlined" color="primary" sx={{ borderRadius: '8px', borderWidth: 2, '&:hover': { borderWidth: 2 } }} startIcon={<AltRouteIcon />} onClick={() => navigate('/admin/trips')}>
           Formulate New Trip
         </Button>
-        <Button variant="outlined" color="secondary" startIcon={<LocalGasStationIcon />} onClick={() => navigate('/admin/diesels')}>
+        <Button variant="outlined" color="secondary" sx={{ borderRadius: '8px', borderWidth: 2, '&:hover': { borderWidth: 2 } }} startIcon={<LocalGasStationIcon />} onClick={() => navigate('/admin/diesels')}>
           Log Fuel Refuel
         </Button>
-        <Button variant="outlined" color="warning" startIcon={<TrendingDownIcon />} onClick={() => navigate('/admin/expenses')}>
+        <Button variant="outlined" color="warning" sx={{ borderRadius: '8px', borderWidth: 2, '&:hover': { borderWidth: 2 } }} startIcon={<TrendingDownIcon />} onClick={() => navigate('/admin/expenses')}>
           Log Trip Expense
         </Button>
-        <Button variant="outlined" color="info" startIcon={<LocalShippingIcon />} onClick={() => navigate('/admin/vehicles')}>
+        <Button variant="outlined" color="info" sx={{ borderRadius: '8px', borderWidth: 2, '&:hover': { borderWidth: 2 } }} startIcon={<LocalShippingIcon />} onClick={() => navigate('/admin/vehicles')}>
           Register Vehicle
         </Button>
-        <Button variant="outlined" color="success" startIcon={<PersonIcon />} onClick={() => navigate('/admin/drivers')}>
+        <Button variant="outlined" color="success" sx={{ borderRadius: '8px', borderWidth: 2, '&:hover': { borderWidth: 2 } }} startIcon={<PersonIcon />} onClick={() => navigate('/admin/drivers')}>
           Register Driver
         </Button>
       </Box>
@@ -125,19 +131,43 @@ const Dashboard = () => {
       <Grid container spacing={3} sx={{ mb: 4 }}>
         {cardItems.map((item, index) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
-            <Card sx={{ borderLeft: `6px solid ${item.color}` }}>
-              <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Card sx={{ 
+              borderRadius: 3,
+              border: '1px solid #e2e8f0',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01)',
+              position: 'relative',
+              overflow: 'hidden',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '6px',
+                height: '100%',
+                backgroundColor: item.color
+              },
+              '&:hover': {
+                transform: 'translateY(-4px)',
+                boxShadow: '0 12px 20px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -2px rgba(0, 0, 0, 0.03)'
+              }
+            }}>
+              <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 3 }}>
                 <Box>
-                  <Typography variant="body2" color="text.secondary" gutterBottom sx={{ fontWeight: 600 }}>
+                  <Typography variant="body2" color="text.secondary" gutterBottom sx={{ fontWeight: 700, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.05em' }}>
                     {item.title}
                   </Typography>
-                  <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                  <Typography variant="h4" sx={{ fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em', mt: 0.5 }}>
                     {item.value}
                   </Typography>
                 </Box>
-                <Box sx={{ color: item.color, opacity: 0.8 }}>
+                <Avatar sx={{ 
+                  bgcolor: `${item.color}15`, 
+                  color: item.color,
+                  width: 56,
+                  height: 56
+                }}>
                   {item.icon}
-                </Box>
+                </Avatar>
               </CardContent>
             </Card>
           </Grid>
