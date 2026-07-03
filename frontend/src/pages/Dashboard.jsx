@@ -15,7 +15,8 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Button
+  Button,
+  Avatar
 } from '@mui/material';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import PeopleIcon from '@mui/icons-material/People';
