@@ -129,15 +129,6 @@ const PublicSite = () => {
           </ListItem>
         ))}
       </List>
-      <Divider sx={{ my: 2 }} />
-      <Button
-        variant="contained"
-        fullWidth
-        onClick={() => navigate('/buts/login')}
-        startIcon={<ArrowForwardIcon />}
-      >
-        Admin Portal
-      </Button>
     </Box>
   );
 
@@ -184,16 +175,6 @@ const PublicSite = () => {
               ))}
             </Box>
 
-            {/* Call To Action */}
-            <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
-              <Button
-                variant="contained"
-                onClick={() => navigate('/buts/login')}
-                endIcon={<ArrowForwardIcon />}
-                sx={{ borderRadius: 2, px: 3, fontWeight: 700 }}
-              >
-                Admin Portal
-              </Button>
             </Box>
           </Toolbar>
         </Container>
