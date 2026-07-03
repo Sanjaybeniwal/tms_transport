@@ -13,6 +13,7 @@ const PumpPayment = require('./PumpPayment');
 const DriverAdvance = require('./DriverAdvance');
 const IncomeLog = require('./IncomeLog');
 const Page = require('./Page');
+const Enquiry = require('./Enquiry');
 
 // Define Relationships
 
@@ -102,5 +103,6 @@ module.exports = {
   PumpPayment,
   DriverAdvance,
   IncomeLog,
-  Page
+  Page,
+  Enquiry
 };

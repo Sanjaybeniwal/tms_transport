@@ -25,9 +25,11 @@ const dashboardController = require('../controllers/dashboardController');
 const reportController = require('../controllers/reportController');
 const settingsController = require('../controllers/settingsController');
 const pageController = require('../controllers/pageController');
+const enquiryController = require('../controllers/enquiryController');
 
 // Public endpoints (no JWT required)
 router.get('/public/pages/:slug', pageController.getPageBySlug);
+router.post('/public/enquiries', enquiryController.createEnquiry);
 
 // All endpoints in this file are protected under JWT
 router.use(authMiddleware);
@@ -254,5 +256,12 @@ router.get('/pages', roleMiddleware('Super Admin', 'Admin', 'Manager'), pageCont
 router.post('/pages', roleMiddleware('Super Admin', 'Admin', 'Manager'), pageController.createPage);
 router.put('/pages/:id', roleMiddleware('Super Admin', 'Admin', 'Manager'), pageController.updatePage);
 router.delete('/pages/:id', roleMiddleware('Super Admin', 'Admin', 'Manager'), pageController.deletePage);
+
+// ------------------------------------------
+// ENQUIRY MANAGER MODULE
+// ------------------------------------------
+router.get('/enquiries', roleMiddleware('Super Admin', 'Admin', 'Manager', 'Accountant'), enquiryController.getAllEnquiries);
+router.patch('/enquiries/:id', roleMiddleware('Super Admin', 'Admin', 'Manager'), enquiryController.updateEnquiryStatus);
+router.delete('/enquiries/:id', roleMiddleware('Super Admin', 'Admin', 'Manager'), enquiryController.deleteEnquiry);
 
 module.exports = router;

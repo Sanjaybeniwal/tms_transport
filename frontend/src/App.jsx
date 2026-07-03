@@ -20,6 +20,7 @@ import GenericCrud from './pages/GenericCrud';
 import Profile from './pages/Profile';
 import PageManager from './pages/PageManager';
 import PublicSite from './pages/PublicSite';
+import EnquiryManager from './pages/EnquiryManager';
 
 // Protected Route Guard
 const ProtectedRoute = ({ children }) => {
@@ -119,6 +120,7 @@ const App = () => {
               <Route path="change-password" element={<ChangePassword />} />
               <Route path="profile" element={<Profile />} />
               <Route path="pages-manager" element={<PageManager />} />
+              <Route path="enquiries" element={<EnquiryManager />} />
               
               {/* Masters CRUD pages */}
               <Route path="owners" element={<Owners />} />

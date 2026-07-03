@@ -473,7 +473,26 @@ const ContactForm = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.name || !formData.message) return alert("Please fill out Name and Message.");
-    setSubmitted(true);
+    
+    fetch('/api/v1/public/enquiries', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(formData)
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === 'success') {
+        setSubmitted(true);
+      } else {
+        alert(data.message || 'Failed to submit booking request.');
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert('Network error. Please try again.');
+    });
   };
 
   if (submitted) {

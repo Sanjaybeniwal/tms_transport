@@ -194,6 +194,13 @@ const API = {
     create: (data) => axios.post('/api/v1/pages', data),
     update: (id, data) => axios.put(`/api/v1/pages/${id}`, data),
     delete: (id) => axios.delete(`/api/v1/pages/${id}`)
+  },
+
+  // Enquiries
+  enquiries: {
+    list: (params) => axios.get('/api/v1/enquiries', { params }),
+    updateStatus: (id, data) => axios.patch(`/api/v1/enquiries/${id}`, data),
+    delete: (id) => axios.delete(`/api/v1/enquiries/${id}`)
   }
 };
 

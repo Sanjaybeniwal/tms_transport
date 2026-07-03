@@ -40,6 +40,7 @@ import BarChartIcon from '@mui/icons-material/BarChart';
 import LogoutIcon from '@mui/icons-material/Logout';
 import WarningIcon from '@mui/icons-material/Warning';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
+import MailIcon from '@mui/icons-material/Mail';
 
 import { AuthContext } from '../context/AuthContext';
 import API from '../services/api';
@@ -60,8 +61,9 @@ const Layout = () => {
   const [openOps, setOpenOps] = useState(false);
   const [openLedgers, setOpenLedgers] = useState(false);
 
-  // Expiry Warning Alerts
+  // Expiry Warning Alerts & Unread Enquiries
   const [alerts, setAlerts] = useState([]);
+  const [enquiryCount, setEnquiryCount] = useState(0);
 
   useEffect(() => {
     const fetchAlerts = async () => {
@@ -87,8 +89,27 @@ const Layout = () => {
         console.error('Error fetching expiry warnings:', err);
       }
     };
+
+    const fetchEnquiryCount = async () => {
+      try {
+        const response = await API.enquiries.list({ status: 'New' });
+        setEnquiryCount(response.data.data.length);
+      } catch (err) {
+        console.error('Error fetching unread enquiries count:', err);
+      }
+    };
+
     if (user) {
       fetchAlerts();
+      fetchEnquiryCount();
+
+      // Poll every 30 seconds for live updates
+      const interval = setInterval(() => {
+        fetchAlerts();
+        fetchEnquiryCount();
+      }, 30000);
+
+      return () => clearInterval(interval);
     }
   }, [user]);
 
@@ -150,6 +171,18 @@ const Layout = () => {
            </Box>
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            {/* Enquiries Mail icon */}
+            <IconButton 
+              color="inherit" 
+              component={Link} 
+              to="/admin/enquiries" 
+              title="Enquiry Manager"
+            >
+              <Badge badgeContent={enquiryCount} color="error">
+                <MailIcon />
+              </Badge>
+            </IconButton>
+
             {/* Expiry Notifications bell */}
             <IconButton color="inherit" onClick={handleOpenNotifMenu}>
               <Badge badgeContent={alerts.length} color="error">
@@ -642,6 +675,19 @@ const Layout = () => {
             <ListItemIcon><BarChartIcon color={menuActive('/reports') ? "inherit" : "primary"} /></ListItemIcon>
             {open && <ListItemText primary="Reports Center" sx={{ '& .MuiTypography-root': { fontWeight: 600 } }} />}
           </ListItemButton>
+        </List>
+        <Divider sx={{ mx: 2 }} />
+
+        <List 
+          sx={{ px: 1.5, py: 1.5 }}
+          subheader={
+            open && (
+              <ListSubheader component="div" sx={{ bgcolor: 'transparent', py: 1, px: 1, fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'text.secondary' }}>
+                Web Portal & CMS
+              </ListSubheader>
+            )
+          }
+        >
           <ListItemButton 
             onClick={() => handleNav('/pages-manager')} 
             selected={menuActive('/pages-manager')}
@@ -658,6 +704,28 @@ const Layout = () => {
           >
             <ListItemIcon><BusinessIcon color={menuActive('/pages-manager') ? "inherit" : "primary"} /></ListItemIcon>
             {open && <ListItemText primary="Page CMS Builder" sx={{ '& .MuiTypography-root': { fontWeight: 600 } }} />}
+          </ListItemButton>
+
+          <ListItemButton 
+            onClick={() => handleNav('/enquiries')} 
+            selected={menuActive('/enquiries')}
+            sx={{
+              borderRadius: '8px',
+              mb: 0.5,
+              '&.Mui-selected': {
+                background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                color: '#ffffff',
+                '& .MuiListItemIcon-root': { color: '#ffffff' },
+                '&:hover': { background: 'linear-gradient(90deg, #1d4ed8 0%, #1e40af 100%)' }
+              }
+            }}
+          >
+            <ListItemIcon>
+              <Badge badgeContent={enquiryCount} color="error" variant="dot" invisible={enquiryCount === 0}>
+                <MailIcon color={menuActive('/enquiries') ? "inherit" : "primary"} />
+              </Badge>
+            </ListItemIcon>
+            {open && <ListItemText primary="Enquiry Manager" sx={{ '& .MuiTypography-root': { fontWeight: 600 } }} />}
           </ListItemButton>
         </List>
       </Drawer>
