@@ -61,8 +61,10 @@ const startServer = async () => {
     await sequelize.sync({ alter: true }); // Automatically updates schema tables safely
     logger.info('Database models synced successfully.');
 
-    // Seed default records
-    await seedDatabase();
+    // Seed default records only if explicitly requested
+    if (process.env.SEED_DB === 'true') {
+      await seedDatabase();
+    }
   } catch (error) {
     logger.error('Error syncing database schemas:', error);
   }
