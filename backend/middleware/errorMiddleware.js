@@ -34,8 +34,7 @@ module.exports = (err, req, res, next) => {
     sendErrorDev(err, res);
   } else {
     // Handle Sequelize validation errors or JWT errors
-    let error = { ...err };
-    error.message = err.message;
+    let error = err;
 
     if (err.name === 'SequelizeValidationError' || err.name === 'SequelizeUniqueConstraintError') {
       const messages = err.errors.map(el => el.message);
