@@ -223,14 +223,38 @@ const PageManager = () => {
         }
 
         try {
-          // Transpile JSX code using Babel
-          const compiledCode = window.Babel.transform(editPage.contentReact, {
+          // 1. Strip ES6 import statements from the code
+          const cleanedReact = editPage.contentReact
+            .replace(/^\s*import\s+[\s\S]*?from\s+['"].*?['"];?/gm, '')
+            .replace(/^\s*import\s+['"].*?['"];?/gm, '');
+
+          // 2. Transpile JSX code using Babel
+          const compiledCode = window.Babel.transform(cleanedReact, {
             presets: ['react']
           }).code;
 
-          // Wrap React and ReactDOM in scope and evaluate the code
-          const runScript = new Function('React', 'ReactDOM', compiledCode);
-          runScript(window.React, window.ReactDOM);
+          // 3. Wrap React, ReactDOM, and common hooks in scope and evaluate the code
+          const runScript = new Function(
+            'React',
+            'ReactDOM',
+            'useState',
+            'useEffect',
+            'useContext',
+            'useRef',
+            'useMemo',
+            'useCallback',
+            compiledCode
+          );
+          runScript(
+            window.React,
+            window.ReactDOM,
+            window.React.useState,
+            window.React.useEffect,
+            window.React.useContext,
+            window.React.useRef,
+            window.React.useMemo,
+            window.React.useCallback
+          );
         } catch (err) {
           console.warn('React Preview Error:', err);
           const errDiv = document.createElement('div');

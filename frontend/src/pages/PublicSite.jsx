@@ -87,14 +87,38 @@ const PublicSite = () => {
         }
 
         try {
-          // Transpile JSX code using Babel
-          const compiledCode = window.Babel.transform(page.contentReact, {
+          // 1. Strip ES6 import statements from the code
+          const cleanedReact = page.contentReact
+            .replace(/^\s*import\s+[\s\S]*?from\s+['"].*?['"];?/gm, '')
+            .replace(/^\s*import\s+['"].*?['"];?/gm, '');
+
+          // 2. Transpile JSX code using Babel
+          const compiledCode = window.Babel.transform(cleanedReact, {
             presets: ['react']
           }).code;
 
-          // Execute transpiled script
-          const runScript = new Function('React', 'ReactDOM', compiledCode);
-          runScript(window.React, window.ReactDOM);
+          // 3. Wrap React, ReactDOM, and common hooks in scope and evaluate the code
+          const runScript = new Function(
+            'React',
+            'ReactDOM',
+            'useState',
+            'useEffect',
+            'useContext',
+            'useRef',
+            'useMemo',
+            'useCallback',
+            compiledCode
+          );
+          runScript(
+            window.React,
+            window.ReactDOM,
+            window.React.useState,
+            window.React.useEffect,
+            window.React.useContext,
+            window.React.useRef,
+            window.React.useMemo,
+            window.React.useCallback
+          );
         } catch (err) {
           console.warn('React script execution error:', err);
         }
