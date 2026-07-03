@@ -24,6 +24,10 @@ const ledgerController = require('../controllers/ledgerController');
 const dashboardController = require('../controllers/dashboardController');
 const reportController = require('../controllers/reportController');
 const settingsController = require('../controllers/settingsController');
+const pageController = require('../controllers/pageController');
+
+// Public endpoints (no JWT required)
+router.get('/public/pages/:slug', pageController.getPageBySlug);
 
 // All endpoints in this file are protected under JWT
 router.use(authMiddleware);
@@ -233,12 +237,20 @@ router.get('/reports/pumps', roleMiddleware(...financialRoles), reportController
 router.get('/reports/income', roleMiddleware(...financialRoles), reportController.getIncomeReport);
 router.get('/reports/profit-loss', roleMiddleware(...financialRoles), reportController.getProfitLossReport);
 router.get('/reports/export', roleMiddleware(...financialRoles), reportController.exportReport);
-router.get('/dashboard/analytics', dashboardController.getDashboardData);
-router.get('/dashboard/alerts', dashboardController.getExpiryAlerts);
+router.get('/dashboard/analytics', dashboardController.getDashboardStats);
+router.get('/dashboard/alerts', vehicleController.getExpiryAlerts);
 
 // ------------------------------------------
 // SETTINGS MODULE
 // ------------------------------------------
 router.post('/settings/logo', roleMiddleware('Super Admin', 'Admin', 'Manager'), settingsController.uploadLogo);
+
+// ------------------------------------------
+// PAGE CMS MODULE
+// ------------------------------------------
+router.get('/pages', roleMiddleware('Super Admin', 'Admin', 'Manager'), pageController.getAllPages);
+router.post('/pages', roleMiddleware('Super Admin', 'Admin', 'Manager'), pageController.createPage);
+router.put('/pages/:id', roleMiddleware('Super Admin', 'Admin', 'Manager'), pageController.updatePage);
+router.delete('/pages/:id', roleMiddleware('Super Admin', 'Admin', 'Manager'), pageController.deletePage);
 
 module.exports = router;

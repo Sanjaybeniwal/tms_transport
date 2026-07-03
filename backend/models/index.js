@@ -12,6 +12,7 @@ const Diesel = require('./Diesel');
 const PumpPayment = require('./PumpPayment');
 const DriverAdvance = require('./DriverAdvance');
 const IncomeLog = require('./IncomeLog');
+const Page = require('./Page');
 
 // Define Relationships
 
@@ -100,5 +101,6 @@ module.exports = {
   Diesel,
   PumpPayment,
   DriverAdvance,
-  IncomeLog
+  IncomeLog,
+  Page
 };

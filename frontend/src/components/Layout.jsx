@@ -377,6 +377,10 @@ const Layout = () => {
             <ListItemIcon><BarChartIcon /></ListItemIcon>
             {open && <ListItemText primary="Reports Center" />}
           </ListItemButton>
+          <ListItemButton onClick={() => handleNav('/pages-manager')} selected={menuActive('/pages-manager')}>
+            <ListItemIcon><BusinessIcon /></ListItemIcon>
+            {open && <ListItemText primary="Page CMS Builder" />}
+          </ListItemButton>
         </List>
       </Drawer>
 

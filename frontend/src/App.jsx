@@ -18,6 +18,8 @@ import Ledgers from './pages/Ledgers';
 import Reports from './pages/Reports';
 import GenericCrud from './pages/GenericCrud';
 import Profile from './pages/Profile';
+import PageManager from './pages/PageManager';
+import PublicSite from './pages/PublicSite';
 
 // Protected Route Guard
 const ProtectedRoute = ({ children }) => {
@@ -110,12 +112,15 @@ const App = () => {
           <Routes>
             {/* Public Access */}
             <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+            <Route path="/site/:slug" element={<PublicSite />} />
+            <Route path="/site" element={<Navigate to="/site/home" replace />} />
 
             {/* Protected Routes inside layout */}
             <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
               <Route index element={<Dashboard />} />
               <Route path="change-password" element={<ChangePassword />} />
               <Route path="profile" element={<Profile />} />
+              <Route path="pages-manager" element={<PageManager />} />
               
               {/* Masters CRUD pages */}
               <Route path="owners" element={<Owners />} />

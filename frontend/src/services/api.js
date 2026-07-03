@@ -183,6 +183,15 @@ const API = {
   // Settings
   settings: {
     uploadLogo: (data) => axios.post('/api/v1/settings/logo', data)
+  },
+
+  // Pages CMS
+  pages: {
+    list: () => axios.get('/api/v1/pages'),
+    get: (id) => axios.get(`/api/v1/pages/${id}`),
+    create: (data) => axios.post('/api/v1/pages', data),
+    update: (id, data) => axios.put(`/api/v1/pages/${id}`, data),
+    delete: (id) => axios.delete(`/api/v1/pages/${id}`)
   }
 };
 

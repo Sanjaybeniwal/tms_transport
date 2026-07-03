@@ -1,4 +1,4 @@
-const { User, ExpenseHead, Location, Pump, Party, Vehicle, Driver, Trip, Diesel, Expense, IncomeLog, PumpPayment, DriverAdvance, Owner } = require('../models');
+const { User, ExpenseHead, Location, Pump, Party, Vehicle, Driver, Trip, Diesel, Expense, IncomeLog, PumpPayment, DriverAdvance, Owner, Page } = require('../models');
 const logger = require('../utils/logger');
 
 const seedDatabase = async () => {
@@ -294,6 +294,249 @@ const seedDatabase = async () => {
       });
 
       logger.info('Indian owners, fleet data, and transactions successfully seeded.');
+    }
+
+    // 15. Seed Public Pages
+    const pagesCount = await Page.count();
+    if (pagesCount === 0) {
+      await Page.bulkCreate([
+        {
+          title: 'Home',
+          slug: 'home',
+          contentHtml: `
+            <div class="hero-section bg-gradient-to-r from-blue-900 to-indigo-900 text-white py-24 px-6 text-center relative overflow-hidden">
+              <div class="max-w-4xl mx-auto relative z-10">
+                <h1 class="text-5xl md:text-6xl font-extrabold tracking-tight mb-6">Bombay Uttaranchal Tempo Service</h1>
+                <p class="text-xl md:text-2xl text-blue-200 mb-8 max-w-2xl mx-auto">Your most trusted transport partner connecting Mumbai and Mumbai Metropolitan Region to Uttaranchal and beyond.</p>
+                <div class="flex justify-center gap-4">
+                  <a href="/site/services" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition duration-200">Our Services</a>
+                  <a href="/site/contact" class="bg-white hover:bg-gray-100 text-blue-900 font-bold py-3 px-8 rounded-lg shadow-lg transition duration-200">Book Cargo</a>
+                </div>
+              </div>
+            </div>
+            <div class="py-16 px-6 max-w-6xl mx-auto">
+              <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">Why Choose BUTS Express?</h2>
+              <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition duration-200">
+                  <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 mb-4 text-2xl font-bold">1</div>
+                  <h3 class="text-xl font-bold text-gray-900 mb-2">MMR-to-Hill Specialized Route</h3>
+                  <p class="text-gray-600">Daily express scheduled cargo routes connecting Maharashtra centers directly to Uttaranchal locations.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition duration-200">
+                  <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 mb-4 text-2xl font-bold">2</div>
+                  <h3 class="text-xl font-bold text-gray-900 mb-2">Modern Fleet Management</h3>
+                  <p class="text-gray-600">GPS tracked, fully insured commercial tempos and trucks ensuring security of your premium shipments.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition duration-200">
+                  <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 mb-4 text-2xl font-bold">3</div>
+                  <h3 class="text-xl font-bold text-gray-900 mb-2">Professional Execution</h3>
+                  <p class="text-gray-600">Prompt delivery schedules, digitized document control, and automated billing ledgers for business partners.</p>
+                </div>
+              </div>
+            </div>
+          `,
+          contentReact: `// React Custom Widget Script for Home Page
+const WelcomeBanner = () => {
+  const [cargoCount, setCargoCount] = React.useState(12450);
+  
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      setCargoCount(prev => prev + Math.floor(Math.random() * 3));
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="bg-blue-50 border-l-4 border-blue-600 p-6 rounded-r-xl max-w-3xl mx-auto my-8">
+      <div className="flex items-center gap-3">
+        <span className="text-3xl">🚚</span>
+        <div>
+          <h4 className="text-lg font-bold text-blue-900">Live Delivery Counter</h4>
+          <p className="text-2xl font-extrabold text-blue-700">{cargoCount.toLocaleString()} Tons of Cargo Delivered</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Render entrypoint
+ReactDOM.render(<WelcomeBanner />, document.getElementById('react-root-welcome'));
+`,
+          metaDescription: 'Welcome to Bombay Uttaranchal Tempo Service. We provide top-class MM-to-Hill route logistics services.',
+          status: 'Active'
+        },
+        {
+          title: 'About',
+          slug: 'about',
+          contentHtml: `
+            <div class="bg-gray-50 py-16 px-6">
+              <div class="max-w-4xl mx-auto text-center mb-12">
+                <h1 class="text-4xl font-extrabold text-gray-900 mb-4">About Us</h1>
+                <p class="text-lg text-gray-600">Connecting Mumbai and Uttarakhand through professional cargo logistics services since 2012.</p>
+              </div>
+              <div class="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+                <h3 class="text-2xl font-bold text-blue-900 mb-4">Our History</h3>
+                <p class="text-gray-700 mb-6 leading-relaxed">
+                  Bombay Uttaranchal Tempo Service (BUTS) was founded with the mission of establishing a seamless, secure, and rapid highway cargo network between Maharashtra industrial hubs and the hill regions of Uttarakhand. Starting with just 3 tempos, we have expanded to over 50 commercial vehicles, serving multiple B2B logistics firms, local businesses, and individual clients.
+                </p>
+                <h3 class="text-2xl font-bold text-blue-900 mb-4">Our Mission & Values</h3>
+                <p class="text-gray-700 mb-6 leading-relaxed">
+                  We aim to exceed customer expectations by delivering cargo on-time, every time. Safety, integrity, and operational transparency are the core pillars of our enterprise.
+                </p>
+              </div>
+            </div>
+          `,
+          contentReact: ``,
+          metaDescription: 'Learn more about Bombay Uttaranchal Tempo Service history and values.',
+          status: 'Active'
+        },
+        {
+          title: 'Services',
+          slug: 'services',
+          contentHtml: `
+            <div class="py-16 px-6 max-w-5xl mx-auto">
+              <h1 class="text-4xl font-extrabold text-center text-gray-900 mb-4">Our Logistics Services</h1>
+              <p class="text-center text-gray-600 mb-12 max-w-2xl mx-auto">We offer customized transport configurations to match your cargo weight, dimensions, and timeline requirements.</p>
+              
+              <div class="grid md:grid-cols-2 gap-8">
+                <div class="border border-gray-200 rounded-xl p-6 hover:border-blue-500 transition duration-200">
+                  <h3 class="text-2xl font-bold text-blue-900 mb-2">Part Load (LTL) Services</h3>
+                  <p class="text-gray-600 mb-4">Cost-effective shipping solution for smaller cargo volumes. Ship goods securely on shared schedules.</p>
+                  <ul class="text-gray-700 space-y-1.5">
+                    <li>✓ Standardized packaging control</li>
+                    <li>✓ Weekly schedules to major towns</li>
+                    <li>✓ Digital warehouse receipt tracking</li>
+                  </ul>
+                </div>
+                <div class="border border-gray-200 rounded-xl p-6 hover:border-blue-500 transition duration-200">
+                  <h3 class="text-2xl font-bold text-blue-900 mb-2">Full Truck Load (FTL)</h3>
+                  <p class="text-gray-600 mb-4">Dedicated tempo or truck booking for bulk business cargo with customizable route schedules.</p>
+                  <ul class="text-gray-700 space-y-1.5">
+                    <li>✓ On-demand vehicle dispatch</li>
+                    <li>✓ Express direct transport route</li>
+                    <li>✓ Real-time GPS alerts</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          `,
+          contentReact: ``,
+          metaDescription: 'Browse the cargo, LTL, and FTL transportation services offered by BUTS.',
+          status: 'Active'
+        },
+        {
+          title: 'Contact',
+          slug: 'contact',
+          contentHtml: `
+            <div class="bg-gray-50 py-16 px-6">
+              <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-12">
+                <div>
+                  <h1 class="text-4xl font-extrabold text-gray-900 mb-4">Get In Touch</h1>
+                  <p class="text-gray-600 mb-8">Have a shipment ready for Mumbai to Uttarakhand? Fill out the form or reach us via phone or email for a quick quote.</p>
+                  
+                  <div class="space-y-4">
+                    <div class="flex items-center gap-4">
+                      <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">📍</div>
+                      <div>
+                        <h4 class="font-bold">Main Yard Depot</h4>
+                        <p class="text-gray-600 text-sm">12, Transport Nagar, Phase-II, New Delhi - 110045</p>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                      <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">📞</div>
+                      <div>
+                        <h4 class="font-bold">Phone Number</h4>
+                        <p class="text-gray-600 text-sm">+91-9876543210</p>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                      <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">✉</div>
+                      <div>
+                        <h4 class="font-bold">Email Support</h4>
+                        <p class="text-gray-600 text-sm">billing@tmsexpress.com</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+                  <div id="contact-form-root"></div>
+                </div>
+              </div>
+            </div>
+          `,
+          contentReact: `// React Contact Form widget
+const ContactForm = () => {
+  const [formData, setFormData] = React.useState({ name: '', email: '', message: '' });
+  const [submitted, setSubmitted] = React.useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!formData.name || !formData.message) return alert("Please fill out Name and Message.");
+    setSubmitted(true);
+  };
+
+  if (submitted) {
+    return (
+      <div className="text-center py-8">
+        <span className="text-5xl">✅</span>
+        <h3 className="text-xl font-bold text-gray-900 mt-4">Thank you!</h3>
+        <p className="text-gray-600 mt-2">Our booking agent will call you shortly with a rate quote.</p>
+        <button onClick={() => setSubmitted(false)} className="mt-6 text-blue-600 font-bold hover:underline">Send another message</button>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <h3 className="text-xl font-bold text-gray-900 mb-2">Request Transport Quote</h3>
+      <div>
+        <label className="block text-sm font-bold text-gray-700 mb-1">Your Name</label>
+        <input 
+          type="text" 
+          value={formData.name} 
+          onChange={e => setFormData({ ...formData, name: e.target.value })}
+          className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" 
+          placeholder="Enter your name" 
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-bold text-gray-700 mb-1">Email / Phone</label>
+        <input 
+          type="text" 
+          value={formData.email} 
+          onChange={e => setFormData({ ...formData, email: e.target.value })}
+          className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" 
+          placeholder="Email address or mobile" 
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-bold text-gray-700 mb-1">Cargo Details / Requirements</label>
+        <textarea 
+          value={formData.message} 
+          onChange={e => setFormData({ ...formData, message: e.target.value })}
+          rows="4" 
+          className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" 
+          placeholder="E.g., 2 Tons MM-to-Rishikesh LTL delivery next Tuesday"
+        ></textarea>
+      </div>
+      <button 
+        type="submit" 
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-lg transition duration-200 shadow-md"
+      >
+        Submit Booking Request
+      </button>
+    </form>
+  );
+};
+
+ReactDOM.render(<ContactForm />, document.getElementById('contact-form-root'));
+`,
+          metaDescription: 'Contact Bombay Uttaranchal Tempo Service for cargo bookings and price quotes.',
+          status: 'Active'
+        }
+      ]);
+      logger.info('Default Public Pages seeded successfully.');
     }
 
     logger.info('Database seeding completed successfully.');
