@@ -184,6 +184,7 @@ const API = {
   settings: {
     uploadLogo: (data) => axios.post('/api/v1/settings/logo', data),
     getContactInfo: () => axios.get('/api/v1/settings/contact'),
+    getPublicContactInfo: () => axios.get('/api/v1/public/settings/contact'),
     updateContactInfo: (data) => axios.put('/api/v1/settings/contact', data)
   },
 

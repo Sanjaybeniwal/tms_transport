@@ -31,6 +31,25 @@ const Reports = () => {
   const [loading, setLoading] = useState(false);
   const [reportData, setReportData] = useState(null);
   const [exportMessage, setExportMessage] = useState('');
+  const [companyContact, setCompanyContact] = useState({
+    address: '12, Transport Nagar, Phase-II, New Delhi - 110045',
+    phone: '+91-9876543210',
+    email: 'billing@tmsexpress.com'
+  });
+
+  useEffect(() => {
+    const fetchContactDetails = async () => {
+      try {
+        const res = await API.settings.getContactInfo();
+        if (res.data.status === 'success') {
+          setCompanyContact(res.data.data);
+        }
+      } catch (err) {
+        console.error('Failed to load contact info for reports:', err);
+      }
+    };
+    fetchContactDetails();
+  }, []);
 
   const handleGenerateReport = async () => {
     setLoading(true);
@@ -150,7 +169,12 @@ const Reports = () => {
           <title>${reportType.toUpperCase()} Report</title>
           <style>
             body { font-family: Arial, sans-serif; padding: 20px; color: #333; }
-            h1 { color: #1e3a8a; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; margin-bottom: 20px; }
+            .header-table { width: 100%; border: none; margin-bottom: 20px; border-collapse: collapse; }
+            .header-cell { border: none; padding: 0; }
+            .header-title { font-size: 24px; color: #1e3a8a; font-weight: bold; margin: 0; }
+            .header-subtitle { font-size: 14px; color: #475569; font-weight: bold; margin: 5px 0 0 0; }
+            .header-info { text-align: right; font-size: 11px; color: #64748b; line-height: 1.4; border: none; padding: 0; }
+            .report-title-bar { border-bottom: 2px solid #3b82f6; padding-bottom: 5px; margin-bottom: 20px; margin-top: 10px; }
             table { width: 100%; border-collapse: collapse; margin-top: 20px; }
             th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
             th { background-color: #f3f4f6; color: #1e3a8a; font-weight: bold; }
@@ -164,8 +188,23 @@ const Reports = () => {
           </style>
         </head>
         <body>
-          <h1>BUTS Express - ${reportType.replace('-', ' ').toUpperCase()} REPORT</h1>
-          <p>Generated on: ${new Date().toLocaleString()}</p>
+          <table class="header-table">
+            <tr>
+              <td class="header-cell">
+                <div class="header-title">BOMBAY UTTARANCHAL TEMPO SERVICE</div>
+                <div class="header-subtitle">BUTS Express Logistics</div>
+              </td>
+              <td class="header-cell header-info">
+                ${companyContact.address ? `<div style="white-space: pre-line;">📍 ${companyContact.address}</div>` : ''}
+                ${companyContact.phone ? `<div>📞 Phone: ${companyContact.phone}</div>` : ''}
+                ${companyContact.email ? `<div>✉ Email: ${companyContact.email}</div>` : ''}
+              </td>
+            </tr>
+          </table>
+          <div class="report-title-bar">
+            <h2 style="margin: 0; color: #1e3a8a; font-size: 18px;">${reportType.replace('-', ' ').toUpperCase()} REPORT</h2>
+            <div style="font-size: 11px; color: #64748b; margin-top: 4px;">Generated on: ${new Date().toLocaleString()}</div>
+          </div>
     `;
 
     if (reportType === 'profit-loss') {

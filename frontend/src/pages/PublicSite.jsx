@@ -20,6 +20,7 @@ import {
 import MenuIcon from '@mui/icons-material/Menu';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import axios from 'axios';
+import API from '../services/api';
 
 const PublicSite = () => {
   const { slug } = useParams();
@@ -30,6 +31,26 @@ const PublicSite = () => {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [footerContact, setFooterContact] = useState({
+    address: '12, Transport Nagar, Phase-II, New Delhi - 110045',
+    phone: '+91-9876543210',
+    email: 'billing@tmsexpress.com'
+  });
+
+  // Fetch company contact details on load for footer
+  useEffect(() => {
+    const fetchContactDetails = async () => {
+      try {
+        const res = await API.settings.getPublicContactInfo();
+        if (res.data.status === 'success') {
+          setFooterContact(res.data.data);
+        }
+      } catch (err) {
+        console.error('Failed to load contact info for public site footer:', err);
+      }
+    };
+    fetchContactDetails();
+  }, []);
 
   // Redirect guard for trailing slashes on /admin/
   useEffect(() => {
@@ -309,17 +330,25 @@ const PublicSite = () => {
                 ))}
               </Box>
             </Grid>
-            <Grid item xs={6} md={4}>
+             <Grid item xs={6} md={4}>
               <Typography variant="subtitle1" sx={{ color: '#ffffff', fontWeight: 700, mb: 2.5 }}>
-                Our Depot Address
+                Our Contact Info
               </Typography>
-              <Typography variant="body2" sx={{ lineHeight: 1.8, mb: 2 }}>
-                12, Transport Nagar, Phase-II<br />
-                New Delhi - 110045, India
-              </Typography>
-              <Typography variant="body2" sx={{ fontWeight: 600, color: '#ffffff' }}>
-                Phone: +91-9876543210
-              </Typography>
+              {footerContact.address && (
+                <Typography variant="body2" sx={{ lineHeight: 1.8, mb: 2, whiteSpace: 'pre-line' }}>
+                  📍 {footerContact.address}
+                </Typography>
+              )}
+              {footerContact.phone && (
+                <Typography variant="body2" sx={{ mb: 1, color: '#ffffff', fontWeight: 600 }}>
+                  📞 Phone: {footerContact.phone}
+                </Typography>
+              )}
+              {footerContact.email && (
+                <Typography variant="body2" sx={{ color: '#ffffff', fontWeight: 600 }}>
+                  ✉ Email: {footerContact.email}
+                </Typography>
+              )}
             </Grid>
           </Grid>
           <Divider sx={{ borderColor: '#1e293b', mb: 4 }} />

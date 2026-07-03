@@ -30,6 +30,7 @@ const enquiryController = require('../controllers/enquiryController');
 // Public endpoints (no JWT required)
 router.get('/public/pages/:slug', pageController.getPageBySlug);
 router.post('/public/enquiries', enquiryController.createEnquiry);
+router.get('/public/settings/contact', settingsController.getContactInfo);
 
 // All endpoints in this file are protected under JWT
 router.use(authMiddleware);
