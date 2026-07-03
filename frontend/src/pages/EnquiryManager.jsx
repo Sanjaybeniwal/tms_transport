@@ -97,11 +97,27 @@ const EnquiryManager = () => {
     setSearchQuery(e.target.value);
   };
 
-  const handleOpenDetail = (enquiry) => {
+  const handleOpenDetail = async (enquiry) => {
     setSelectedEnquiry(enquiry);
     setStatusInput(enquiry.status);
     setNotesInput(enquiry.notes || '');
     setIsDetailOpen(true);
+
+    // Auto-mark as In Progress (Seen) if current status is New
+    if (enquiry.status === 'New') {
+      try {
+        const response = await API.enquiries.updateStatus(enquiry.id, {
+          status: 'In Progress'
+        });
+        // Update local state list
+        setEnquiries(prev => prev.map(e => e.id === enquiry.id ? response.data.data : e));
+        setStatusInput('In Progress');
+        // Notify header layout badge count
+        window.dispatchEvent(new Event('enquiryUpdate'));
+      } catch (err) {
+        console.error('Failed to auto-mark enquiry as seen:', err);
+      }
+    }
   };
 
   const handleCloseDetail = () => {
