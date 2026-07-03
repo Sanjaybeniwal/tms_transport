@@ -441,7 +441,7 @@ const GenericCrud = ({ resource, title, fields }) => {
                 {/* Header */}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3, borderBottom: '2px solid #ef4444', pb: 2 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <img src="/logo.png" alt="BUTS Logo" style={{ height: '55px', objectFit: 'contain' }} />
+                    <img src="/logo.png" alt="BUTS Logo" style={{ height: '110px', marginTop: '-25px', marginBottom: '-25px', objectFit: 'contain' }} />
                     <Box>
                       <Typography variant="h5" sx={{ fontWeight: 800, color: 'error.main', mb: 0.5 }}>
                         Fuel Refueling Slip
@@ -582,7 +582,7 @@ const GenericCrud = ({ resource, title, fields }) => {
                 {/* Header */}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3, borderBottom: '2px solid #2e7d32', pb: 2 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <img src="/logo.png" alt="BUTS Logo" style={{ height: '55px', objectFit: 'contain' }} />
+                    <img src="/logo.png" alt="BUTS Logo" style={{ height: '110px', marginTop: '-25px', marginBottom: '-25px', objectFit: 'contain' }} />
                     <Box>
                       <Typography variant="h5" sx={{ fontWeight: 800, color: 'success.main', mb: 0.5 }}>
                         Fuel Payment Settlement Voucher

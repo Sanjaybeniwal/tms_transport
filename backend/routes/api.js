@@ -23,6 +23,7 @@ const incomeLogController = require('../controllers/incomeLogController');
 const ledgerController = require('../controllers/ledgerController');
 const dashboardController = require('../controllers/dashboardController');
 const reportController = require('../controllers/reportController');
+const settingsController = require('../controllers/settingsController');
 
 // All endpoints in this file are protected under JWT
 router.use(authMiddleware);
@@ -232,5 +233,12 @@ router.get('/reports/pumps', roleMiddleware(...financialRoles), reportController
 router.get('/reports/income', roleMiddleware(...financialRoles), reportController.getIncomeReport);
 router.get('/reports/profit-loss', roleMiddleware(...financialRoles), reportController.getProfitLossReport);
 router.get('/reports/export', roleMiddleware(...financialRoles), reportController.exportReport);
+router.get('/dashboard/analytics', dashboardController.getDashboardData);
+router.get('/dashboard/alerts', dashboardController.getExpiryAlerts);
+
+// ------------------------------------------
+// SETTINGS MODULE
+// ------------------------------------------
+router.post('/settings/logo', roleMiddleware('Super Admin', 'Admin', 'Manager'), settingsController.uploadLogo);
 
 module.exports = router;

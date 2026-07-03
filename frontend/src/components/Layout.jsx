@@ -138,7 +138,7 @@ const Layout = () => {
               <MenuIcon />
             </IconButton>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <img src="/logo.png" alt="BUTS Logo" style={{ height: '42px', objectFit: 'contain' }} />
+              <img src="/logo.png" alt="BUTS Logo" style={{ height: '85px', marginTop: '-20px', marginBottom: '-20px', objectFit: 'contain' }} />
               <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 800, letterSpacing: '-0.02em', color: '#0f172a' }}>
                 BUTS Express
               </Typography>
@@ -202,6 +202,10 @@ const Layout = () => {
                 </Box>
               </MenuItem>
               <Divider />
+              <MenuItem onClick={() => { handleCloseUserMenu(); navigate('/profile'); }}>
+                <ListItemIcon><PersonIcon fontSize="small" /></ListItemIcon>
+                Profile & Settings
+              </MenuItem>
               <MenuItem onClick={() => { handleCloseUserMenu(); navigate('/change-password'); }}>
                 <ListItemIcon><LockOpenIcon fontSize="small" /></ListItemIcon>
                 Change Password

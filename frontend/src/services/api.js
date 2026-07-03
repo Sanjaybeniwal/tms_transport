@@ -178,6 +178,11 @@ const API = {
     income: (params) => axios.get('/api/v1/reports/income', { params }),
     profitLoss: (params) => axios.get('/api/v1/reports/profit-loss', { params }),
     export: (params) => axios.get('/api/v1/reports/export', { params })
+  },
+
+  // Settings
+  settings: {
+    uploadLogo: (data) => axios.post('/api/v1/settings/logo', data)
   }
 };
 

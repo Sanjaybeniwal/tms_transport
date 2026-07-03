@@ -17,6 +17,7 @@ import Trips from './pages/Trips';
 import Ledgers from './pages/Ledgers';
 import Reports from './pages/Reports';
 import GenericCrud from './pages/GenericCrud';
+import Profile from './pages/Profile';
 
 // Protected Route Guard
 const ProtectedRoute = ({ children }) => {
@@ -114,6 +115,7 @@ const App = () => {
             <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
               <Route index element={<Dashboard />} />
               <Route path="change-password" element={<ChangePassword />} />
+              <Route path="profile" element={<Profile />} />
               
               {/* Masters CRUD pages */}
               <Route path="owners" element={<Owners />} />

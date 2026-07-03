@@ -60,7 +60,7 @@ const Login = () => {
               alignItems: 'center', 
               justifyContent: 'center'
             }}>
-              <img src="/logo.png" alt="BUTS Logo" style={{ height: '75px', objectFit: 'contain' }} />
+              <img src="/logo.png" alt="BUTS Logo" style={{ height: '140px', marginTop: '-20px', marginBottom: '-20px', objectFit: 'contain' }} />
             </Box>
 
             <Typography variant="h5" component="h1" gutterBottom sx={{ fontWeight: 700, color: 'text.primary' }}>

@@ -603,7 +603,7 @@ const Trips = () => {
                 {/* Header */}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3, borderBottom: '2px solid #1976d2', pb: 2 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <img src="/logo.png" alt="BUTS Logo" style={{ height: '60px', objectFit: 'contain' }} />
+                    <img src="/logo.png" alt="BUTS Logo" style={{ height: '120px', marginTop: '-30px', marginBottom: '-30px', objectFit: 'contain' }} />
                     <Box>
                       <Typography variant="h5" sx={{ fontWeight: 800, color: 'primary.main', mb: 0.5 }}>
                         Bombay Uttaranchal Tempo Service
