@@ -105,9 +105,11 @@ const PublicSite = () => {
             .replace(/^\s*import\s+[\s\S]*?from\s+['"].*?['"];?/gm, '')
             .replace(/^\s*import\s+['"].*?['"];?/gm, '');
 
-          // 2. Transpile JSX code using Babel
+          // 2. Transpile JSX code using Babel using classic runtime (to avoid automatic injection of import statements)
           const compiledCode = window.Babel.transform(cleanedReact, {
-            presets: ['react']
+            presets: [
+              ['react', { runtime: 'classic' }]
+            ]
           }).code;
 
           // Create a safe ReactDOM shim to handle ReactDOM.render with modern React 18 createRoot
