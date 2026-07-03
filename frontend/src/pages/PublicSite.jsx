@@ -174,8 +174,6 @@ const PublicSite = () => {
                 </RouterLink>
               ))}
             </Box>
-
-            </Box>
           </Toolbar>
         </Container>
       </AppBar>
