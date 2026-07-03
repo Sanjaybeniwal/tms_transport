@@ -5,7 +5,10 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token') || '');
+  const [token, setToken] = useState(() => {
+    const stored = localStorage.getItem('token');
+    return (stored && stored !== 'null' && stored !== 'undefined') ? stored : '';
+  });
   const [loading, setLoading] = useState(true);
 
   // Setup interceptors and fetch profile on load if token exists
