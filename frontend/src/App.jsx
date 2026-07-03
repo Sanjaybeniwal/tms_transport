@@ -149,6 +149,7 @@ const App = () => {
             </Route>
 
             {/* Public Website */}
+            <Route path="/site/:slug" element={<PublicSite />} />
             <Route path="/:slug" element={<PublicSite />} />
             <Route path="/" element={<PublicSite />} />
           </Routes>
