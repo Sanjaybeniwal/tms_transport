@@ -70,7 +70,23 @@ const Dashboard = () => {
     );
   }
 
-  const { cards, monthlyTrends, performance } = stats;
+  if (!stats) {
+    return (
+      <Box sx={{ p: 4, textAlign: 'center' }}>
+        <Typography color="error" variant="h6" sx={{ fontWeight: 700 }}>
+          Failed to load dashboard statistics.
+        </Typography>
+        <Typography color="text.secondary" sx={{ mt: 1, mb: 3 }}>
+          This could be due to a connection timeout or an invalid session.
+        </Typography>
+        <Button variant="contained" onClick={() => window.location.reload()}>
+          Retry Loading
+        </Button>
+      </Box>
+    );
+  }
+
+  const { cards, monthlyTrends, performance = [] } = stats;
 
   const cardItems = [
     { title: 'Total Vehicles', value: cards.totalVehicles, icon: <LocalShippingIcon fontSize="large" />, color: '#3b82f6' },
