@@ -31,6 +31,13 @@ const PublicSite = () => {
   const [errorMsg, setErrorMsg] = useState('');
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  // Redirect guard for trailing slashes on /admin/
+  useEffect(() => {
+    if (pageSlug === 'admin') {
+      navigate('/admin', { replace: true });
+    }
+  }, [pageSlug, navigate]);
+
   // Fetch page data from backend public route
   useEffect(() => {
     const fetchPage = async () => {
