@@ -440,13 +440,16 @@ const GenericCrud = ({ resource, title, fields }) => {
               <Paper id="receipt-print-area" elevation={3} sx={{ p: 4, bgcolor: '#fff', color: '#1e293b' }}>
                 {/* Header */}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3, borderBottom: '2px solid #ef4444', pb: 2 }}>
-                  <Box>
-                    <Typography variant="h5" sx={{ fontWeight: 800, color: 'error.main', mb: 0.5, display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <LocalGasStationIcon /> Fuel Refueling Slip
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      TMS Express Logistics Fuel Network
-                    </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <img src="/logo.png" alt="BUTS Logo" style={{ height: '55px', objectFit: 'contain' }} />
+                    <Box>
+                      <Typography variant="h5" sx={{ fontWeight: 800, color: 'error.main', mb: 0.5 }}>
+                        Fuel Refueling Slip
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Bombay Uttaranchal Tempo Service Fuel Network
+                      </Typography>
+                    </Box>
                   </Box>
                   <Box sx={{ textAlign: 'right' }}>
                     <Typography variant="h6" sx={{ fontWeight: 700, color: 'text.primary', mb: 0.5 }}>
@@ -578,13 +581,16 @@ const GenericCrud = ({ resource, title, fields }) => {
               <Paper id="receipt-print-area" elevation={3} sx={{ p: 4, bgcolor: '#fff', color: '#1e293b' }}>
                 {/* Header */}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3, borderBottom: '2px solid #2e7d32', pb: 2 }}>
-                  <Box>
-                    <Typography variant="h5" sx={{ fontWeight: 800, color: 'success.main', mb: 0.5, display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <PaymentIcon /> Fuel Payment Settlement Voucher
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      TMS Express Logistics Accounts Department
-                    </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <img src="/logo.png" alt="BUTS Logo" style={{ height: '55px', objectFit: 'contain' }} />
+                    <Box>
+                      <Typography variant="h5" sx={{ fontWeight: 800, color: 'success.main', mb: 0.5 }}>
+                        Fuel Payment Settlement Voucher
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Bombay Uttaranchal Tempo Service Accounts Department
+                      </Typography>
+                    </Box>
                   </Box>
                   <Box sx={{ textAlign: 'right' }}>
                     <Typography variant="h6" sx={{ fontWeight: 700, color: 'text.primary', mb: 0.5 }}>
@@ -682,7 +688,7 @@ const GenericCrud = ({ resource, title, fields }) => {
                         Authorized Signatory
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
-                        (TMS Express Logistics)
+                        (Bombay Uttaranchal Tempo Service)
                       </Typography>
                     </Box>
                   </Grid>

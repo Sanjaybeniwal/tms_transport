@@ -602,19 +602,22 @@ const Trips = () => {
               <Paper id="receipt-print-area" elevation={3} sx={{ p: 4, bgcolor: '#fff', color: '#1e293b' }}>
                 {/* Header */}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3, borderBottom: '2px solid #1976d2', pb: 2 }}>
-                  <Box>
-                    <Typography variant="h5" sx={{ fontWeight: 800, color: 'primary.main', mb: 0.5 }}>
-                      TMS Express Logistics
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      12, Transport Nagar, Phase-II
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      New Delhi - 110045
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Phone: +91-9876543210 | Email: billing@tmsexpress.com
-                    </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <img src="/logo.png" alt="BUTS Logo" style={{ height: '60px', objectFit: 'contain' }} />
+                    <Box>
+                      <Typography variant="h5" sx={{ fontWeight: 800, color: 'primary.main', mb: 0.5 }}>
+                        Bombay Uttaranchal Tempo Service
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        12, Transport Nagar, Phase-II
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        New Delhi - 110045
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Phone: +91-9876543210 | Email: billing@tmsexpress.com
+                      </Typography>
+                    </Box>
                   </Box>
                   <Box sx={{ textAlign: 'right' }}>
                     <Typography variant="h6" sx={{ fontWeight: 700, color: 'text.primary', mb: 0.5 }}>
@@ -710,7 +713,7 @@ const Trips = () => {
                   <Grid item xs={6}>
                     <Box sx={{ borderTop: '1px solid #cbd5e1', pt: 1, textAlign: 'center', width: '80%', mx: 'auto' }}>
                       <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                        For TMS Express Logistics
+                        For Bombay Uttaranchal Tempo Service
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
                         (Authorized Signatory)

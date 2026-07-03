@@ -55,25 +55,19 @@ const Login = () => {
         }}>
           <CardContent sx={{ p: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Box sx={{ 
-              width: 56, 
-              height: 56, 
-              borderRadius: '50%', 
-              bgcolor: 'primary.main', 
+              mb: 2,
               display: 'flex', 
               alignItems: 'center', 
-              justifyContent: 'center', 
-              color: '#ffffff',
-              mb: 2,
-              boxShadow: '0 4px 10px rgba(37, 99, 235, 0.3)'
+              justifyContent: 'center'
             }}>
-              <LocalShippingIcon sx={{ fontSize: 30 }} />
+              <img src="/logo.png" alt="BUTS Logo" style={{ height: '75px', objectFit: 'contain' }} />
             </Box>
 
             <Typography variant="h5" component="h1" gutterBottom sx={{ fontWeight: 700, color: 'text.primary' }}>
               Welcome back
             </Typography>
             <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 3 }}>
-              Transport & Logistics Management Portal
+              Bombay Uttaranchal Tempo Service Portal
             </Typography>
 
             {errorMsg && (

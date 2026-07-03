@@ -137,9 +137,12 @@ const Layout = () => {
             >
               <MenuIcon />
             </IconButton>
-            <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 700, letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: 1 }}>
-              <LocalShippingIcon /> TMS Express
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <img src="/logo.png" alt="BUTS Logo" style={{ height: '42px', objectFit: 'contain' }} />
+              <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 800, letterSpacing: '-0.02em', color: '#0f172a' }}>
+                BUTS Express
+              </Typography>
+            </Box>
           </Box>
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
