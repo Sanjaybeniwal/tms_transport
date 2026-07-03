@@ -69,11 +69,23 @@ const PublicSite = () => {
       const container = document.getElementById('react-root-anchor');
       if (!container) return;
 
-      // Clear any previous react content/error
-      container.innerHTML = `
-        <div id="react-root-welcome"></div>
-        <div id="contact-form-root"></div>
-      `;
+      // Clear the anchor fallback container
+      container.innerHTML = '';
+
+      // Ensure roots exist on the page without duplicates
+      let welcomeRoot = document.getElementById('react-root-welcome');
+      let contactRoot = document.getElementById('contact-form-root');
+
+      if (!welcomeRoot) {
+        welcomeRoot = document.createElement('div');
+        welcomeRoot.id = 'react-root-welcome';
+        container.appendChild(welcomeRoot);
+      }
+      if (!contactRoot) {
+        contactRoot = document.createElement('div');
+        contactRoot.id = 'contact-form-root';
+        container.appendChild(contactRoot);
+      }
 
       if (page.contentReact) {
         // Load Babel standalone script if not loaded
@@ -246,10 +258,7 @@ const PublicSite = () => {
             <div dangerouslySetInnerHTML={{ __html: page.contentHtml }} />
 
             {/* React code anchor container */}
-            <div id="react-root-anchor" class="max-w-6xl mx-auto px-6 mb-16">
-              <div id="react-root-welcome"></div>
-              <div id="contact-form-root"></div>
-            </div>
+            <div id="react-root-anchor" className="max-w-6xl mx-auto px-6 mb-16" />
           </Box>
         ) : null}
       </Box>

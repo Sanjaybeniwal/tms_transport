@@ -207,9 +207,22 @@ const PageManager = () => {
         <div class="preview-inner-html" style="font-family: 'Inter', sans-serif;">
           ${editPage.contentHtml}
         </div>
-        <div id="react-root-welcome"></div>
-        <div id="contact-form-root"></div>
       `;
+
+      // 2. Ensure roots exist without duplicates
+      let welcomeRoot = previewContainer.querySelector('#react-root-welcome');
+      let contactRoot = previewContainer.querySelector('#contact-form-root');
+
+      if (!welcomeRoot) {
+        welcomeRoot = document.createElement('div');
+        welcomeRoot.id = 'react-root-welcome';
+        previewContainer.appendChild(welcomeRoot);
+      }
+      if (!contactRoot) {
+        contactRoot = document.createElement('div');
+        contactRoot.id = 'contact-form-root';
+        previewContainer.appendChild(contactRoot);
+      }
 
       // 2. Transpile and execute React script if present
       if (editPage.contentReact) {
