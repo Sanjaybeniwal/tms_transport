@@ -137,9 +137,7 @@ const PublicSite = () => {
       }
     };
 
-    // Give it a tiny delay to ensure HTML is rendered first
-    const timer = setTimeout(executeReact, 300);
-    return () => clearTimeout(timer);
+    executeReact();
   }, [page, loading]);
 
   const handleDrawerToggle = () => {
