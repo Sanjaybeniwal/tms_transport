@@ -67,12 +67,285 @@ const Reports = () => {
     }
   };
 
+  const handleExportCSV = (reportType, reportData) => {
+    let csvRows = [];
+    
+    if (reportType === 'profit-loss') {
+      csvRows.push(["Category", "Amount"]);
+      csvRows.push(["Total Revenue", `₹${reportData.summary.totalIncome}`]);
+      csvRows.push(["Total Costs", `₹${reportData.summary.totalExpense}`]);
+      csvRows.push(["Net Operating Margins", `₹${reportData.summary.netProfit}`]);
+      csvRows.push(["Diesel Refueling", `₹${reportData.summary.dieselExpense}`]);
+      reportData.expensesBreakdown.forEach(exp => {
+        csvRows.push([exp.headName, `₹${exp.amount}`]);
+      });
+    } else if (reportType === 'trips') {
+      csvRows.push(["Trip No", "Vehicle", "Driver", "Customer", "Freight", "Advance", "Start Date", "Status"]);
+      reportData.forEach(row => {
+        csvRows.push([
+          row.tripNumber,
+          row.vehicle?.vehicleNumber || '-',
+          row.driver?.name || '-',
+          row.party?.name || '-',
+          `₹${row.freightAmount}`,
+          `₹${row.advance}`,
+          row.startDate,
+          row.status
+        ]);
+      });
+    } else if (reportType === 'diesel') {
+      csvRows.push(["Date", "Vehicle", "Pump Name", "Driver", "Quantity (Ltrs)", "Rate", "Total Amount"]);
+      reportData.forEach(row => {
+        csvRows.push([
+          row.date,
+          row.vehicle?.vehicleNumber || '-',
+          row.pump?.name || '-',
+          row.driver?.name || '-',
+          `${row.quantity}L`,
+          `₹${row.rate}`,
+          `₹${row.totalAmount}`
+        ]);
+      });
+    } else if (reportType === 'expenses') {
+      csvRows.push(["Date", "Expense Head", "Vehicle", "Amount", "Remarks"]);
+      reportData.forEach(row => {
+        csvRows.push([
+          row.date,
+          row.expenseHead?.name || '-',
+          row.vehicle?.vehicleNumber || '-',
+          `₹${row.amount}`,
+          row.remarks || ''
+        ]);
+      });
+    } else if (reportType === 'pumps') {
+      csvRows.push(["Pump Name", "Contact Person", "Opening Dues", "Diesel Purchases", "Payments Made", "Outstanding Balance"]);
+      reportData.forEach(row => {
+        csvRows.push([
+          row.name,
+          row.contactPerson || '-',
+          `₹${row.openingBalance}`,
+          `₹${row.totalDieselPurchased}`,
+          `₹${row.totalPayments}`,
+          `₹${row.outstandingBalance}`
+        ]);
+      });
+    }
+
+    const csvContent = csvRows.map(e => e.map(val => `"${String(val).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `${reportType}_report_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleExportPDF = (reportType, reportData) => {
+    const printWindow = window.open('', '_blank');
+    let html = `
+      <html>
+        <head>
+          <title>${reportType.toUpperCase()} Report</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; color: #333; }
+            h1 { color: #1e3a8a; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; margin-bottom: 20px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+            th { background-color: #f3f4f6; color: #1e3a8a; font-weight: bold; }
+            tr:nth-child(even) { background-color: #f9fafb; }
+            .summary-cards { display: flex; gap: 20px; margin-bottom: 30px; }
+            .card { flex: 1; padding: 15px; border-radius: 8px; border-left: 5px solid #3b82f6; background-color: #f8fafc; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+            .card.success { border-left-color: #10b981; }
+            .card.error { border-left-color: #ef4444; }
+            .card-title { font-size: 12px; color: #64748b; text-transform: uppercase; margin-bottom: 5px; }
+            .card-value { font-size: 24px; font-weight: bold; }
+          </style>
+        </head>
+        <body>
+          <h1>BUTS Express - ${reportType.replace('-', ' ').toUpperCase()} REPORT</h1>
+          <p>Generated on: ${new Date().toLocaleString()}</p>
+    `;
+
+    if (reportType === 'profit-loss') {
+      html += `
+        <div class="summary-cards">
+          <div class="card success">
+            <div class="card-title">Total Revenue</div>
+            <div class="card-value">₹${reportData.summary.totalIncome}</div>
+          </div>
+          <div class="card error">
+            <div class="card-title">Total Costs</div>
+            <div class="card-value">₹${reportData.summary.totalExpense}</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Net Operating Margins</div>
+            <div class="card-value">₹${reportData.summary.netProfit}</div>
+          </div>
+        </div>
+        <h2>Expenses Breakdown</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Expense Head / Ledger Account</th>
+              <th>Amount Outlay</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Diesel Refueling</strong></td>
+              <td>₹${reportData.summary.dieselExpense}</td>
+            </tr>
+            ${reportData.expensesBreakdown.map(exp => `
+              <tr>
+                <td>${exp.headName}</td>
+                <td>₹${exp.amount}</td>
+              </tr>
+            `).join('')}
+            <tr style="background-color: #e2e8f0; font-weight: bold;">
+              <td>Total Expenditures</td>
+              <td>₹${reportData.summary.totalExpense}</td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+    } else if (reportType === 'trips') {
+      html += `
+        <table>
+          <thead>
+            <tr>
+              <th>Trip No</th>
+              <th>Vehicle</th>
+              <th>Driver</th>
+              <th>Customer</th>
+              <th>Freight</th>
+              <th>Advance</th>
+              <th>Start Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${reportData.map(row => `
+              <tr>
+                <td><strong>${row.tripNumber}</strong></td>
+                <td>${row.vehicle?.vehicleNumber || '-'}</td>
+                <td>${row.driver?.name || '-'}</td>
+                <td>${row.party?.name || '-'}</td>
+                <td>₹${row.freightAmount}</td>
+                <td>₹${row.advance}</td>
+                <td>${row.startDate}</td>
+                <td>${row.status}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    } else if (reportType === 'diesel') {
+      html += `
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Vehicle</th>
+              <th>Pump Name</th>
+              <th>Driver</th>
+              <th>Quantity</th>
+              <th>Rate</th>
+              <th>Total Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${reportData.map(row => `
+              <tr>
+                <td>${row.date}</td>
+                <td><strong>${row.vehicle?.vehicleNumber || '-'}</strong></td>
+                <td>${row.pump?.name || '-'}</td>
+                <td>${row.driver?.name || '-'}</td>
+                <td>${row.quantity}L</td>
+                <td>₹${row.rate}</td>
+                <td><strong>₹${row.totalAmount}</strong></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    } else if (reportType === 'expenses') {
+      html += `
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Expense Head</th>
+              <th>Vehicle</th>
+              <th>Amount</th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${reportData.map(row => `
+              <tr>
+                <td>${row.date}</td>
+                <td><strong>${row.expenseHead?.name || '-'}</strong></td>
+                <td>${row.vehicle?.vehicleNumber || '-'}</td>
+                <td>₹${row.amount}</td>
+                <td>${row.remarks || '-'}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    } else if (reportType === 'pumps') {
+      html += `
+        <table>
+          <thead>
+            <tr>
+              <th>Pump Name</th>
+              <th>Contact Person</th>
+              <th>Opening Dues</th>
+              <th>Diesel Purchases</th>
+              <th>Payments Made</th>
+              <th>Outstanding Balance</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${reportData.map(row => `
+              <tr>
+                <td><strong>${row.name}</strong></td>
+                <td>${row.contactPerson || '-'}</td>
+                <td>₹${row.openingBalance}</td>
+                <td>₹${row.totalDieselPurchased}</td>
+                <td>₹${row.totalPayments}</td>
+                <td style="font-weight: bold; color: #1e3a8a;">₹${row.outstandingBalance}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    html += `
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(html);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+    }, 500);
+  };
+
   const handleExport = async (format) => {
-    try {
-      const res = await API.reports.export({ reportType, format });
-      setExportMessage(res.data.message);
-    } catch (err) {
-      console.error('Export error:', err);
+    if (!reportData) return;
+    
+    if (format === 'pdf') {
+      handleExportPDF(reportType, reportData);
+      setExportMessage('PDF report document generated successfully.');
+    } else if (format === 'excel') {
+      handleExportCSV(reportType, reportData);
+      setExportMessage('Excel/CSV spreadsheet generated and downloaded successfully.');
     }
   };
 
@@ -300,6 +573,40 @@ const Reports = () => {
                     ))}
                     {reportData.length === 0 && (
                       <TableRow><TableCell colSpan={7} align="center">No logs found</TableCell></TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Paper>
+          )}
+
+          {/* Render Expenses detailed report */}
+          {reportType === 'expenses' && (
+            <Paper sx={{ p: 3 }}>
+              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Expenses Detailed Report</Typography>
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Date</TableCell>
+                      <TableCell>Expense Category</TableCell>
+                      <TableCell>Vehicle Link</TableCell>
+                      <TableCell align="right">Amount Outlay</TableCell>
+                      <TableCell>Remarks</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {reportData.map((row) => (
+                      <TableRow key={row.id} hover>
+                        <TableCell>{row.date}</TableCell>
+                        <TableCell sx={{ fontWeight: 600 }}>{row.expenseHead?.name || '-'}</TableCell>
+                        <TableCell>{row.vehicle?.vehicleNumber || '-'}</TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 600, color: 'error.main' }}>₹{row.amount}</TableCell>
+                        <TableCell>{row.remarks || '-'}</TableCell>
+                      </TableRow>
+                    ))}
+                    {reportData.length === 0 && (
+                      <TableRow><TableCell colSpan={5} align="center">No logs found</TableCell></TableRow>
                     )}
                   </TableBody>
                 </Table>
