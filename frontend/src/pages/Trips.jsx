@@ -125,6 +125,27 @@ const Trips = () => {
   const [statusTrip, setStatusTrip] = useState(null);
   const [tempStatus, setTempStatus] = useState('');
 
+  // Company Contact Details
+  const [companyContact, setCompanyContact] = useState({
+    address: '12, Transport Nagar, Phase-II, New Delhi - 110045',
+    phone: '+91-9876543210',
+    email: 'billing@tmsexpress.com'
+  });
+
+  useEffect(() => {
+    const fetchContactDetails = async () => {
+      try {
+        const res = await API.settings.getContactInfo();
+        if (res.data.status === 'success') {
+          setCompanyContact(res.data.data);
+        }
+      } catch (err) {
+        console.error('Failed to load contact info for trip receipt:', err);
+      }
+    };
+    fetchContactDetails();
+  }, []);
+
   const handleOpenStatusDialog = (trip) => {
     setStatusTrip(trip);
     setTempStatus(trip.status);
@@ -683,14 +704,11 @@ const Trips = () => {
                       <Typography variant="h5" sx={{ fontWeight: 800, color: 'primary.main', mb: 0.5 }}>
                         Bombay Uttaranchal Tempo Service
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        12, Transport Nagar, Phase-II
+                      <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-line' }}>
+                        {companyContact.address}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        New Delhi - 110045
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Phone: +91-9876543210 | Email: billing@tmsexpress.com
+                      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                        Phone: {companyContact.phone} | Email: {companyContact.email}
                       </Typography>
                     </Box>
                   </Box>

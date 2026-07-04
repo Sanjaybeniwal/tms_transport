@@ -47,6 +47,27 @@ const Ledgers = () => {
   const handleOpenPrint = () => setOpenPrint(true);
   const handleClosePrint = () => setOpenPrint(false);
 
+  // Company Contact Details
+  const [companyContact, setCompanyContact] = useState({
+    address: '12, Transport Nagar, Phase-II, New Delhi - 110045',
+    phone: '+91-9876543210',
+    email: 'billing@tmsexpress.com'
+  });
+
+  useEffect(() => {
+    const fetchContactDetails = async () => {
+      try {
+        const res = await API.settings.getContactInfo();
+        if (res.data.status === 'success') {
+          setCompanyContact(res.data.data);
+        }
+      } catch (err) {
+        console.error('Failed to load contact info for ledgers:', err);
+      }
+    };
+    fetchContactDetails();
+  }, []);
+
   // Sync selection with router URL paths
   useEffect(() => {
     if (location.pathname.includes('/ledgers/vehicles')) setLedgerType('vehicle');
@@ -569,8 +590,8 @@ const Ledgers = () => {
                     <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.secondary', mt: 0.5 }}>
                       Leading Transport Contractors & Fleet Operators
                     </Typography>
-                    <Typography variant="caption" sx={{ display: 'block', color: 'text.secondary', mt: 0.5 }}>
-                      Regd. Office: Mumbai / New Delhi | Tel: +91 98925 XXXXX | Email: info@buts.in
+                    <Typography variant="caption" sx={{ display: 'block', color: 'text.secondary', mt: 0.5, whiteSpace: 'pre-line' }}>
+                      {companyContact.address} | Tel: {companyContact.phone} | Email: {companyContact.email}
                     </Typography>
                   </Box>
 
