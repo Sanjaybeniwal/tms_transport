@@ -27,22 +27,18 @@ const sendTokenResponse = (user, statusCode, res) => {
 };
 
 const sendOtpEmail = async (userEmail, otpCode) => {
-  const fs = require('fs');
-  const path = require('path');
   const nodemailer = require('nodemailer');
+  const { Setting } = require('../models');
 
-  const configPath = path.join(__dirname, '../config/contact.json');
   let otpEmail1 = 'sanjaybeniwal25@gmail.com';
   let otpEmail2 = 'skbeniwaljaat@gmail.com';
-  if (fs.existsSync(configPath)) {
-    try {
-      const raw = fs.readFileSync(configPath, 'utf8');
-      const parsed = JSON.parse(raw);
-      if (parsed.otpEmail1) otpEmail1 = parsed.otpEmail1;
-      if (parsed.otpEmail2) otpEmail2 = parsed.otpEmail2;
-    } catch (err) {
-      console.error('Error reading contact.json for OTP:', err);
-    }
+  try {
+    const s1 = await Setting.findByPk('otpEmail1');
+    const s2 = await Setting.findByPk('otpEmail2');
+    if (s1 && s1.value) otpEmail1 = s1.value;
+    if (s2 && s2.value) otpEmail2 = s2.value;
+  } catch (err) {
+    console.error('Error fetching OTP settings from database:', err);
   }
 
   try {

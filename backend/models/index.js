@@ -14,6 +14,7 @@ const DriverAdvance = require('./DriverAdvance');
 const IncomeLog = require('./IncomeLog');
 const Page = require('./Page');
 const Enquiry = require('./Enquiry');
+const Setting = require('./Setting');
 
 // Define Relationships
 
@@ -104,5 +105,6 @@ module.exports = {
   DriverAdvance,
   IncomeLog,
   Page,
-  Enquiry
+  Enquiry,
+  Setting
 };

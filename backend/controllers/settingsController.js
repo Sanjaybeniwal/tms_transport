@@ -47,25 +47,23 @@ exports.uploadLogo = async (req, res, next) => {
 
 // ---- Contact Page Info ----
 
-const { Page } = require('../models');
+const { Page, Setting } = require('../models');
 
 exports.getContactInfo = async (req, res, next) => {
   try {
-    // Read contact details from a JSON config file
-    const configPath = path.join(__dirname, '../config/contact.json');
-    let contactData = {
-      address: '12, Transport Nagar, Phase-II, New Delhi - 110045',
-      phone: '+91-9876543210',
-      email: 'billing@tmsexpress.com',
-      otpEmail1: 'sanjaybeniwal25@gmail.com',
-      otpEmail2: 'skbeniwaljaat@gmail.com'
-    };
+    const settings = await Setting.findAll();
+    const settingsMap = {};
+    settings.forEach(s => {
+      settingsMap[s.key] = s.value;
+    });
 
-    if (fs.existsSync(configPath)) {
-      const raw = fs.readFileSync(configPath, 'utf8');
-      const parsed = JSON.parse(raw);
-      contactData = { ...contactData, ...parsed };
-    }
+    const contactData = {
+      address: settingsMap['address'] !== undefined ? settingsMap['address'] : '12, Transport Nagar, Phase-II, New Delhi - 110045',
+      phone: settingsMap['phone'] !== undefined ? settingsMap['phone'] : '+91-9876543210',
+      email: settingsMap['email'] !== undefined ? settingsMap['email'] : 'billing@tmsexpress.com',
+      otpEmail1: settingsMap['otpEmail1'] !== undefined ? settingsMap['otpEmail1'] : 'sanjaybeniwal25@gmail.com',
+      otpEmail2: settingsMap['otpEmail2'] !== undefined ? settingsMap['otpEmail2'] : 'skbeniwaljaat@gmail.com'
+    };
 
     res.status(200).json({
       status: 'success',
@@ -84,19 +82,23 @@ exports.updateContactInfo = async (req, res, next) => {
       return next(new AppError('Please provide at least one field to update.', 400));
     }
 
-    const contactData = {
-      address: address || '',
-      phone: phone || '',
-      email: email || '',
-      otpEmail1: otpEmail1 || 'sanjaybeniwal25@gmail.com',
-      otpEmail2: otpEmail2 || 'skbeniwaljaat@gmail.com'
-    };
+    if (address !== undefined) {
+      await Setting.upsert({ key: 'address', value: address });
+    }
+    if (phone !== undefined) {
+      await Setting.upsert({ key: 'phone', value: phone });
+    }
+    if (email !== undefined) {
+      await Setting.upsert({ key: 'email', value: email });
+    }
+    if (otpEmail1 !== undefined) {
+      await Setting.upsert({ key: 'otpEmail1', value: otpEmail1 });
+    }
+    if (otpEmail2 !== undefined) {
+      await Setting.upsert({ key: 'otpEmail2', value: otpEmail2 });
+    }
 
-    // Save to config file
-    const configPath = path.join(__dirname, '../config/contact.json');
-    fs.writeFileSync(configPath, JSON.stringify(contactData, null, 2));
-
-    // Also update the Contact page HTML in the database
+    // Also update the Contact page HTML in the database for public site
     const contactPage = await Page.findOne({ where: { slug: 'contact' } });
     if (contactPage) {
       const updatedHtml = `
@@ -111,21 +113,21 @@ exports.updateContactInfo = async (req, res, next) => {
                       <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">📍</div>
                       <div>
                         <h4 class="font-bold">Main Yard Depot</h4>
-                        <p class="text-gray-600 text-sm">${contactData.address}</p>
+                        <p class="text-gray-600 text-sm">${address || ''}</p>
                       </div>
                     </div>
                     <div class="flex items-center gap-4">
                       <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">📞</div>
                       <div>
                         <h4 class="font-bold">Phone Number</h4>
-                        <p class="text-gray-600 text-sm">${contactData.phone}</p>
+                        <p class="text-gray-600 text-sm">${phone || ''}</p>
                       </div>
                     </div>
                     <div class="flex items-center gap-4">
                       <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">✉</div>
                       <div>
                         <h4 class="font-bold">Email Support</h4>
-                        <p class="text-gray-600 text-sm">${contactData.email}</p>
+                        <p class="text-gray-600 text-sm">${email || ''}</p>
                       </div>
                     </div>
                   </div>
@@ -143,7 +145,7 @@ exports.updateContactInfo = async (req, res, next) => {
 
     res.status(200).json({
       status: 'success',
-      message: 'Contact information updated successfully.'
+      message: 'Contact and OTP settings updated successfully in database.'
     });
   } catch (error) {
     next(error);
