@@ -19,12 +19,14 @@ import {
   TableHead,
   TableRow,
   Paper,
-  InputAdornment
+  InputAdornment,
+  LinearProgress
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import PrintIcon from '@mui/icons-material/Print';
+import SyncIcon from '@mui/icons-material/Sync';
 import { useForm, Controller } from 'react-hook-form';
 
 import API from '../services/api';
@@ -117,6 +119,45 @@ const Trips = () => {
   // Printing state
   const [openPrint, setOpenPrint] = useState(false);
   const [printTripData, setPrintTripData] = useState(null);
+
+  // Status update states
+  const [openStatusDialog, setOpenStatusDialog] = useState(false);
+  const [statusTrip, setStatusTrip] = useState(null);
+  const [tempStatus, setTempStatus] = useState('');
+
+  const handleOpenStatusDialog = (trip) => {
+    setStatusTrip(trip);
+    setTempStatus(trip.status);
+    setOpenStatusDialog(true);
+  };
+
+  const handleCloseStatusDialog = () => {
+    setOpenStatusDialog(false);
+    setStatusTrip(null);
+  };
+
+  const handleSaveStatus = async () => {
+    try {
+      const payload = {
+        tripNumber: statusTrip.tripNumber,
+        vehicleId: statusTrip.vehicleId || statusTrip.vehicle?.id,
+        driverId: statusTrip.driverId || statusTrip.driver?.id,
+        partyId: statusTrip.partyId || statusTrip.party?.id,
+        fromLocationId: statusTrip.fromLocationId || statusTrip.fromLocation?.id,
+        toLocationId: statusTrip.toLocationId || statusTrip.toLocation?.id,
+        freightAmount: statusTrip.freightAmount,
+        advance: statusTrip.advance,
+        startDate: statusTrip.startDate ? statusTrip.startDate.substring(0, 10) : '',
+        endDate: statusTrip.endDate ? statusTrip.endDate.substring(0, 10) : '',
+        status: tempStatus
+      };
+      await API.trips.update(statusTrip.id, payload);
+      fetchTrips();
+      handleCloseStatusDialog();
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const handleOpenPrint = (trip) => {
     setPrintTripData(trip);
@@ -359,6 +400,9 @@ const Trips = () => {
         searchPlaceholder="Search by trip number..."
         actions={(row) => (
           <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+            <IconButton size="small" color="warning" onClick={() => handleOpenStatusDialog(row)} title="Quick Update Status">
+              <SyncIcon fontSize="small" />
+            </IconButton>
             <IconButton size="small" color="primary" onClick={() => handleOpenPrint(row)} title="Print Receipt / Manifest">
               <PrintIcon fontSize="small" />
             </IconButton>
@@ -764,6 +808,72 @@ const Trips = () => {
         </DialogContent>
         <DialogActions className="non-printable">
           <Button onClick={handleClosePrint}>Close Preview</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Quick Status Lifecycle Dialog */}
+      <Dialog open={openStatusDialog} onClose={handleCloseStatusDialog} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ fontWeight: 800, bgcolor: '#f8fafc', borderBottom: '1px solid #e2e8f0', px: 3, py: 2 }}>
+          Update Trip Status - {statusTrip?.tripNumber}
+        </DialogTitle>
+        <DialogContent dividers sx={{ p: 3 }}>
+          <Box sx={{ mb: 4, mt: 1 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Transit Lifecycle Progress
+            </Typography>
+            
+            {/* Custom Processing/Progress bar */}
+            {statusTrip && (
+              <Box sx={{ mt: 1.5 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 700, color: 'text.primary' }}>
+                    Status: {tempStatus}
+                  </Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 700, color: 'text.primary' }}>
+                    {tempStatus === 'Pending' ? '25%' : tempStatus === 'Running' ? '65%' : '100%'}
+                  </Typography>
+                </Box>
+                <LinearProgress 
+                  variant="determinate" 
+                  value={tempStatus === 'Pending' ? 25 : tempStatus === 'Running' ? 65 : 100} 
+                  color={tempStatus === 'Pending' ? 'warning' : tempStatus === 'Running' ? 'primary' : tempStatus === 'Cancelled' ? 'error' : 'success'}
+                  sx={{ height: 10, borderRadius: 5, bgcolor: '#e2e8f0' }}
+                />
+              </Box>
+            )}
+          </Box>
+
+          <TextField
+            fullWidth
+            select
+            label="Lifecycle Status"
+            value={tempStatus}
+            onChange={(e) => setTempStatus(e.target.value)}
+          >
+            <MenuItem value="Pending">Pending (Awaiting dispatch)</MenuItem>
+            <MenuItem value="Running">Running (On route / Transit)</MenuItem>
+            <MenuItem value="Completed">Completed (Delivered & closed)</MenuItem>
+            <MenuItem value="Cancelled">Cancelled (Aborted / Inactive)</MenuItem>
+          </TextField>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, py: 2, bgcolor: '#f8fafc', borderTop: '1px solid #e2e8f0' }}>
+          <Button onClick={handleCloseStatusDialog} variant="outlined" sx={{ color: 'text.secondary', borderColor: '#cbd5e1', borderRadius: '8px', fontWeight: 600 }}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSaveStatus}
+            variant="contained"
+            sx={{
+              background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+              color: '#ffffff',
+              fontWeight: 700,
+              borderRadius: '8px',
+              px: 3,
+              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)'
+            }}
+          >
+            Update Lifecycle
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>
