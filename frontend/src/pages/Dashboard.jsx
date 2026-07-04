@@ -16,7 +16,9 @@ import {
   TableRow,
   Paper,
   Button,
-  Avatar
+  Avatar,
+  LinearProgress,
+  Chip
 } from '@mui/material';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import PeopleIcon from '@mui/icons-material/People';
@@ -137,38 +139,55 @@ const Dashboard = () => {
         </CardContent>
       </Card>
 
-      {/* Quick Actions Desk */}
-      <Box sx={{ 
-        mb: 4, 
-        p: 3, 
-        bgcolor: '#ffffff', 
-        borderRadius: 3, 
-        border: '1px solid #e2e8f0', 
-        display: 'flex', 
-        flexWrap: 'wrap', 
-        gap: 2, 
-        alignItems: 'center',
-        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.02)'
-      }}>
-        <Typography variant="subtitle1" sx={{ fontWeight: 800, mr: 1, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 1 }}>
-          <span style={{ fontSize: '1.2rem' }}>⚡</span> Quick Tasks:
-        </Typography>
-        <Button variant="outlined" color="primary" sx={{ borderRadius: '8px', borderWidth: 2, '&:hover': { borderWidth: 2 } }} startIcon={<AltRouteIcon />} onClick={() => navigate('/admin/trips')}>
-          Formulate New Trip
-        </Button>
-        <Button variant="outlined" color="secondary" sx={{ borderRadius: '8px', borderWidth: 2, '&:hover': { borderWidth: 2 } }} startIcon={<LocalGasStationIcon />} onClick={() => navigate('/admin/diesels')}>
-          Log Fuel Refuel
-        </Button>
-        <Button variant="outlined" color="warning" sx={{ borderRadius: '8px', borderWidth: 2, '&:hover': { borderWidth: 2 } }} startIcon={<TrendingDownIcon />} onClick={() => navigate('/admin/expenses')}>
-          Log Trip Expense
-        </Button>
-        <Button variant="outlined" color="info" sx={{ borderRadius: '8px', borderWidth: 2, '&:hover': { borderWidth: 2 } }} startIcon={<LocalShippingIcon />} onClick={() => navigate('/admin/vehicles')}>
-          Register Vehicle
-        </Button>
-        <Button variant="outlined" color="success" sx={{ borderRadius: '8px', borderWidth: 2, '&:hover': { borderWidth: 2 } }} startIcon={<PersonIcon />} onClick={() => navigate('/admin/drivers')}>
-          Register Driver
-        </Button>
-      </Box>
+      {/* Operations Control Desk */}
+      <Card sx={{ mb: 4, border: '1px solid #e2e8f0', borderRadius: 3, boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.02)' }}>
+        <CardContent sx={{ p: 3 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 2.5, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 1 }}>
+            ⚡ Dispatch & Fleet Control Desk
+          </Typography>
+          <Grid container spacing={3}>
+            <Grid item xs={12} sm={6} md={4}>
+              <Box sx={{ p: 2, border: '1px dashed #e2e8f0', borderRadius: 2, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Trip & Transit Operations
+                </Typography>
+                <Button variant="contained" color="primary" fullWidth startIcon={<AltRouteIcon />} onClick={() => navigate('/admin/trips')} sx={{ py: 1, fontWeight: 700 }}>
+                  Formulate New Trip
+                </Button>
+                <Button variant="outlined" color="error" fullWidth startIcon={<TrendingDownIcon />} onClick={() => navigate('/admin/expenses')} sx={{ py: 1, fontWeight: 700 }}>
+                  Log Trip Expense
+                </Button>
+              </Box>
+            </Grid>
+            <Grid item xs={12} sm={6} md={4}>
+              <Box sx={{ p: 2, border: '1px dashed #e2e8f0', borderRadius: 2, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Fuel Dues & Payments
+                </Typography>
+                <Button variant="contained" color="warning" fullWidth startIcon={<LocalGasStationIcon />} onClick={() => navigate('/admin/diesels')} sx={{ py: 1, color: '#ffffff', fontWeight: 700 }}>
+                  Log Fuel Refuel
+                </Button>
+                <Button variant="outlined" color="primary" fullWidth startIcon={<AccountBalanceWalletIcon />} onClick={() => navigate('/admin/pump-payments')} sx={{ py: 1, fontWeight: 700 }}>
+                  Settle Pump Payment
+                </Button>
+              </Box>
+            </Grid>
+            <Grid item xs={12} sm={6} md={4}>
+              <Box sx={{ p: 2, border: '1px dashed #e2e8f0', borderRadius: 2, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Fleet Registry Setup
+                </Typography>
+                <Button variant="outlined" color="info" fullWidth startIcon={<LocalShippingIcon />} onClick={() => navigate('/admin/vehicles')} sx={{ py: 1, fontWeight: 700 }}>
+                  Register Vehicle
+                </Button>
+                <Button variant="outlined" color="success" fullWidth startIcon={<PersonIcon />} onClick={() => navigate('/admin/drivers')} sx={{ py: 1, fontWeight: 700 }}>
+                  Register Driver
+                </Button>
+              </Box>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
 
       {/* Metric Cards Grid */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
@@ -282,20 +301,49 @@ const Dashboard = () => {
                     const remainingVal = parseFloat(row.remaining);
                     const pct = limitVal > 0 ? (remainingVal / limitVal) * 100 : 0;
                     
-                    let balanceColor = 'success.main';
+                    let balanceColor = '#10b981';
+                    let progressColor = '#10b981';
                     if (remainingVal <= 0) {
-                      balanceColor = 'error.main';
+                      balanceColor = '#ef4444';
+                      progressColor = '#ef4444';
                     } else if (pct < 20) {
-                      balanceColor = 'warning.main';
+                      balanceColor = '#f59e0b';
+                      progressColor = '#f59e0b';
+                    } else if (pct < 40) {
+                      balanceColor = '#3b82f6';
+                      progressColor = '#3b82f6';
                     }
                     
                     return (
                       <TableRow key={row.id} hover>
                         <TableCell sx={{ fontWeight: 600 }}>{row.name}</TableCell>
                         <TableCell align="right" sx={{ fontWeight: 600 }}>₹{limitVal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</TableCell>
-                        <TableCell align="right" sx={{ color: 'text.secondary' }}>₹{parseFloat(row.consumed).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</TableCell>
-                        <TableCell align="right" sx={{ color: balanceColor, fontWeight: 700 }}>
-                          ₹{remainingVal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        <TableCell align="right" sx={{ color: 'error.main', fontWeight: 600 }}>₹{parseFloat(row.consumed).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</TableCell>
+                        <TableCell align="right">
+                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, alignItems: 'flex-end' }}>
+                            <Typography sx={{ color: balanceColor, fontWeight: 800, fontSize: '0.95rem' }}>
+                              ₹{remainingVal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                            </Typography>
+                            <Box sx={{ width: 140, display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <LinearProgress 
+                                variant="determinate" 
+                                value={Math.min(100, Math.max(0, pct))} 
+                                sx={{ 
+                                  width: '100%', 
+                                  height: 6, 
+                                  borderRadius: 3, 
+                                  bgcolor: '#f1f5f9',
+                                  '& .MuiLinearProgress-bar': {
+                                    bgcolor: progressColor,
+                                    borderRadius: 3
+                                  }
+                                }} 
+                              />
+                              <Typography variant="caption" sx={{ color: balanceColor, fontWeight: 700, minWidth: 28 }}>
+                                {Math.round(pct)}%
+                              </Typography>
+                            </Box>
+                          </Box>
                         </TableCell>
                       </TableRow>
                     );
@@ -330,14 +378,35 @@ const Dashboard = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {performance.map((row, index) => (
-                    <TableRow key={index} hover>
-                      <TableCell sx={{ fontWeight: 600 }}>{row.vehicleNumber}</TableCell>
-                      <TableCell align="right" sx={{ color: 'success.main', fontWeight: 600 }}>₹{row.income.toFixed(2)}</TableCell>
-                      <TableCell align="right" sx={{ color: 'error.main' }}>₹{row.expense.toFixed(2)}</TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 700 }}>₹{row.profit.toFixed(2)}</TableCell>
-                    </TableRow>
-                  ))}
+                  {performance.map((row, index) => {
+                    const isProfitable = row.profit > 0;
+                    return (
+                      <TableRow key={index} hover>
+                        <TableCell sx={{ fontWeight: 700, color: '#1e293b' }}>
+                          🚚 {row.vehicleNumber}
+                        </TableCell>
+                        <TableCell align="right" sx={{ color: '#10b981', fontWeight: 600 }}>
+                          ₹{parseFloat(row.income || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        </TableCell>
+                        <TableCell align="right" sx={{ color: '#ef4444' }}>
+                          ₹{parseFloat(row.expense || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        </TableCell>
+                        <TableCell align="right">
+                          <Chip
+                            label={`₹${parseFloat(row.profit || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`}
+                            size="small"
+                            sx={{
+                              bgcolor: isProfitable ? '#d1fae5' : '#f1f5f9',
+                              color: isProfitable ? '#065f46' : '#475569',
+                              fontWeight: 800,
+                              borderRadius: '6px',
+                              border: isProfitable ? '1px solid #a7f3d0' : '1px solid #e2e8f0'
+                            }}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </TableContainer>
