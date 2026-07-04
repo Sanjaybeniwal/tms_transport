@@ -82,6 +82,17 @@ const sendOtpEmail = async (userEmail, otpCode) => {
   }
 };
 
+const getClientIp = (req) => {
+  let ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
+  if (ip && ip.startsWith('::ffff:')) {
+    ip = ip.substring(7);
+  }
+  if (ip === '::1') {
+    ip = '127.0.0.1';
+  }
+  return ip;
+};
+
 exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -100,8 +111,15 @@ exports.login = async (req, res, next) => {
       return next(new AppError('Your account has been deactivated. Contact Admin.', 403));
     }
 
-    // For admin-level roles, enforce OTP verification
+    // For admin-level roles, enforce OTP verification only if logging in from a different IP
     if (['Super Admin', 'Admin', 'Manager'].includes(user.role)) {
+      const currentIp = getClientIp(req);
+      
+      if (user.lastLoginIp === currentIp) {
+        console.log(`[AUTH DEBUG] Admin login IP matches trusted lastLoginIp (${currentIp}). Direct login approved.`);
+        return sendTokenResponse(user, 200, res);
+      }
+
       const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
       global.otpCache = global.otpCache || {};
       global.otpCache[email] = {
@@ -110,7 +128,7 @@ exports.login = async (req, res, next) => {
         timestamp: Date.now()
       };
 
-      console.log(`[OTP DEBUG] Generated OTP for admin login (${email}): ${otpCode}`);
+      console.log(`[OTP DEBUG] Generated OTP for admin login from new IP (${currentIp}): ${otpCode}`);
 
       // Attempt to send email
       sendOtpEmail(email, otpCode);
@@ -178,6 +196,11 @@ exports.verifyOtp = async (req, res, next) => {
     if (!user) {
       return next(new AppError('User account not found', 404));
     }
+
+    // Save client IP to bypass verification next time
+    const currentIp = getClientIp(req);
+    user.lastLoginIp = currentIp;
+    await user.save();
 
     sendTokenResponse(user, 200, res);
   } catch (error) {

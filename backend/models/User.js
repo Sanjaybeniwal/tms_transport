@@ -45,6 +45,10 @@ const User = sequelize.define('User', {
   resetPasswordExpires: {
     type: DataTypes.DATE,
     allowNull: true
+  },
+  lastLoginIp: {
+    type: DataTypes.STRING,
+    allowNull: true
   }
 }, {
   hooks: {
