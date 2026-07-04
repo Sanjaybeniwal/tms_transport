@@ -149,22 +149,25 @@ const Layout = () => {
     return {
       borderRadius: '8px',
       mb: 0.5,
+      mx: 1,
       py: 1,
-      color: active ? '#ffffff' : '#94a3b8',
+      px: 1.5,
+      color: active ? '#2563eb' : '#475569',
+      fontWeight: active ? 600 : 500,
       '& .MuiListItemIcon-root': {
-        color: active ? '#ffffff' : '#64748b',
-        minWidth: 40
+        color: active ? '#2563eb' : '#64748b',
+        minWidth: 36
       },
       '&.Mui-selected': {
-        background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
-        color: '#ffffff',
-        '& .MuiListItemIcon-root': { color: '#ffffff' },
-        '&:hover': { background: 'linear-gradient(90deg, #1d4ed8 0%, #1e40af 100%)' }
+        backgroundColor: '#eff6ff',
+        color: '#2563eb',
+        '& .MuiListItemIcon-root': { color: '#2563eb' },
+        '&:hover': { backgroundColor: '#dbeafe' }
       },
       '&:hover': {
-        bgcolor: 'rgba(255, 255, 255, 0.05)',
-        color: '#ffffff',
-        '& .MuiListItemIcon-root': { color: '#ffffff' }
+        backgroundColor: '#f1f5f9',
+        color: '#0f172a',
+        '& .MuiListItemIcon-root': { color: '#0f172a' }
       }
     };
   };
@@ -293,11 +296,11 @@ const Layout = () => {
             overflowX: 'hidden',
             transition: 'width 0.2s ease-in-out',
             mt: '64px',
-            borderRight: '1px solid #1e293b',
+            borderRight: '1px solid #e2e8f0',
             height: 'calc(100vh - 64px)',
-            backgroundColor: '#0f172a',
-            boxShadow: '2px 0 12px rgba(0, 0, 0, 0.2)',
-            color: '#94a3b8'
+            backgroundColor: '#ffffff',
+            boxShadow: 'none',
+            color: '#475569'
           }
         }}
       >
@@ -311,7 +314,7 @@ const Layout = () => {
             {open && <ListItemText primary="Dashboard" sx={{ '& .MuiTypography-root': { fontWeight: 700 } }} />}
           </ListItemButton>
         </List>
-        <Divider sx={{ mx: 2, borderColor: '#1e293b' }} />
+        <Divider sx={{ mx: 2, borderColor: '#f1f5f9' }} />
 
         <List
           sx={{ px: 1.5, py: 1.5 }}
@@ -505,7 +508,7 @@ const Layout = () => {
             </List>
           </Collapse>
         </List>
-        <Divider sx={{ mx: 2, borderColor: '#1e293b' }} />
+        <Divider sx={{ mx: 2, borderColor: '#f1f5f9' }} />
 
         <List
           sx={{ px: 1.5, py: 1.5 }}
@@ -585,7 +588,7 @@ const Layout = () => {
             </List>
           </Collapse>
         </List>
-        <Divider sx={{ mx: 2, borderColor: '#1e293b' }} />
+        <Divider sx={{ mx: 2, borderColor: '#f1f5f9' }} />
 
         <List sx={{ px: 1.5, py: 1.5 }}>
           <ListItemButton 
@@ -597,7 +600,7 @@ const Layout = () => {
             {open && <ListItemText primary="Reports Center" sx={{ '& .MuiTypography-root': { fontWeight: 600 } }} />}
           </ListItemButton>
         </List>
-        <Divider sx={{ mx: 2, borderColor: '#1e293b' }} />
+        <Divider sx={{ mx: 2, borderColor: '#f1f5f9' }} />
 
         <List 
           sx={{ px: 1.5, py: 1.5 }}

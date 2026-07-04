@@ -79,15 +79,15 @@ const theme = createTheme({
           borderRadius: 8,
           padding: '8px 16px',
           boxShadow: 'none',
-          transition: 'all 0.2s ease-in-out',
+          transition: 'all 0.15s ease-in-out',
           '&:hover': {
-            transform: 'translateY(-1px)',
-            boxShadow: '0 4px 12px rgba(37, 99, 235, 0.15)'
+            boxShadow: 'none',
+            opacity: 0.9
           }
         },
         containedSecondary: {
           '&:hover': {
-            boxShadow: '0 4px 12px rgba(124, 58, 237, 0.15)'
+            boxShadow: 'none'
           }
         }
       }
@@ -96,12 +96,11 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 12,
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03)',
+          boxShadow: 'none',
           border: '1px solid #e2e8f0',
-          transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+          transition: 'border-color 0.15s ease-in-out',
           '&:hover': {
-            transform: 'translateY(-2px)',
-            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02)'
+            borderColor: '#cbd5e1'
           }
         }
       }
