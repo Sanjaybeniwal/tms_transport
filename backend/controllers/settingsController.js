@@ -56,12 +56,15 @@ exports.getContactInfo = async (req, res, next) => {
     let contactData = {
       address: '12, Transport Nagar, Phase-II, New Delhi - 110045',
       phone: '+91-9876543210',
-      email: 'billing@tmsexpress.com'
+      email: 'billing@tmsexpress.com',
+      otpEmail1: 'sanjaybeniwal25@gmail.com',
+      otpEmail2: 'skbeniwaljaat@gmail.com'
     };
 
     if (fs.existsSync(configPath)) {
       const raw = fs.readFileSync(configPath, 'utf8');
-      contactData = JSON.parse(raw);
+      const parsed = JSON.parse(raw);
+      contactData = { ...contactData, ...parsed };
     }
 
     res.status(200).json({
@@ -75,16 +78,18 @@ exports.getContactInfo = async (req, res, next) => {
 
 exports.updateContactInfo = async (req, res, next) => {
   try {
-    const { address, phone, email } = req.body;
+    const { address, phone, email, otpEmail1, otpEmail2 } = req.body;
 
-    if (!address && !phone && !email) {
+    if (!address && !phone && !email && !otpEmail1 && !otpEmail2) {
       return next(new AppError('Please provide at least one field to update.', 400));
     }
 
     const contactData = {
       address: address || '',
       phone: phone || '',
-      email: email || ''
+      email: email || '',
+      otpEmail1: otpEmail1 || 'sanjaybeniwal25@gmail.com',
+      otpEmail2: otpEmail2 || 'skbeniwaljaat@gmail.com'
     };
 
     // Save to config file

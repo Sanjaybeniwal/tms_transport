@@ -243,7 +243,7 @@ const Profile = () => {
           </Card>
         </Grid>
 
-        {/* Contact Page Details Card */}
+        {/* Company Contacts & OTP Configuration Card */}
         {canModifyBranding && (
           <Grid item xs={12}>
             <Card>
@@ -252,10 +252,10 @@ const Profile = () => {
                   <Avatar sx={{ bgcolor: '#059669' }}><ContactPhoneIcon /></Avatar>
                   <Box>
                     <Typography variant="h5" sx={{ fontWeight: 700 }}>
-                      Contact Page Details
+                      Company Contacts & OTP Settings
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Update the address, phone number, and email displayed on the public Contact Us page.
+                      Update contact details displayed across print sheets and configure target emails for admin login OTP codes.
                     </Typography>
                   </Box>
                 </Box>
@@ -295,6 +295,24 @@ const Profile = () => {
                       onChange={(e) => setContactInfo({ ...contactInfo, email: e.target.value })}
                     />
                   </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="OTP Notification Email 1"
+                      placeholder="E.g., sanjaybeniwal25@gmail.com"
+                      value={contactInfo.otpEmail1 || ''}
+                      onChange={(e) => setContactInfo({ ...contactInfo, otpEmail1: e.target.value })}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="OTP Notification Email 2"
+                      placeholder="E.g., skbeniwaljaat@gmail.com"
+                      value={contactInfo.otpEmail2 || ''}
+                      onChange={(e) => setContactInfo({ ...contactInfo, otpEmail2: e.target.value })}
+                    />
+                  </Grid>
                   <Grid item xs={12}>
                     <Button
                       variant="contained"
@@ -304,7 +322,7 @@ const Profile = () => {
                       onClick={handleSaveContact}
                       size="large"
                     >
-                      {contactLoading ? 'Saving...' : 'Save Contact Details'}
+                      {contactLoading ? 'Saving...' : 'Save Settings'}
                     </Button>
                   </Grid>
                 </Grid>

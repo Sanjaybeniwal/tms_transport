@@ -7,6 +7,7 @@ const { validateBody } = require('../middleware/validationMiddleware');
 const { authSchemas } = require('../utils/validationSchemas');
 
 router.post('/login', validateBody(authSchemas.login), authController.login);
+router.post('/verify-otp', authController.verifyOtp);
 router.post('/forgot-password', validateBody(authSchemas.forgotPassword), authController.forgotPassword);
 router.post('/reset-password', validateBody(authSchemas.resetPassword), authController.resetPassword);
 

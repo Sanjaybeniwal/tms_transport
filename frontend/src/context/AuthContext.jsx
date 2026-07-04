@@ -35,6 +35,27 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const res = await axios.post('/api/auth/login', { email, password });
+      
+      if (res.data.status === 'otp_required') {
+        return { success: true, otpRequired: true, email };
+      }
+
+      const { token: userToken, data } = res.data;
+      localStorage.setItem('token', userToken);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${userToken}`;
+      setToken(userToken);
+      setUser(data.user);
+      return { success: true };
+    } catch (error) {
+      console.error(error);
+      const msg = error.response?.data?.message || 'Login failed. Please check credentials.';
+      return { success: false, message: msg };
+    }
+  };
+
+  const verifyOtp = async (email, otp) => {
+    try {
+      const res = await axios.post('/api/auth/verify-otp', { email, otp });
       const { token: userToken, data } = res.data;
       
       localStorage.setItem('token', userToken);
@@ -44,7 +65,7 @@ export const AuthProvider = ({ children }) => {
       return { success: true };
     } catch (error) {
       console.error(error);
-      const msg = error.response?.data?.message || 'Login failed. Please check credentials.';
+      const msg = error.response?.data?.message || 'OTP verification failed.';
       return { success: false, message: msg };
     }
   };
@@ -67,7 +88,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, logout, changePassword }}>
+    <AuthContext.Provider value={{ user, token, loading, login, verifyOtp, logout, changePassword }}>
       {children}
     </AuthContext.Provider>
   );

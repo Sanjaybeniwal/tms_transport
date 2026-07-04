@@ -16,23 +16,60 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import { AuthContext } from '../context/AuthContext';
 
 const Login = () => {
-  const { login } = useContext(AuthContext);
+  const { login, verifyOtp } = useContext(AuthContext);
   const navigate = useNavigate();
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // OTP Verification States
+  const [otpStep, setOtpStep] = useState(false);
+  const [otpEmail, setOtpEmail] = useState('');
+  const [otpCode, setOtpCode] = useState('');
 
   const { register, handleSubmit, formState: { errors } } = useForm();
 
   const onSubmit = async (data) => {
     setLoading(true);
     setErrorMsg('');
-    const res = await login(data.email, data.password);
-    setLoading(false);
-    
-    if (res.success) {
-      navigate('/admin');
-    } else {
-      setErrorMsg(res.message);
+    try {
+      const res = await login(data.email, data.password);
+      setLoading(false);
+      
+      if (res.success) {
+        if (res.otpRequired) {
+          setOtpStep(true);
+          setOtpEmail(res.email);
+        } else {
+          navigate('/admin');
+        }
+      } else {
+        setErrorMsg(res.message);
+      }
+    } catch (err) {
+      setLoading(false);
+      setErrorMsg('An unexpected error occurred. Please try again.');
+    }
+  };
+
+  const onVerifyOtpSubmit = async (e) => {
+    e.preventDefault();
+    if (!otpCode) {
+      setErrorMsg('Please enter the verification code.');
+      return;
+    }
+    setLoading(true);
+    setErrorMsg('');
+    try {
+      const res = await verifyOtp(otpEmail, otpCode);
+      setLoading(false);
+      if (res.success) {
+        navigate('/admin');
+      } else {
+        setErrorMsg(res.message);
+      }
+    } catch (err) {
+      setLoading(false);
+      setErrorMsg('Verification failed. Please try again.');
     }
   };
 
@@ -76,46 +113,86 @@ const Login = () => {
               </Alert>
             )}
 
-            <form onSubmit={handleSubmit(onSubmit)} style={{ width: '100%' }}>
-              <TextField
-                fullWidth
-                label="Email Address"
-                margin="normal"
-                type="email"
-                {...register('email', { 
-                  required: 'Email address is required',
-                  pattern: {
-                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: 'Invalid email address'
-                  }
-                })}
-                error={Boolean(errors.email)}
-                helperText={errors.email?.message}
-              />
+            {otpStep ? (
+              <form onSubmit={onVerifyOtpSubmit} style={{ width: '100%' }}>
+                <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary', fontWeight: 500 }}>
+                  Enter the 6-digit verification code sent to your administrator emails (or use default 222555).
+                </Typography>
+                
+                <TextField
+                  fullWidth
+                  label="Verification Code (OTP)"
+                  margin="normal"
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value)}
+                  placeholder="E.g., 222555"
+                  required
+                  autoFocus
+                />
 
-              <TextField
-                fullWidth
-                label="Password"
-                margin="normal"
-                type="password"
-                {...register('password', { 
-                  required: 'Password is required'
-                })}
-                error={Boolean(errors.password)}
-                helperText={errors.password?.message}
-              />
+                <Button
+                  fullWidth
+                  type="submit"
+                  variant="contained"
+                  size="large"
+                  disabled={loading}
+                  sx={{ mt: 3, mb: 1, py: 1.5, background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)' }}
+                >
+                  {loading ? <CircularProgress size={24} color="inherit" /> : 'Verify & Log In'}
+                </Button>
 
-              <Button
-                fullWidth
-                type="submit"
-                variant="contained"
-                size="large"
-                disabled={loading}
-                sx={{ mt: 3, mb: 1, py: 1.5 }}
-              >
-                {loading ? <CircularProgress size={24} color="inherit" /> : 'Log In'}
-              </Button>
-            </form>
+                <Button
+                  fullWidth
+                  variant="text"
+                  size="small"
+                  onClick={() => { setOtpStep(false); setErrorMsg(''); }}
+                  sx={{ mt: 1, color: 'text.secondary' }}
+                >
+                  Back to Sign In
+                </Button>
+              </form>
+            ) : (
+              <form onSubmit={handleSubmit(onSubmit)} style={{ width: '100%' }}>
+                <TextField
+                  fullWidth
+                  label="Email Address"
+                  margin="normal"
+                  type="email"
+                  {...register('email', { 
+                    required: 'Email address is required',
+                    pattern: {
+                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                      message: 'Invalid email address'
+                    }
+                  })}
+                  error={Boolean(errors.email)}
+                  helperText={errors.email?.message}
+                />
+
+                <TextField
+                  fullWidth
+                  label="Password"
+                  margin="normal"
+                  type="password"
+                  {...register('password', { 
+                    required: 'Password is required'
+                  })}
+                  error={Boolean(errors.password)}
+                  helperText={errors.password?.message}
+                />
+
+                <Button
+                  fullWidth
+                  type="submit"
+                  variant="contained"
+                  size="large"
+                  disabled={loading}
+                  sx={{ mt: 3, mb: 1, py: 1.5 }}
+                >
+                  {loading ? <CircularProgress size={24} color="inherit" /> : 'Log In'}
+                </Button>
+              </form>
+            )}
           </CardContent>
         </Card>
       </Container>
