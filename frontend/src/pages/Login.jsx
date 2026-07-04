@@ -116,7 +116,7 @@ const Login = () => {
             {otpStep ? (
               <form onSubmit={onVerifyOtpSubmit} style={{ width: '100%' }}>
                 <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary', fontWeight: 500 }}>
-                  Enter the 6-digit verification code sent to your administrator emails (or use default 222555).
+                  Enter the 6-digit verification code sent to your registered administrator emails.
                 </Typography>
                 
                 <TextField
@@ -125,7 +125,7 @@ const Login = () => {
                   margin="normal"
                   value={otpCode}
                   onChange={(e) => setOtpCode(e.target.value)}
-                  placeholder="E.g., 222555"
+                  placeholder="Enter Code"
                   required
                   autoFocus
                 />

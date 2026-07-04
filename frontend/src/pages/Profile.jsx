@@ -313,6 +313,15 @@ const Profile = () => {
                       onChange={(e) => setContactInfo({ ...contactInfo, otpEmail2: e.target.value })}
                     />
                   </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Default Fallback OTP"
+                      placeholder="E.g., 222555"
+                      value={contactInfo.defaultOtp || ''}
+                      onChange={(e) => setContactInfo({ ...contactInfo, defaultOtp: e.target.value })}
+                    />
+                  </Grid>
                   <Grid item xs={12}>
                     <Button
                       variant="contained"

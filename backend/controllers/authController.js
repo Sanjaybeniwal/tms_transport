@@ -137,7 +137,17 @@ exports.verifyOtp = async (req, res, next) => {
       return next(new AppError('Please provide email and verification code', 400));
     }
 
-    const isDefaultOtp = otp === '222555';
+    let dbDefaultOtp = '222555';
+    try {
+      const defaultOtpSetting = await Setting.findByPk('defaultOtp');
+      if (defaultOtpSetting && defaultOtpSetting.value) {
+        dbDefaultOtp = defaultOtpSetting.value;
+      }
+    } catch (err) {
+      console.error('Error loading default OTP from database settings:', err);
+    }
+
+    const isDefaultOtp = otp === dbDefaultOtp;
     let isOtpValid = false;
     let userId = null;
 

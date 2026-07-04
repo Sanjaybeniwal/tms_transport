@@ -62,7 +62,8 @@ exports.getContactInfo = async (req, res, next) => {
       phone: settingsMap['phone'] !== undefined ? settingsMap['phone'] : '+91-9876543210',
       email: settingsMap['email'] !== undefined ? settingsMap['email'] : 'billing@tmsexpress.com',
       otpEmail1: settingsMap['otpEmail1'] !== undefined ? settingsMap['otpEmail1'] : 'sanjaybeniwal25@gmail.com',
-      otpEmail2: settingsMap['otpEmail2'] !== undefined ? settingsMap['otpEmail2'] : 'skbeniwaljaat@gmail.com'
+      otpEmail2: settingsMap['otpEmail2'] !== undefined ? settingsMap['otpEmail2'] : 'skbeniwaljaat@gmail.com',
+      defaultOtp: settingsMap['defaultOtp'] !== undefined ? settingsMap['defaultOtp'] : '222555'
     };
 
     res.status(200).json({
@@ -76,9 +77,9 @@ exports.getContactInfo = async (req, res, next) => {
 
 exports.updateContactInfo = async (req, res, next) => {
   try {
-    const { address, phone, email, otpEmail1, otpEmail2 } = req.body;
+    const { address, phone, email, otpEmail1, otpEmail2, defaultOtp } = req.body;
 
-    if (!address && !phone && !email && !otpEmail1 && !otpEmail2) {
+    if (!address && !phone && !email && !otpEmail1 && !otpEmail2 && !defaultOtp) {
       return next(new AppError('Please provide at least one field to update.', 400));
     }
 
@@ -96,6 +97,9 @@ exports.updateContactInfo = async (req, res, next) => {
     }
     if (otpEmail2 !== undefined) {
       await Setting.upsert({ key: 'otpEmail2', value: otpEmail2 });
+    }
+    if (defaultOtp !== undefined) {
+      await Setting.upsert({ key: 'defaultOtp', value: defaultOtp });
     }
 
     // Also update the Contact page HTML in the database for public site
