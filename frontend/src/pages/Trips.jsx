@@ -140,22 +140,23 @@ const Trips = () => {
     try {
       const payload = {
         tripNumber: statusTrip.tripNumber,
-        vehicleId: statusTrip.vehicleId || statusTrip.vehicle?.id,
-        driverId: statusTrip.driverId || statusTrip.driver?.id,
-        partyId: statusTrip.partyId || statusTrip.party?.id,
-        fromLocationId: statusTrip.fromLocationId || statusTrip.fromLocation?.id,
-        toLocationId: statusTrip.toLocationId || statusTrip.toLocation?.id,
-        freightAmount: statusTrip.freightAmount,
-        advance: statusTrip.advance,
+        vehicleId: parseInt(statusTrip.vehicleId || statusTrip.vehicle?.id, 10),
+        driverId: parseInt(statusTrip.driverId || statusTrip.driver?.id, 10),
+        partyId: parseInt(statusTrip.partyId || statusTrip.party?.id, 10),
+        fromLocationId: parseInt(statusTrip.fromLocationId || statusTrip.fromLocation?.id, 10),
+        toLocationId: parseInt(statusTrip.toLocationId || statusTrip.toLocation?.id, 10),
+        freightAmount: parseFloat(statusTrip.freightAmount),
+        advance: statusTrip.advance ? parseFloat(statusTrip.advance) : 0.00,
         startDate: statusTrip.startDate ? statusTrip.startDate.substring(0, 10) : '',
-        endDate: statusTrip.endDate ? statusTrip.endDate.substring(0, 10) : '',
+        endDate: statusTrip.endDate ? statusTrip.endDate.substring(0, 10) : null,
         status: tempStatus
       };
       await API.trips.update(statusTrip.id, payload);
       fetchTrips();
       handleCloseStatusDialog();
     } catch (err) {
-      console.error(err);
+      console.error('Error updating status:', err);
+      alert(err.response?.data?.message || 'Error updating status. Please verify entries.');
     }
   };
 
