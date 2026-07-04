@@ -25,6 +25,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import PrintIcon from '@mui/icons-material/Print';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import LocalGasStationIcon from '@mui/icons-material/LocalGasStation';
 import PaymentIcon from '@mui/icons-material/Payment';
 import ReceiptIcon from '@mui/icons-material/Receipt';
@@ -128,6 +129,30 @@ const GenericCrud = ({ resource, title, fields }) => {
 
   const handleTriggerPrint = () => {
     window.print();
+  };
+
+  const handleSendWhatsApp = (row) => {
+    const recipientMobile = row.driver?.mobile || row.pump?.mobile || '';
+    const cleanNumber = recipientMobile.replace(/[^0-9]/g, '');
+    const whatsappPhone = cleanNumber.length === 10 ? '91' + cleanNumber : cleanNumber;
+
+    const messageText = `*DIESEL REFUELING SLIP*
+--------------------------------
+Slip No: FSL-${row.id}
+Date: ${row.date}
+Vehicle No: ${row.vehicle?.vehicleNumber || 'N/A'}
+Driver Name: ${row.driver?.name || 'N/A'}
+Pump Vendor: ${row.pump?.name || 'N/A'}
+--------------------------------
+Product: High Speed Diesel (HSD)
+Quantity: ${parseFloat(row.quantity || 0).toFixed(2)} Liters
+Rate: Rs. ${parseFloat(row.rate || 0).toFixed(2)} / L
+*Total Cost: Rs. ${parseFloat(row.totalAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}*
+--------------------------------
+Generated via BUTS Transport Management System`;
+
+    const whatsappUrl = `https://api.whatsapp.com/send?phone=${whatsappPhone}&text=${encodeURIComponent(messageText)}`;
+    window.open(whatsappUrl, '_blank');
   };
 
   // Autocomplete cache lists
@@ -373,6 +398,11 @@ const GenericCrud = ({ resource, title, fields }) => {
             {(resource === 'diesels' || resource === 'pumpPayments') && (
               <IconButton size="small" color="primary" onClick={() => handleOpenPrint(row)} title={resource === 'diesels' ? "Print Fuel Slip" : "Print Payment Receipt"}>
                 <PrintIcon fontSize="small" />
+              </IconButton>
+            )}
+            {resource === 'diesels' && (
+              <IconButton size="small" color="success" onClick={() => handleSendWhatsApp(row)} title="Send Slip via WhatsApp">
+                <WhatsAppIcon fontSize="small" />
               </IconButton>
             )}
             <IconButton size="small" color="secondary" onClick={() => handleOpenForm(row)}>
