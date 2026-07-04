@@ -12,7 +12,8 @@ import {
   Grid,
   Chip,
   MenuItem,
-  CircularProgress
+  CircularProgress,
+  InputAdornment
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -272,11 +273,11 @@ const Vehicles = () => {
       {/* Add/Edit Modal */}
       <Dialog open={openForm} onClose={handleCloseForm} maxWidth="md" fullWidth>
         <form onSubmit={handleSubmit(onSubmitForm)}>
-          <DialogTitle sx={{ fontWeight: 700 }}>
+          <DialogTitle sx={{ fontWeight: 800, bgcolor: '#f8fafc', borderBottom: '1px solid #e2e8f0', px: 3, py: 2 }}>
             {selectedVehicle ? 'Edit Vehicle Fleet Record' : 'Register New Vehicle'}
           </DialogTitle>
-          <DialogContent dividers>
-            <Grid container spacing={2}>
+          <DialogContent dividers sx={{ p: 3 }}>
+            <Grid container spacing={2.5}>
               <Grid item xs={12} sm={4}>
                 <TextField
                   fullWidth
@@ -336,7 +337,9 @@ const Vehicles = () => {
               </Grid>
               
               <Grid item xs={12}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 700, mt: 1 }}>Document Expiration Dates</Typography>
+                <Typography variant="subtitle2" sx={{ fontWeight: 800, mt: 1, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Document Expiration Dates
+                </Typography>
               </Grid>
               
               <Grid item xs={12} sm={6} md={4}>
@@ -398,9 +401,22 @@ const Vehicles = () => {
               </Grid>
             </Grid>
           </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseForm}>Cancel</Button>
-            <Button type="submit" variant="contained">
+          <DialogActions sx={{ px: 3, py: 2, bgcolor: '#f8fafc', borderTop: '1px solid #e2e8f0' }}>
+            <Button onClick={handleCloseForm} variant="outlined" sx={{ color: 'text.secondary', borderColor: '#cbd5e1', borderRadius: '8px', fontWeight: 600 }}>
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{
+                background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                color: '#ffffff',
+                fontWeight: 700,
+                borderRadius: '8px',
+                px: 3,
+                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)'
+              }}
+            >
               Save Vehicle
             </Button>
           </DialogActions>

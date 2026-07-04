@@ -18,7 +18,8 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  Paper
+  Paper,
+  InputAdornment
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -387,12 +388,27 @@ const GenericCrud = ({ resource, title, fields }) => {
       {/* Form Dialog */}
       <Dialog open={openForm} onClose={handleCloseForm} maxWidth="sm" fullWidth>
         <form onSubmit={handleSubmit(onSubmitForm)}>
-          <DialogTitle sx={{ fontWeight: 700 }}>
-            {selectedItem ? `Edit ${title} Entry` : `Create ${title} Entry`}
+          <DialogTitle sx={{ fontWeight: 800, bgcolor: '#f8fafc', borderBottom: '1px solid #e2e8f0', px: 3, py: 2 }}>
+            {selectedItem ? `Edit ${title} Entry` : `Create New ${title}`}
           </DialogTitle>
-          <DialogContent dividers>
-            <Grid container spacing={2}>
+          <DialogContent dividers sx={{ p: 3 }}>
+            <Grid container spacing={2.5}>
               {fields.map((f) => {
+                const getPrefix = () => {
+                  const name = f.name.toLowerCase();
+                  const label = f.label.toLowerCase();
+                  if (f.isCurrency || name.includes('amount') || name.includes('rate') || label.includes('amount') || label.includes('freight') || label.includes('advance')) {
+                    return <InputAdornment position="start">₹</InputAdornment>;
+                  }
+                  if (name.includes('phone') || name.includes('mobile') || label.includes('phone') || label.includes('mobile')) {
+                    return <InputAdornment position="start">📞</InputAdornment>;
+                  }
+                  if (name.includes('email') || label.includes('email')) {
+                    return <InputAdornment position="start">✉</InputAdornment>;
+                  }
+                  return null;
+                };
+
                 if (f.type === 'select') {
                   const list = dropdownData[f.name] || [];
                   
@@ -465,6 +481,7 @@ const GenericCrud = ({ resource, title, fields }) => {
                       multiline={f.multiline}
                       rows={f.rows || 1}
                       InputLabelProps={f.type === 'date' ? { shrink: true } : undefined}
+                      InputProps={getPrefix() ? { startAdornment: getPrefix() } : undefined}
                       {...register(f.name, { required: f.required ? `${f.label} is required` : false })}
                       error={Boolean(errors[f.name])}
                       helperText={errors[f.name]?.message}
@@ -474,10 +491,23 @@ const GenericCrud = ({ resource, title, fields }) => {
               })}
             </Grid>
           </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseForm}>Cancel</Button>
-            <Button type="submit" variant="contained">
-              Save Entry
+          <DialogActions sx={{ px: 3, py: 2, bgcolor: '#f8fafc', borderTop: '1px solid #e2e8f0' }}>
+            <Button onClick={handleCloseForm} variant="outlined" sx={{ color: 'text.secondary', borderColor: '#cbd5e1', borderRadius: '8px', fontWeight: 600 }}>
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{
+                background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                color: '#ffffff',
+                fontWeight: 700,
+                borderRadius: '8px',
+                px: 3,
+                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)'
+              }}
+            >
+              Save Record
             </Button>
           </DialogActions>
         </form>

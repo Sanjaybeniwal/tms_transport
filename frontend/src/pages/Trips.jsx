@@ -18,7 +18,8 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  Paper
+  Paper,
+  InputAdornment
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -374,11 +375,11 @@ const Trips = () => {
       {/* Form Dialog */}
       <Dialog open={openForm} onClose={handleCloseForm} maxWidth="md" fullWidth>
         <form onSubmit={handleSubmit(onSubmitForm)}>
-          <DialogTitle sx={{ fontWeight: 700 }}>
+          <DialogTitle sx={{ fontWeight: 800, bgcolor: '#f8fafc', borderBottom: '1px solid #e2e8f0', px: 3, py: 2 }}>
             {selectedTrip ? 'Update Trip Manifest' : 'Initiate New Delivery Trip'}
           </DialogTitle>
-          <DialogContent dividers>
-            <Grid container spacing={2}>
+          <DialogContent dividers sx={{ p: 3 }}>
+            <Grid container spacing={2.5}>
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
@@ -537,6 +538,9 @@ const Trips = () => {
                   fullWidth
                   type="number"
                   label="Total Freight Billing Amount"
+                  InputProps={{
+                    startAdornment: <InputAdornment position="start">₹</InputAdornment>
+                  }}
                   {...register('freightAmount', { required: 'Freight amount is required' })}
                   error={Boolean(errors.freightAmount)}
                   helperText={errors.freightAmount?.message}
@@ -547,6 +551,9 @@ const Trips = () => {
                   fullWidth
                   type="number"
                   label="Advance Amount Paid"
+                  InputProps={{
+                    startAdornment: <InputAdornment position="start">₹</InputAdornment>
+                  }}
                   {...register('advance')}
                 />
               </Grid>
@@ -586,9 +593,22 @@ const Trips = () => {
               </Grid>
             </Grid>
           </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseForm}>Cancel</Button>
-            <Button type="submit" variant="contained">
+          <DialogActions sx={{ px: 3, py: 2, bgcolor: '#f8fafc', borderTop: '1px solid #e2e8f0' }}>
+            <Button onClick={handleCloseForm} variant="outlined" sx={{ color: 'text.secondary', borderColor: '#cbd5e1', borderRadius: '8px', fontWeight: 600 }}>
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{
+                background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                color: '#ffffff',
+                fontWeight: 700,
+                borderRadius: '8px',
+                px: 3,
+                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)'
+              }}
+            >
               Save Trip Manifest
             </Button>
           </DialogActions>
