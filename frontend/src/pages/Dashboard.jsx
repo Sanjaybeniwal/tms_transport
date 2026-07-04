@@ -106,81 +106,70 @@ const Dashboard = () => {
   return (
     <Box sx={{ flexGrow: 1 }}>
       {/* Welcome Banner / Header */}
-      <Card
-        sx={{
+      <Box 
+        sx={{ 
+          display: 'flex', 
+          flexDirection: { xs: 'column', sm: 'row' },
+          justifyContent: 'space-between',
+          alignItems: { xs: 'flex-start', sm: 'center' },
+          gap: 2,
           mb: 4,
-          background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-          color: '#ffffff',
-          borderRadius: 3,
-          boxShadow: '0 10px 25px -5px rgba(15, 23, 42, 0.08)',
-          position: 'relative',
-          overflow: 'hidden',
-          border: 'none',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: '-50%',
-            right: '-20%',
-            width: '300px',
-            height: '300px',
-            background: 'radial-gradient(circle, rgba(37,99,235,0.15) 0%, rgba(37,99,235,0) 70%)',
-            borderRadius: '50%',
-            pointerEvents: 'none'
-          }
+          pb: 3,
+          borderBottom: '1px solid #e2e8f0'
         }}
       >
-        <CardContent sx={{ p: { xs: 3, sm: 4 }, '&:last-child': { pb: { xs: 3, sm: 4 } } }}>
-          <Typography variant="h4" sx={{ fontWeight: 800, mb: 1, letterSpacing: '-0.02em' }}>
+        <Box>
+          <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: '-0.02em', color: '#0f172a', mb: 0.5 }}>
             Welcome back, {user?.name || 'Administrator'}
           </Typography>
-          <Typography variant="body1" sx={{ color: '#94a3b8', fontWeight: 500 }}>
+          <Typography variant="body2" sx={{ color: '#64748b', fontWeight: 500 }}>
             Here is your real-time fleet operations overview, active trip logs, and diesel station balances.
           </Typography>
-        </CardContent>
-      </Card>
+        </Box>
+      </Box>
 
       {/* Operations Control Desk */}
-      <Card sx={{ mb: 4, border: '1px solid #e2e8f0', borderRadius: 3, boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.02)' }}>
+      <Card sx={{ mb: 4, border: '1px solid #e2e8f0', borderRadius: 3, boxShadow: 'none' }}>
         <CardContent sx={{ p: 3 }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 2.5, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 2.5, color: '#0f172a', display: 'flex', alignItems: 'center', gap: 1 }}>
             ⚡ Dispatch & Fleet Control Desk
           </Typography>
           <Grid container spacing={3}>
             <Grid item xs={12} sm={6} md={4}>
-              <Box sx={{ p: 2, border: '1px dashed #e2e8f0', borderRadius: 2, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                <Typography variant="caption" sx={{ fontWeight: 800, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <Box sx={{ p: 2, border: '1px solid #f1f5f9', bgcolor: '#f8fafc', borderRadius: 2, display: 'flex', flexDirection: 'column', gap: 1.2 }}>
+                <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   Trip & Transit Operations
                 </Typography>
-                <Button variant="contained" color="primary" fullWidth startIcon={<AltRouteIcon />} onClick={() => navigate('/admin/trips')} sx={{ py: 1, fontWeight: 700 }}>
+                <Button variant="contained" color="primary" fullWidth startIcon={<AltRouteIcon />} onClick={() => navigate('/admin/trips')} sx={{ py: 1, fontWeight: 600, bgcolor: '#2563eb', '&:hover': { bgcolor: '#1d4ed8' } }}>
                   Formulate New Trip
                 </Button>
-                <Button variant="outlined" color="error" fullWidth startIcon={<TrendingDownIcon />} onClick={() => navigate('/admin/expenses')} sx={{ py: 1, fontWeight: 700 }}>
+                <Button variant="outlined" color="primary" fullWidth startIcon={<TrendingDownIcon />} onClick={() => navigate('/admin/expenses')} sx={{ py: 1, color: '#475569', borderColor: '#cbd5e1', fontWeight: 600, '&:hover': { borderColor: '#94a3b8', bgcolor: '#f1f5f9' } }}>
                   Log Trip Expense
                 </Button>
               </Box>
             </Grid>
             <Grid item xs={12} sm={6} md={4}>
-              <Box sx={{ p: 2, border: '1px dashed #e2e8f0', borderRadius: 2, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                <Typography variant="caption" sx={{ fontWeight: 800, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <Box sx={{ p: 2, border: '1px solid #f1f5f9', bgcolor: '#f8fafc', borderRadius: 2, display: 'flex', flexDirection: 'column', gap: 1.2 }}>
+                <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   Fuel Dues & Payments
                 </Typography>
-                <Button variant="contained" color="warning" fullWidth startIcon={<LocalGasStationIcon />} onClick={() => navigate('/admin/diesels')} sx={{ py: 1, color: '#ffffff', fontWeight: 700 }}>
+                <Button variant="contained" color="warning" fullWidth startIcon={<LocalGasStationIcon />} onClick={() => navigate('/admin/diesels')} sx={{ py: 1, bgcolor: '#f59e0b', color: '#ffffff', fontWeight: 600, '&:hover': { bgcolor: '#d97706' } }}>
                   Log Fuel Refuel
                 </Button>
-                <Button variant="outlined" color="primary" fullWidth startIcon={<AccountBalanceWalletIcon />} onClick={() => navigate('/admin/pump-payments')} sx={{ py: 1, fontWeight: 700 }}>
+                <Button variant="outlined" color="primary" fullWidth startIcon={<AccountBalanceWalletIcon />} onClick={() => navigate('/admin/pump-payments')} sx={{ py: 1, color: '#475569', borderColor: '#cbd5e1', fontWeight: 600, '&:hover': { borderColor: '#94a3b8', bgcolor: '#f1f5f9' } }}>
                   Settle Pump Payment
                 </Button>
               </Box>
             </Grid>
             <Grid item xs={12} sm={6} md={4}>
-              <Box sx={{ p: 2, border: '1px dashed #e2e8f0', borderRadius: 2, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                <Typography variant="caption" sx={{ fontWeight: 800, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <Box sx={{ p: 2, border: '1px solid #f1f5f9', bgcolor: '#f8fafc', borderRadius: 2, display: 'flex', flexDirection: 'column', gap: 1.2 }}>
+                <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   Fleet Registry Setup
                 </Typography>
-                <Button variant="outlined" color="info" fullWidth startIcon={<LocalShippingIcon />} onClick={() => navigate('/admin/vehicles')} sx={{ py: 1, fontWeight: 700 }}>
+                <Button variant="outlined" color="primary" fullWidth startIcon={<LocalShippingIcon />} onClick={() => navigate('/admin/vehicles')} sx={{ py: 1, color: '#475569', borderColor: '#cbd5e1', fontWeight: 600, '&:hover': { borderColor: '#94a3b8', bgcolor: '#f1f5f9' } }}>
                   Register Vehicle
                 </Button>
-                <Button variant="outlined" color="success" fullWidth startIcon={<PersonIcon />} onClick={() => navigate('/admin/drivers')} sx={{ py: 1, fontWeight: 700 }}>
+                <Button variant="outlined" color="primary" fullWidth startIcon={<PersonIcon />} onClick={() => navigate('/admin/drivers')} sx={{ py: 1, color: '#475569', borderColor: '#cbd5e1', fontWeight: 600, '&:hover': { borderColor: '#94a3b8', bgcolor: '#f1f5f9' } }}>
                   Register Driver
                 </Button>
               </Box>
@@ -194,39 +183,25 @@ const Dashboard = () => {
         {cardItems.map((item, index) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
             <Card sx={{ 
-              borderRadius: 3,
+              borderRadius: '12px',
               border: '1px solid #e2e8f0',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01)',
-              position: 'relative',
-              overflow: 'hidden',
-              '&::before': {
-                content: '""',
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '6px',
-                height: '100%',
-                backgroundColor: item.color
-              },
-              '&:hover': {
-                transform: 'translateY(-4px)',
-                boxShadow: '0 12px 20px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -2px rgba(0, 0, 0, 0.03)'
-              }
+              boxShadow: 'none'
             }}>
               <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 3 }}>
                 <Box>
-                  <Typography variant="body2" color="text.secondary" gutterBottom sx={{ fontWeight: 700, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.05em' }}>
+                  <Typography variant="body2" color="text.secondary" gutterBottom sx={{ fontWeight: 600, textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.05em' }}>
                     {item.title}
                   </Typography>
-                  <Typography variant="h4" sx={{ fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em', mt: 0.5 }}>
+                  <Typography variant="h5" sx={{ fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em', mt: 0.5 }}>
                     {item.value}
                   </Typography>
                 </Box>
                 <Avatar sx={{ 
-                  bgcolor: `${item.color}15`, 
+                  bgcolor: `${item.color}10`, 
                   color: item.color,
-                  width: 56,
-                  height: 56
+                  width: 48,
+                  height: 48,
+                  border: `1px solid ${item.color}20`
                 }}>
                   {item.icon}
                 </Avatar>
@@ -240,16 +215,16 @@ const Dashboard = () => {
       <Grid container spacing={3} sx={{ mb: 4 }}>
         {/* Monthly Income vs Expense */}
         <Grid item xs={12} md={8}>
-          <Paper sx={{ p: 3, height: 420 }}>
+          <Paper sx={{ p: 3, height: 420, border: '1px solid #e2e8f0', boxShadow: 'none', borderRadius: 3 }}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
               Monthly Income vs Expenses
             </Typography>
             <ResponsiveContainer width="100%" height="90%">
               <BarChart data={monthlyTrends}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
+                <CartesianGrid stroke="#f1f5f9" strokeDasharray="3 3" />
+                <XAxis dataKey="month" stroke="#64748b" />
+                <YAxis stroke="#64748b" />
+                <Tooltip contentStyle={{ borderRadius: 8, borderColor: '#e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }} />
                 <Legend />
                 <Bar dataKey="income" name="Income" fill="#10b981" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="expense" name="Expenses" fill="#ef4444" radius={[4, 4, 0, 0]} />
@@ -260,16 +235,16 @@ const Dashboard = () => {
 
         {/* Diesel Refuel Consumption */}
         <Grid item xs={12} md={4}>
-          <Paper sx={{ p: 3, height: 420 }}>
+          <Paper sx={{ p: 3, height: 420, border: '1px solid #e2e8f0', boxShadow: 'none', borderRadius: 3 }}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
               Diesel Consumption (Liters)
             </Typography>
             <ResponsiveContainer width="100%" height="90%">
               <LineChart data={monthlyTrends}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
+                <CartesianGrid stroke="#f1f5f9" strokeDasharray="3 3" />
+                <XAxis dataKey="month" stroke="#64748b" />
+                <YAxis stroke="#64748b" />
+                <Tooltip contentStyle={{ borderRadius: 8, borderColor: '#e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }} />
                 <Legend />
                 <Line type="monotone" dataKey="dieselQty" name="Liters" stroke="#f59e0b" strokeWidth={3} dot={{ r: 6 }} />
               </LineChart>
@@ -281,7 +256,7 @@ const Dashboard = () => {
       {/* Pump Limits & Outstanding Balances */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12}>
-          <Paper sx={{ p: 3 }}>
+          <Paper sx={{ p: 3, border: '1px solid #e2e8f0', boxShadow: 'none', borderRadius: 3 }}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
               Pump Outstanding & Available Limits (Real-time)
             </Typography>
@@ -363,7 +338,7 @@ const Dashboard = () => {
       {/* Top Performing Trucks */}
       <Grid container spacing={3}>
         <Grid item xs={12}>
-          <Paper sx={{ p: 3 }}>
+          <Paper sx={{ p: 3, border: '1px solid #e2e8f0', boxShadow: 'none', borderRadius: 3 }}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
               Top Performing Vehicles (Net Profit)
             </Typography>
