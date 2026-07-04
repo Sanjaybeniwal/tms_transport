@@ -20,6 +20,8 @@ import { useForm } from 'react-hook-form';
 
 import API from '../services/api';
 import DataTable from '../components/DataTable';
+import AdminHeader from '../components/AdminHeader';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
 
 const Locations = () => {
   const [data, setData] = useState([]);
@@ -114,18 +116,26 @@ const Locations = () => {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 800 }}>
-          Locations Manager
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => handleOpenForm()}
-        >
-          Add Location Hub
-        </Button>
-      </Box>
+      <AdminHeader
+        title="Locations Manager"
+        description="Register and manage warehouse hubs, loading depots, cities, states, and delivery destination terminals."
+        icon={<LocationOnIcon />}
+        action={
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => handleOpenForm()}
+            sx={{
+              background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+              color: '#ffffff',
+              fontWeight: 700,
+              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)'
+            }}
+          >
+            Add Location Hub
+          </Button>
+        }
+      />
 
       <DataTable
         columns={columns}

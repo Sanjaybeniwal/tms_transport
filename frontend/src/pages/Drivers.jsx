@@ -26,6 +26,8 @@ import { useForm } from 'react-hook-form';
 
 import API from '../services/api';
 import DataTable from '../components/DataTable';
+import AdminHeader from '../components/AdminHeader';
+import PersonIcon from '@mui/icons-material/Person';
 
 const Drivers = () => {
   const [data, setData] = useState([]);
@@ -169,18 +171,26 @@ const Drivers = () => {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 800 }}>
-          Drivers Fleet Registry
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => handleOpenForm()}
-        >
-          Register New Driver
-        </Button>
-      </Box>
+      <AdminHeader
+        title="Drivers Fleet Registry"
+        description="Register and manage transport drivers, license categories, medical/license expiry alerts, and trip history."
+        icon={<PersonIcon />}
+        action={
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => handleOpenForm()}
+            sx={{
+              background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+              color: '#ffffff',
+              fontWeight: 700,
+              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)'
+            }}
+          >
+            Register Driver
+          </Button>
+        }
+      />
 
       <DataTable
         columns={columns}

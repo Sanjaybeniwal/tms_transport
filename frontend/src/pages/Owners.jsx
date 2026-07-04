@@ -28,6 +28,8 @@ import { useForm } from 'react-hook-form';
 
 import API from '../services/api';
 import DataTable from '../components/DataTable';
+import AdminHeader from '../components/AdminHeader';
+import PeopleIcon from '@mui/icons-material/People';
 
 const Owners = () => {
   const [data, setData] = useState([]);
@@ -140,18 +142,26 @@ const Owners = () => {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 800 }}>
-          Vehicle Owners Manager
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => handleOpenForm()}
-        >
-          Add New Owner
-        </Button>
-      </Box>
+      <AdminHeader
+        title="Vehicle Owners Manager"
+        description="Register and manage vehicle owners, office addresses, primary contact lines, and ledger status."
+        icon={<PeopleIcon />}
+        action={
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => handleOpenForm()}
+            sx={{
+              background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+              color: '#ffffff',
+              fontWeight: 700,
+              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)'
+            }}
+          >
+            Add New Owner
+          </Button>
+        }
+      />
 
       <DataTable
         columns={columns}

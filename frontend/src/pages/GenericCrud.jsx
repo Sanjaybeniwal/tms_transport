@@ -26,10 +26,15 @@ import AddIcon from '@mui/icons-material/Add';
 import PrintIcon from '@mui/icons-material/Print';
 import LocalGasStationIcon from '@mui/icons-material/LocalGasStation';
 import PaymentIcon from '@mui/icons-material/Payment';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+import TrendingDownIcon from '@mui/icons-material/TrendingDown';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { useForm, Controller } from 'react-hook-form';
 
 import API from '../services/api';
 import DataTable from '../components/DataTable';
+import AdminHeader from '../components/AdminHeader';
 
 const printStyles = `
 @media print {
@@ -280,20 +285,75 @@ const GenericCrud = ({ resource, title, fields }) => {
       }
     }));
 
+  const getResourceDetails = () => {
+    switch (resource) {
+      case 'expenseHeads':
+        return {
+          description: 'Manage categorization ledger accounts for operations expenditures.',
+          icon: <ReceiptIcon />
+        };
+      case 'pumps':
+        return {
+          description: 'Register and manage diesel fueling station vendors and credit contracts.',
+          icon: <LocalGasStationIcon />
+        };
+      case 'expenses':
+        return {
+          description: 'Log and monitor trip-specific and general vehicle operating expenses.',
+          icon: <TrendingDownIcon />
+        };
+      case 'diesels':
+        return {
+          description: 'Track fuel refueling quantities, fuel rates, driver signatures, and slips.',
+          icon: <LocalGasStationIcon />
+        };
+      case 'pumpPayments':
+        return {
+          description: 'Process and log payments made to fuel station vendors against outstanding credit.',
+          icon: <PaymentIcon />
+        };
+      case 'driverAdvances':
+        return {
+          description: 'Log trip advance cash payments handed out to dispatch drivers.',
+          icon: <AttachMoneyIcon />
+        };
+      case 'incomeLogs':
+        return {
+          description: 'Record freight incomes, load bookings revenues, and payment collections.',
+          icon: <TrendingUpIcon />
+        };
+      default:
+        return {
+          description: 'Manage operational data registry records.',
+          icon: <ReceiptIcon />
+        };
+    }
+  };
+
+  const resDetails = getResourceDetails();
+
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 800 }}>
-          {title}
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => handleOpenForm()}
-        >
-          Create Record
-        </Button>
-      </Box>
+      <AdminHeader
+        title={title}
+        description={resDetails.description}
+        icon={resDetails.icon}
+        action={
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => handleOpenForm()}
+            sx={{
+              background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+              color: '#ffffff',
+              fontWeight: 700,
+              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)'
+            }}
+          >
+            Create Record
+          </Button>
+        }
+      />
 
       <DataTable
         columns={columns}

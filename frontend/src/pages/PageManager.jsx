@@ -44,6 +44,7 @@ import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import PublicIcon from '@mui/icons-material/Public';
 import LanguageIcon from '@mui/icons-material/Language';
 import API from '../services/api';
+import AdminHeader from '../components/AdminHeader';
 
 const PageManager = () => {
   const [pages, setPages] = useState([]);
@@ -545,44 +546,27 @@ const PageManager = () => {
   }
 
   return (
-    <Box sx={{ p: 1 }}>
-      {/* Top Banner Header */}
-      <Card sx={{ 
-        mb: 4, 
-        borderRadius: 4, 
-        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', 
-        color: '#ffffff',
-        boxShadow: '0 10px 25px -5px rgba(15, 23, 42, 0.15)'
-      }}>
-        <CardContent sx={{ p: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 3 }}>
-          <Box>
-            <Typography variant="h4" sx={{ fontWeight: 800, mb: 1, letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <WebIcon fontSize="large" sx={{ color: 'primary.light' }} /> Public Website CMS Builder
-            </Typography>
-            <Typography variant="body1" sx={{ opacity: 0.8, maxWidth: 600 }}>
-              Edit layouts, customize styling configurations, and add custom scripts to construct pages for your public website in real-time.
-            </Typography>
-          </Box>
+    <Box>
+      <AdminHeader
+        title="Public Website CMS Builder"
+        description="Edit layouts, customize styling configurations, and add custom scripts to construct pages for your public website in real-time."
+        icon={<WebIcon />}
+        action={
           <Button 
             startIcon={<AddIcon />} 
             variant="contained" 
-            color="primary"
             onClick={() => setIsNewModalOpen(true)}
             sx={{ 
-              borderRadius: '24px', 
-              textTransform: 'none', 
-              px: 4, 
-              py: 1.5,
               fontWeight: 700,
               boxShadow: '0 4px 14px 0 rgba(37,99,235,0.4)',
-              bgcolor: '#2563eb',
-              '&:hover': { bgcolor: '#1d4ed8' }
+              background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+              color: '#ffffff'
             }}
           >
             Create Web Page
           </Button>
-        </CardContent>
-      </Card>
+        }
+      />
 
       {successMsg && <Alert severity="success" sx={{ mb: 3, borderRadius: 2 }}>{successMsg}</Alert>}
       {errorMsg && <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>{errorMsg}</Alert>}

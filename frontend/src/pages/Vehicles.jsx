@@ -21,6 +21,8 @@ import { useForm } from 'react-hook-form';
 
 import API from '../services/api';
 import DataTable from '../components/DataTable';
+import AdminHeader from '../components/AdminHeader';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 
 const Vehicles = () => {
   const [data, setData] = useState([]);
@@ -207,18 +209,26 @@ const Vehicles = () => {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 800 }}>
-          Vehicles Fleet Manager
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => handleOpenForm()}
-        >
-          Add New Vehicle
-        </Button>
-      </Box>
+      <AdminHeader
+        title="Vehicles Fleet Manager"
+        description="Register and manage fleet trucks, trailers, insurance, fitness, permit expiry status, and assigned owners."
+        icon={<LocalShippingIcon />}
+        action={
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => handleOpenForm()}
+            sx={{
+              background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+              color: '#ffffff',
+              fontWeight: 700,
+              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)'
+            }}
+          >
+            Add New Vehicle
+          </Button>
+        }
+      />
 
       <DataTable
         columns={columns}

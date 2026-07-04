@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Typography,
   Box,
@@ -20,8 +20,10 @@ import {
 } from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download';
 import PrintIcon from '@mui/icons-material/Print';
+import BarChartIcon from '@mui/icons-material/BarChart';
 
 import API from '../services/api';
+import AdminHeader from '../components/AdminHeader';
 
 const Reports = () => {
   const [reportType, setReportType] = useState('profit-loss');
@@ -390,9 +392,11 @@ const Reports = () => {
 
   return (
     <Box>
-      <Typography variant="h4" sx={{ fontWeight: 800, mb: 4 }}>
-        Reports Center
-      </Typography>
+      <AdminHeader
+        title="Reports & Analytics Center"
+        description="Generate official profit-loss summaries, trips registries, diesel consumption logs, and pump vendor clearance reports."
+        icon={<BarChartIcon />}
+      />
 
       {/* Query Filters */}
       <Paper sx={{ p: 3, mb: 4 }}>

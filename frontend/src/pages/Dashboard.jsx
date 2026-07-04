@@ -104,14 +104,38 @@ const Dashboard = () => {
   return (
     <Box sx={{ flexGrow: 1 }}>
       {/* Welcome Banner / Header */}
-      <Box sx={{ mb: 4, p: 3, borderRadius: 3, background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)', color: '#ffffff', boxShadow: '0 10px 25px -5px rgba(37, 99, 235, 0.15)' }}>
-        <Typography variant="h4" sx={{ fontWeight: 800, mb: 1, letterSpacing: '-0.02em' }}>
-          Welcome back, {user?.name || 'Administrator'}
-        </Typography>
-        <Typography variant="body1" sx={{ opacity: 0.9 }}>
-          Here is your real-time fleet operations overview, active trip logs, and diesel station balances.
-        </Typography>
-      </Box>
+      <Card
+        sx={{
+          mb: 4,
+          background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+          color: '#ffffff',
+          borderRadius: 3,
+          boxShadow: '0 10px 25px -5px rgba(15, 23, 42, 0.08)',
+          position: 'relative',
+          overflow: 'hidden',
+          border: 'none',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: '-50%',
+            right: '-20%',
+            width: '300px',
+            height: '300px',
+            background: 'radial-gradient(circle, rgba(37,99,235,0.15) 0%, rgba(37,99,235,0) 70%)',
+            borderRadius: '50%',
+            pointerEvents: 'none'
+          }
+        }}
+      >
+        <CardContent sx={{ p: { xs: 3, sm: 4 }, '&:last-child': { pb: { xs: 3, sm: 4 } } }}>
+          <Typography variant="h4" sx={{ fontWeight: 800, mb: 1, letterSpacing: '-0.02em' }}>
+            Welcome back, {user?.name || 'Administrator'}
+          </Typography>
+          <Typography variant="body1" sx={{ color: '#94a3b8', fontWeight: 500 }}>
+            Here is your real-time fleet operations overview, active trip logs, and diesel station balances.
+          </Typography>
+        </CardContent>
+      </Card>
 
       {/* Quick Actions Desk */}
       <Box sx={{ 

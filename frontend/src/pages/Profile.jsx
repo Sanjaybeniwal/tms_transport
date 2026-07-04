@@ -21,6 +21,7 @@ import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
 import SaveIcon from '@mui/icons-material/Save';
 import { AuthContext } from '../context/AuthContext';
 import API from '../services/api';
+import AdminHeader from '../components/AdminHeader';
 
 const Profile = () => {
   const { user } = useContext(AuthContext);
@@ -116,10 +117,12 @@ const Profile = () => {
   };
 
   return (
-    <Container maxWidth="md" sx={{ mt: 4, mb: 6 }}>
-      <Typography variant="h4" sx={{ fontWeight: 800, mb: 4, color: 'text.primary' }}>
-        Profile & Settings
-      </Typography>
+    <Box>
+      <AdminHeader
+        title="Profile & Company Settings"
+        description="Manage your login profile, upload/update company brand logos, and configure support contact details."
+        icon={<PersonIcon />}
+      />
 
       <Grid container spacing={4}>
         {/* User Information Card */}
@@ -310,7 +313,7 @@ const Profile = () => {
           </Grid>
         )}
       </Grid>
-    </Container>
+    </Box>
   );
 };
 

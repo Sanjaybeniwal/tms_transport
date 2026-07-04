@@ -22,6 +22,8 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 
 import API from '../services/api';
+import AdminHeader from '../components/AdminHeader';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 
 const Ledgers = () => {
   const location = useLocation();
@@ -102,9 +104,11 @@ const Ledgers = () => {
 
   return (
     <Box>
-      <Typography variant="h4" sx={{ fontWeight: 800, mb: 4 }}>
-        Financial Ledger Center
-      </Typography>
+      <AdminHeader
+        title="Financial Ledger Center"
+        description="Review detailed debit/credit logs, transaction statements, diesel station dues, and outstanding balances."
+        icon={<AccountBalanceIcon />}
+      />
 
       {/* Filter Toolbar */}
       <Paper sx={{ p: 3, mb: 4 }}>

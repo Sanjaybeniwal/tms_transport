@@ -28,6 +28,8 @@ import { useForm, Controller } from 'react-hook-form';
 
 import API from '../services/api';
 import DataTable from '../components/DataTable';
+import AdminHeader from '../components/AdminHeader';
+import AltRouteIcon from '@mui/icons-material/AltRoute';
 
 const printStyles = `
 @media print {
@@ -321,18 +323,26 @@ const Trips = () => {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 800 }}>
-          Trips Management Hub
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => handleOpenForm()}
-        >
-          Formulate New Trip
-        </Button>
-      </Box>
+      <AdminHeader
+        title="Trips Management Hub"
+        description="Plan, formulate, and monitor cargo transport trips, route logs, fuel slip allocations, and driver payments."
+        icon={<AltRouteIcon />}
+        action={
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => handleOpenForm()}
+            sx={{
+              background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+              color: '#ffffff',
+              fontWeight: 700,
+              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)'
+            }}
+          >
+            Formulate New Trip
+          </Button>
+        }
+      />
 
       <DataTable
         columns={columns}

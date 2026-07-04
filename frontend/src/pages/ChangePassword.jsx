@@ -14,7 +14,9 @@ import {
   Avatar
 } from '@mui/material';
 import LockIcon from '@mui/icons-material/Lock';
+import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { AuthContext } from '../context/AuthContext';
+import AdminHeader from '../components/AdminHeader';
 
 const ChangePassword = () => {
   const { changePassword } = useContext(AuthContext);
@@ -41,18 +43,18 @@ const ChangePassword = () => {
   };
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 4 }}>
-      <Card>
-        <CardContent sx={{ p: 4 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-            <Avatar sx={{ bgcolor: 'primary.main' }}><LockIcon /></Avatar>
-            <Typography variant="h5" sx={{ fontWeight: 700 }}>
-              Change Security Password
-            </Typography>
-          </Box>
+    <Box>
+      <AdminHeader
+        title="Security & Password Change"
+        description="Update your account credentials to keep your dispatcher ledger records safe."
+        icon={<LockOpenIcon />}
+      />
 
-          {successMsg && <Alert severity="success" sx={{ mb: 2 }}>{successMsg}</Alert>}
-          {errorMsg && <Alert severity="error" sx={{ mb: 2 }}>{errorMsg}</Alert>}
+      <Box sx={{ maxWidth: '600px', mx: 'auto' }}>
+        <Card sx={{ border: '1px solid #e2e8f0', borderRadius: 3, boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.02)' }}>
+          <CardContent sx={{ p: 4 }}>
+            {successMsg && <Alert severity="success" sx={{ mb: 2 }}>{successMsg}</Alert>}
+            {errorMsg && <Alert severity="error" sx={{ mb: 2 }}>{errorMsg}</Alert>}
 
           <form onSubmit={handleSubmit(onSubmit)}>
             <Grid container spacing={2}>
@@ -94,7 +96,8 @@ const ChangePassword = () => {
           </form>
         </CardContent>
       </Card>
-    </Container>
+      </Box>
+    </Box>
   );
 };
 

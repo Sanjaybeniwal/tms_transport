@@ -20,6 +20,8 @@ import { useForm } from 'react-hook-form';
 
 import API from '../services/api';
 import DataTable from '../components/DataTable';
+import AdminHeader from '../components/AdminHeader';
+import BusinessIcon from '@mui/icons-material/Business';
 
 const Parties = () => {
   const [data, setData] = useState([]);
@@ -117,18 +119,26 @@ const Parties = () => {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Typography variant="h4" sx={{ fontWeight: 800 }}>
-          Customers / Parties Manager
-        </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => handleOpenForm()}
-        >
-          Add New Customer
-        </Button>
-      </Box>
+      <AdminHeader
+        title="Customers / Parties Manager"
+        description="Register and manage business clients, freight accounts, contact channels, and transaction ledgers."
+        icon={<BusinessIcon />}
+        action={
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => handleOpenForm()}
+            sx={{
+              background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+              color: '#ffffff',
+              fontWeight: 700,
+              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)'
+            }}
+          >
+            Add New Customer
+          </Button>
+        }
+      />
 
       <DataTable
         columns={columns}
