@@ -28,11 +28,23 @@ const Login = () => {
 
   const { register, handleSubmit, formState: { errors } } = useForm();
 
+  const getPublicIp = async () => {
+    try {
+      const res = await fetch('https://api.ipify.org?format=json');
+      const data = await res.json();
+      return data.ip;
+    } catch (err) {
+      console.warn('Failed to fetch public IP, falling back to local detection:', err);
+      return null;
+    }
+  };
+
   const onSubmit = async (data) => {
     setLoading(true);
     setErrorMsg('');
     try {
-      const res = await login(data.email, data.password);
+      const clientIp = await getPublicIp();
+      const res = await login(data.email, data.password, clientIp);
       setLoading(false);
       
       if (res.success) {
@@ -60,7 +72,8 @@ const Login = () => {
     setLoading(true);
     setErrorMsg('');
     try {
-      const res = await verifyOtp(otpEmail, otpCode);
+      const clientIp = await getPublicIp();
+      const res = await verifyOtp(otpEmail, otpCode, clientIp);
       setLoading(false);
       if (res.success) {
         navigate('/admin');

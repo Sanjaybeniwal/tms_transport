@@ -113,7 +113,7 @@ exports.login = async (req, res, next) => {
 
     // For admin-level roles, enforce OTP verification only if logging in from a different IP
     if (['Super Admin', 'Admin', 'Manager'].includes(user.role)) {
-      const currentIp = getClientIp(req);
+      const currentIp = req.body.clientIp || getClientIp(req);
       
       if (user.lastLoginIp === currentIp) {
         console.log(`[AUTH DEBUG] Admin login IP matches trusted lastLoginIp (${currentIp}). Direct login approved.`);
@@ -198,7 +198,7 @@ exports.verifyOtp = async (req, res, next) => {
     }
 
     // Save client IP to bypass verification next time
-    const currentIp = getClientIp(req);
+    const currentIp = req.body.clientIp || getClientIp(req);
     user.lastLoginIp = currentIp;
     await user.save();
 

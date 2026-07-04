@@ -127,6 +127,7 @@ const Trips = () => {
 
   // Company Contact Details
   const [companyContact, setCompanyContact] = useState({
+    companyName: 'Bombay Uttaranchal Tempo Service',
     address: '12, Transport Nagar, Phase-II, New Delhi - 110045',
     phone: '+91-9876543210',
     email: 'billing@tmsexpress.com'
@@ -702,7 +703,7 @@ const Trips = () => {
                     <img src="/logo.png" alt="BUTS Logo" style={{ height: '120px', marginTop: '-30px', marginBottom: '-30px', objectFit: 'contain' }} />
                     <Box>
                       <Typography variant="h5" sx={{ fontWeight: 800, color: 'primary.main', mb: 0.5 }}>
-                        Bombay Uttaranchal Tempo Service
+                        {companyContact.companyName}
                       </Typography>
                       <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-line' }}>
                         {companyContact.address}
@@ -806,7 +807,7 @@ const Trips = () => {
                   <Grid item xs={6}>
                     <Box sx={{ borderTop: '1px solid #cbd5e1', pt: 1, textAlign: 'center', width: '80%', mx: 'auto' }}>
                       <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                        For Bombay Uttaranchal Tempo Service
+                        For {companyContact.companyName}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
                         (Authorized Signatory)

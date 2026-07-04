@@ -269,6 +269,15 @@ const Profile = () => {
                   <Grid item xs={12}>
                     <TextField
                       fullWidth
+                      label="Company Name"
+                      placeholder="E.g., Bombay Uttaranchal Tempo Service"
+                      value={contactInfo.companyName || ''}
+                      onChange={(e) => setContactInfo({ ...contactInfo, companyName: e.target.value })}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
                       label="Office / Depot Address"
                       placeholder="E.g., 12, Transport Nagar, Phase-II, New Delhi - 110045"
                       value={contactInfo.address}

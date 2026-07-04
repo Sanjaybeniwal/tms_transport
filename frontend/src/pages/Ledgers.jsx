@@ -49,6 +49,7 @@ const Ledgers = () => {
 
   // Company Contact Details
   const [companyContact, setCompanyContact] = useState({
+    companyName: 'Bombay Uttaranchal Tempo Service',
     address: '12, Transport Nagar, Phase-II, New Delhi - 110045',
     phone: '+91-9876543210',
     email: 'billing@tmsexpress.com'
@@ -585,7 +586,7 @@ const Ledgers = () => {
                   {/* Company Header */}
                   <Box sx={{ textAlign: 'center', pb: 3, borderBottom: '2px solid #000000', mb: 3 }}>
                     <Typography variant="h4" sx={{ fontWeight: 900, letterSpacing: '0.02em', textTransform: 'uppercase' }}>
-                      Bombay Uttaranchal Tempo Service
+                      {companyContact.companyName}
                     </Typography>
                     <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.secondary', mt: 0.5 }}>
                       Leading Transport Contractors & Fleet Operators
@@ -702,7 +703,7 @@ const Ledgers = () => {
                         Authorized Signatory
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
-                        Bombay Uttaranchal Tempo Service
+                        {companyContact.companyName}
                       </Typography>
                     </Box>
                   </Box>

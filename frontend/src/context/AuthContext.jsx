@@ -32,9 +32,9 @@ export const AuthProvider = ({ children }) => {
     initAuth();
   }, [token]);
 
-  const login = async (email, password) => {
+  const login = async (email, password, clientIp) => {
     try {
-      const res = await axios.post('/api/auth/login', { email, password });
+      const res = await axios.post('/api/auth/login', { email, password, clientIp });
       
       if (res.data.status === 'otp_required') {
         return { success: true, otpRequired: true, email };
@@ -53,9 +53,9 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const verifyOtp = async (email, otp) => {
+  const verifyOtp = async (email, otp, clientIp) => {
     try {
-      const res = await axios.post('/api/auth/verify-otp', { email, otp });
+      const res = await axios.post('/api/auth/verify-otp', { email, otp, clientIp });
       const { token: userToken, data } = res.data;
       
       localStorage.setItem('token', userToken);
