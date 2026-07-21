@@ -29,6 +29,7 @@ import API from '../services/api';
 import DataTable from '../components/DataTable';
 import AdminHeader from '../components/AdminHeader';
 import PersonIcon from '@mui/icons-material/Person';
+import { formatDate } from '../utils/dateFormatter';
 
 const Drivers = () => {
   const [data, setData] = useState([]);
@@ -147,7 +148,7 @@ const Drivers = () => {
         const diffDays = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
         if (diffDays < 0) return <Chip label="Expired" size="small" color="error" />;
         if (diffDays <= 30) return <Chip label={`${diffDays}d left`} size="small" color="warning" />;
-        return row.licenseExpiry;
+        return formatDate(row.licenseExpiry);
       }
     },
     {
@@ -355,7 +356,7 @@ const Drivers = () => {
                     <ListItem key={trip.id} sx={{ px: 0 }}>
                       <ListItemText
                         primary={`Trip #${trip.tripNumber} (${trip.fromLocation?.city} to ${trip.toLocation?.city})`}
-                        secondary={`Vehicle: ${trip.vehicle?.vehicleNumber} | Freight: ₹${trip.freightAmount} | Date: ${trip.startDate} | Status: ${trip.status}`}
+                        secondary={`Vehicle: ${trip.vehicle?.vehicleNumber} | Freight: ₹${trip.freightAmount} | Date: ${formatDate(trip.startDate)} | Status: ${trip.status}`}
                       />
                     </ListItem>
                   ))}

@@ -137,6 +137,7 @@ const seedDatabase = async () => {
         fitnessExpiry: expSoon2.toISOString().split('T')[0],
         permitExpiry: '2027-12-15',
         pollutionExpiry: expSoon1.toISOString().split('T')[0],
+        docAlertResponsibility: 'Admin',
         status: 'Active'
       });
 
@@ -150,6 +151,7 @@ const seedDatabase = async () => {
         fitnessExpiry: expSoon1.toISOString().split('T')[0],
         permitExpiry: '2027-06-30',
         pollutionExpiry: '2026-11-20',
+        docAlertResponsibility: 'Admin',
         status: 'Active'
       });
 
@@ -163,6 +165,7 @@ const seedDatabase = async () => {
         fitnessExpiry: '2027-08-15',
         permitExpiry: expSoon1.toISOString().split('T')[0],
         pollutionExpiry: expSoon2.toISOString().split('T')[0],
+        docAlertResponsibility: 'Other',
         status: 'Active'
       });
 
@@ -206,6 +209,10 @@ const seedDatabase = async () => {
         partyId: abcLogistics.id,
         freightAmount: 65000.00,
         advance: 10000.00,
+        advanceDate: startOfLastMonth,
+        balanceHoldAmount: 3000.00,
+        podStatus: 'Approved',
+        balanceReceivedDate: today.toISOString().split('T')[0],
         startDate: startOfLastMonth,
         endDate: today.toISOString().split('T')[0],
         status: 'Completed'
@@ -220,6 +227,9 @@ const seedDatabase = async () => {
         partyId: abcLogistics.id,
         freightAmount: 85000.00,
         advance: 15000.00,
+        advanceDate: today.toISOString().split('T')[0],
+        balanceHoldAmount: 5000.00,
+        podStatus: 'Pending',
         startDate: today.toISOString().split('T')[0],
         status: 'Running'
       });

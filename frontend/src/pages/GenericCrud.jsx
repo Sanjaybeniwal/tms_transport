@@ -37,6 +37,7 @@ import { useForm, Controller } from 'react-hook-form';
 import API from '../services/api';
 import DataTable from '../components/DataTable';
 import AdminHeader from '../components/AdminHeader';
+import { formatDate } from '../utils/dateFormatter';
 
 const printStyles = `
 @media print {
@@ -310,6 +311,9 @@ Generated via BUTS Transport Management System`;
               size="small"
             />
           );
+        }
+        if (f.type === 'date') {
+          return formatDate(row[f.name]);
         }
         if (f.isCurrency) {
           return `₹${parseFloat(row[f.name] || 0).toFixed(2)}`;
@@ -586,7 +590,7 @@ Generated via BUTS Transport Management System`;
                       Slip No: FSL-{printDieselData.id}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Date: {new Date(printDieselData.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      Date: {formatDate(printDieselData.date)}
                     </Typography>
                   </Box>
                 </Box>
@@ -727,7 +731,7 @@ Generated via BUTS Transport Management System`;
                       Voucher No: PV-{printDieselData.id}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Date: {new Date(printDieselData.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      Date: {formatDate(printDieselData.date)}
                     </Typography>
                   </Box>
                 </Box>

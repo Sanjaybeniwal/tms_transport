@@ -34,6 +34,7 @@ import {
   Avatar
 } from '@mui/material';
 import MailIcon from '@mui/icons-material/Mail';
+import { formatDateTime } from '../utils/dateFormatter';
 import SearchIcon from '@mui/icons-material/Search';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -308,13 +309,7 @@ const EnquiryManager = () => {
                 {enquiries.map((enquiry) => (
                   <TableRow key={enquiry.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                     <TableCell>
-                      {new Date(enquiry.createdAt).toLocaleDateString('en-IN', {
-                        day: '2-digit',
-                        month: 'short',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
+                      {formatDateTime(enquiry.createdAt)}
                     </TableCell>
                     <TableCell sx={{ fontWeight: 700 }}>{enquiry.name}</TableCell>
                     <TableCell>{enquiry.email || 'N/A'}</TableCell>
@@ -375,7 +370,7 @@ const EnquiryManager = () => {
                   Enquiry from {selectedEnquiry.name}
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#94a3b8' }}>
-                  Submitted on {new Date(selectedEnquiry.createdAt).toLocaleString('en-IN')}
+                  Submitted on {formatDateTime(selectedEnquiry.createdAt)}
                 </Typography>
               </Box>
               <Chip

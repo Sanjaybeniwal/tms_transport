@@ -19,6 +19,7 @@ exports.getExpiryAlerts = async (req, res, next) => {
     const vehicles = await Vehicle.findAll({
       where: {
         status: 'Active',
+        docAlertResponsibility: 'Admin',
         [Op.or]: [
           { insuranceExpiry: { [Op.lte]: warningLimit } },
           { fitnessExpiry: { [Op.lte]: warningLimit } },

@@ -61,9 +61,11 @@ const startServer = async () => {
     await sequelize.sync({ alter: true }); // Automatically updates schema tables safely
     logger.info('Database models synced successfully.');
 
-    // Seed default records only if explicitly requested
-    if (process.env.SEED_DB === 'true') {
+    // Seed default records only if explicitly requested (never in production)
+    if (process.env.SEED_DB === 'true' && process.env.NODE_ENV !== 'production') {
       await seedDatabase();
+    } else if (process.env.SEED_DB === 'true' && process.env.NODE_ENV === 'production') {
+      logger.warn('Seeding request ignored because server is running in production mode.');
     }
   } catch (error) {
     logger.error('Error syncing database schemas:', error);

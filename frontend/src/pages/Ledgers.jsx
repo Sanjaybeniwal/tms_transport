@@ -28,6 +28,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import API from '../services/api';
 import AdminHeader from '../components/AdminHeader';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import { formatDate } from '../utils/dateFormatter';
 
 const Ledgers = () => {
   const location = useLocation();
@@ -441,8 +442,8 @@ const Ledgers = () => {
                   </TableHead>
                   <TableBody>
                     {ledgerData.history.map((tx, idx) => (
-                      <TableRow key={idx}>
-                        <TableCell>{tx.date}</TableCell>
+                      <TableRow key={tx.id} hover>
+                        <TableCell>{formatDate(tx.date)}</TableCell>
                         <TableCell>
                           <Chip
                             label={tx.type}
@@ -503,8 +504,8 @@ const Ledgers = () => {
                   </TableHead>
                   <TableBody>
                     {partyHistory.map((tx, idx) => (
-                      <TableRow key={idx} hover>
-                        <TableCell sx={{ fontWeight: 500 }}>{tx.date}</TableCell>
+                      <TableRow key={tx.id} hover>
+                        <TableCell sx={{ fontWeight: 500 }}>{formatDate(tx.date)}</TableCell>
                         <TableCell>
                           <Chip
                             label={tx.type}
@@ -621,10 +622,10 @@ const Ledgers = () => {
                         Statement Duration
                       </Typography>
                       <Typography variant="body1" sx={{ fontWeight: 700, mt: 0.5 }}>
-                        {startDate ? startDate : 'Beginning'} to {endDate ? endDate : 'Present'}
+                        {startDate ? formatDate(startDate) : 'Beginning'} to {endDate ? formatDate(endDate) : 'Present'}
                       </Typography>
                       <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: 0.5 }}>
-                        Statement Generated on: {new Date().toLocaleDateString('en-IN', { dateStyle: 'long' })}
+                        Statement Generated on: {formatDate(new Date())}
                       </Typography>
                     </Grid>
                   </Grid>
@@ -645,7 +646,7 @@ const Ledgers = () => {
                       <TableBody>
                         {partyHistory.map((tx, idx) => (
                           <TableRow key={idx} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                            <TableCell sx={{ py: 1.2 }}>{tx.date}</TableCell>
+                            <TableCell sx={{ py: 1.2 }}>{formatDate(tx.date)}</TableCell>
                             <TableCell sx={{ py: 1.2, fontWeight: 600 }}>{tx.type}</TableCell>
                             <TableCell sx={{ py: 1.2 }}>{tx.reference}</TableCell>
                             <TableCell align="right" sx={{ py: 1.2 }}>

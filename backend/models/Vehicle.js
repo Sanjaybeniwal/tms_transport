@@ -56,6 +56,10 @@ const Vehicle = sequelize.define('Vehicle', {
     type: DataTypes.DATEONLY,
     allowNull: true
   },
+  docAlertResponsibility: {
+    type: DataTypes.ENUM('Admin', 'Other'),
+    defaultValue: 'Admin'
+  },
   status: {
     type: DataTypes.ENUM('Active', 'Inactive'),
     defaultValue: 'Active'

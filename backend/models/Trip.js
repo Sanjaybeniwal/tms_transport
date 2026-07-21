@@ -60,9 +60,30 @@ const Trip = sequelize.define('Trip', {
     type: DataTypes.DECIMAL(10, 2),
     defaultValue: 0.00
   },
+  advanceDate: {
+    type: DataTypes.DATEONLY,
+    allowNull: true
+  },
   commission: {
     type: DataTypes.DECIMAL(10, 2),
     defaultValue: 0.00
+  },
+  remainingPayment: {
+    type: DataTypes.DECIMAL(10, 2),
+    defaultValue: 0.00
+  },
+  balanceHoldAmount: {
+    type: DataTypes.DECIMAL(10, 2),
+    defaultValue: 0.00
+  },
+  podStatus: {
+    type: DataTypes.ENUM('Pending', 'Received', 'Approved'),
+    defaultValue: 'Pending'
+  },
+
+  balanceReceivedDate: {
+    type: DataTypes.DATEONLY,
+    allowNull: true
   },
   startDate: {
     type: DataTypes.DATEONLY,
@@ -76,6 +97,14 @@ const Trip = sequelize.define('Trip', {
     type: DataTypes.ENUM('Pending', 'Running', 'Completed', 'Cancelled'),
     defaultValue: 'Pending'
   }
+});
+
+Trip.beforeSave((trip, options) => {
+  const freight = parseFloat(trip.freightAmount || 0);
+  const comm = parseFloat(trip.commission || 0);
+  const advance = parseFloat(trip.advance || 0);
+  const hold = parseFloat(trip.balanceHoldAmount || 0);
+  trip.remainingPayment = freight - comm - advance - hold;
 });
 
 module.exports = Trip;

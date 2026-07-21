@@ -24,6 +24,7 @@ import API from '../services/api';
 import DataTable from '../components/DataTable';
 import AdminHeader from '../components/AdminHeader';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import { formatDate } from '../utils/dateFormatter';
 
 const Vehicles = () => {
   const [data, setData] = useState([]);
@@ -41,7 +42,7 @@ const Vehicles = () => {
   const [openForm, setOpenForm] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
 
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm();
+  const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm();
 
   const fetchVehicles = async () => {
     setLoading(true);
@@ -91,6 +92,7 @@ const Vehicles = () => {
       setValue('nationalPermitNumber', vehicle.nationalPermitNumber || '');
       setValue('nationalPermitExpiry', vehicle.nationalPermitExpiry || '');
       setValue('pollutionExpiry', vehicle.pollutionExpiry || '');
+      setValue('docAlertResponsibility', vehicle.docAlertResponsibility || 'Admin');
       setValue('status', vehicle.status);
     } else {
       reset({
@@ -105,6 +107,7 @@ const Vehicles = () => {
         nationalPermitNumber: '',
         nationalPermitExpiry: '',
         pollutionExpiry: '',
+        docAlertResponsibility: 'Admin',
         status: 'Active'
       });
     }
@@ -152,7 +155,7 @@ const Vehicles = () => {
     } else if (diffDays <= 30) {
       return <Chip label={`${diffDays}d left`} size="small" color="warning" />;
     }
-    return <Typography variant="body2" color="text.secondary">{expiryDate}</Typography>;
+    return <Typography variant="body2" color="text.secondary">{formatDate(expiryDate)}</Typography>;
   };
 
   const columns = [
@@ -193,6 +196,19 @@ const Vehicles = () => {
       headerName: 'Fitness Expiry',
       minWidth: 120,
       renderCell: (row) => getDocExpiryStatus(row.fitnessExpiry)
+    },
+    {
+      field: 'docAlertResponsibility',
+      headerName: 'Alert Resp.',
+      minWidth: 130,
+      renderCell: (row) => (
+        <Chip
+          label={row.docAlertResponsibility || 'Admin'}
+          color={row.docAlertResponsibility === 'Other' ? 'default' : 'primary'}
+          variant="outlined"
+          size="small"
+        />
+      )
     },
     {
       field: 'status',
@@ -387,7 +403,24 @@ const Vehicles = () => {
                   {...register('pollutionExpiry')}
                 />
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  select
+                  label="Document Alert Responsibility"
+                  defaultValue="Admin"
+                  {...register('docAlertResponsibility')}
+                  helperText={
+                    watch('docAlertResponsibility') === 'Other'
+                      ? "Admin will NOT receive document expiry alerts for this vehicle"
+                      : "Admin will receive document expiry alerts"
+                  }
+                >
+                  <MenuItem value="Admin">Admin (Generate Alerts for Admin)</MenuItem>
+                  <MenuItem value="Other">Other (Do NOT Generate Alerts for Admin)</MenuItem>
+                </TextField>
+              </Grid>
+              <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
                   select

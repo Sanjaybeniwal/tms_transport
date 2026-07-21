@@ -45,6 +45,7 @@ const vehicleSchema = Joi.object({
   fitnessExpiry: Joi.date().iso().allow('', null).empty('').default(null),
   permitExpiry: Joi.date().iso().allow('', null).empty('').default(null),
   pollutionExpiry: Joi.date().iso().allow('', null).empty('').default(null),
+  docAlertResponsibility: Joi.string().valid('Admin', 'Other').default('Admin'),
   status: Joi.string().valid('Active', 'Inactive').default('Active')
 });
 
@@ -78,13 +79,21 @@ const partySchema = Joi.object({
 const tripSchema = Joi.object({
   tripNumber: Joi.string().required(),
   vehicleId: Joi.number().integer().positive().required(),
-  driverId: Joi.number().integer().positive().required(),
+  driverId: Joi.alternatives().try(
+    Joi.number().integer().positive(),
+    Joi.string().valid('static-xyz')
+  ).required(),
   fromLocationId: Joi.number().integer().positive().required(),
   toLocationId: Joi.number().integer().positive().required(),
   partyId: Joi.number().integer().positive().required(),
   freightAmount: Joi.number().precision(2).positive().required(),
   advance: Joi.number().precision(2).min(0).default(0.00),
+  advanceDate: Joi.date().iso().allow('', null).empty('').default(null),
   commission: Joi.number().precision(2).min(0).default(0.00),
+  remainingPayment: Joi.number().precision(2).allow(0, null).empty('').default(0.00),
+  balanceHoldAmount: Joi.number().precision(2).min(0).allow(null).empty('').default(0.00),
+  podStatus: Joi.string().valid('Pending', 'Received', 'Approved').default('Pending'),
+  balanceReceivedDate: Joi.date().iso().allow('', null).empty('').default(null),
   startDate: Joi.date().iso().required(),
   endDate: Joi.date().iso().allow('', null).empty('').default(null),
   status: Joi.string().valid('Pending', 'Running', 'Completed', 'Cancelled').default('Pending')

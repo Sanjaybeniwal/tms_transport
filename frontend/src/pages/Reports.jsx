@@ -30,6 +30,7 @@ import BarChartIcon from '@mui/icons-material/BarChart';
 
 import API from '../services/api';
 import AdminHeader from '../components/AdminHeader';
+import { formatDate } from '../utils/dateFormatter';
 
 const Reports = () => {
   const [reportType, setReportType] = useState('profit-loss');
@@ -232,7 +233,7 @@ const Reports = () => {
         csvRows.push([exp.headName, `${exp.amount}`]);
       });
     } else if (reportType === 'trips') {
-      csvRows.push(["Trip No", "Vehicle", "Driver", "Customer", "Freight", "Commission", "Advance", "Start Date", "Status"]);
+      csvRows.push(["Trip No", "Vehicle", "Driver", "Customer", "Freight", "Commission", "Advance", "Advance Date", "Remaining", "Hold Amt", "POD Status", "Start Date", "Status"]);
       reportData.forEach(row => {
         csvRows.push([
           row.tripNumber,
@@ -242,7 +243,11 @@ const Reports = () => {
           `${row.freightAmount}`,
           `${row.commission || 0}`,
           `${row.advance}`,
-          row.startDate,
+          row.advanceDate || '-',
+          `${row.remainingPayment || '0.00'}`,
+          `${row.balanceHoldAmount || '0.00'}`,
+          row.podStatus || 'Pending',
+          formatDate(row.startDate),
           row.status
         ]);
       });
@@ -250,7 +255,7 @@ const Reports = () => {
       csvRows.push(["Date", "Customer", "Trip No", "Trip Freight", "Trip Commission", "Amount Collected", "Remarks"]);
       reportData.forEach(row => {
         csvRows.push([
-          row.date,
+          formatDate(row.date),
           row.party?.name || '-',
           row.trip?.tripNumber || '-',
           `${row.trip?.freightAmount || '0.00'}`,
@@ -263,7 +268,7 @@ const Reports = () => {
       csvRows.push(["Date", "Vehicle", "Pump Name", "Driver", "Quantity (Ltrs)", "Rate", "Total Amount"]);
       reportData.forEach(row => {
         csvRows.push([
-          row.date,
+          formatDate(row.date),
           row.vehicle?.vehicleNumber || '-',
           row.pump?.name || '-',
           row.driver?.name || '-',
@@ -276,7 +281,7 @@ const Reports = () => {
       csvRows.push(["Date", "Expense Head", "Vehicle", "Amount", "Remarks"]);
       reportData.forEach(row => {
         csvRows.push([
-          row.date,
+          formatDate(row.date),
           row.expenseHead?.name || '-',
           row.vehicle?.vehicleNumber || '-',
           `${row.amount}`,
@@ -307,7 +312,7 @@ const Reports = () => {
         trips.forEach(row => {
           csvRows.push([
             row.tripNumber,
-            row.startDate,
+            formatDate(row.startDate),
             row.driverName,
             row.vehicleNumber,
             row.customerName,
@@ -429,7 +434,7 @@ const Reports = () => {
               <div class="details-box">
                 <h3>Trip Information</h3>
                 <div class="details-row"><span class="details-label">Trip Number:</span><span class="details-value">${row.tripNumber}</span></div>
-                <div class="details-row"><span class="details-label">Trip Date:</span><span class="details-value">${row.startDate}</span></div>
+                <div class="details-row"><span class="details-label">Trip Date:</span><span class="details-value">${formatDate(row.startDate)}</span></div>
                 <div class="details-row"><span class="details-label">Vehicle Number:</span><span class="details-value">${row.vehicleNumber}</span></div>
                 <div class="details-row"><span class="details-label">Driver Name:</span><span class="details-value">${row.driverName}</span></div>
                 <div class="details-row"><span class="details-label">Customer/Party:</span><span class="details-value">${row.customerName}</span></div>
@@ -484,7 +489,7 @@ const Reports = () => {
       
       csvRows.push(["TRIP INFORMATION"]);
       csvRows.push(["Trip Number", row.tripNumber]);
-      csvRows.push(["Trip Date", row.startDate]);
+      csvRows.push(["Trip Date", formatDate(row.startDate)]);
       csvRows.push(["Vehicle Number", row.vehicleNumber]);
       csvRows.push(["Driver Name", row.driverName]);
       csvRows.push(["Customer/Party", row.customerName]);
@@ -613,7 +618,7 @@ const Reports = () => {
               ${trips.map(row => `
                 <tr>
                   <td><strong>${row.tripNumber}</strong></td>
-                  <td>${row.startDate}</td>
+                  <td>${formatDate(row.startDate)}</td>
                   <td>${row.driverName}</td>
                   <td>${row.vehicleNumber}</td>
                   <td>${row.customerName}</td>
@@ -831,6 +836,8 @@ const Reports = () => {
               <th>Freight</th>
               <th>Commission</th>
               <th>Advance</th>
+              <th>Remaining</th>
+              <th>Hold Amt</th>
               <th>Start Date</th>
               <th>Status</th>
             </tr>
@@ -844,8 +851,13 @@ const Reports = () => {
                 <td>${row.party?.name || '-'}</td>
                 <td>₹${row.freightAmount}</td>
                 <td>₹${row.commission || 0}</td>
-                <td>₹${row.advance}</td>
-                <td>${row.startDate}</td>
+                <td>
+                  ₹${row.advance}
+                  ${row.advanceDate ? `<br/><span style="font-size:0.75rem;color:gray;">(${formatDate(row.advanceDate)})</span>` : ''}
+                </td>
+                <td>₹${row.remainingPayment || '0.00'}</td>
+                <td>₹${row.balanceHoldAmount || '0.00'} (${row.podStatus || 'Pending'})</td>
+                <td>${formatDate(row.startDate)}</td>
                 <td>${row.status}</td>
               </tr>
             `).join('')}
@@ -869,7 +881,7 @@ const Reports = () => {
           <tbody>
             ${reportData.map(row => `
               <tr>
-                <td>${row.date}</td>
+                <td>${formatDate(row.date)}</td>
                 <td>${row.party?.name || '-'}</td>
                 <td><strong>${row.trip?.tripNumber || '-'}</strong></td>
                 <td>₹${row.trip?.freightAmount || '0.00'}</td>
@@ -890,7 +902,7 @@ const Reports = () => {
               <th>Vehicle</th>
               <th>Pump Name</th>
               <th>Driver</th>
-              <th>Quantity</th>
+              <th>Quantity (Ltrs)</th>
               <th>Rate</th>
               <th>Total Amount</th>
             </tr>
@@ -898,7 +910,7 @@ const Reports = () => {
           <tbody>
             ${reportData.map(row => `
               <tr>
-                <td>${row.date}</td>
+                <td>${formatDate(row.date)}</td>
                 <td><strong>${row.vehicle?.vehicleNumber || '-'}</strong></td>
                 <td>${row.pump?.name || '-'}</td>
                 <td>${row.driver?.name || '-'}</td>
@@ -925,7 +937,7 @@ const Reports = () => {
           <tbody>
             ${reportData.map(row => `
               <tr>
-                <td>${row.date}</td>
+                <td>${formatDate(row.date)}</td>
                 <td><strong>${row.expenseHead?.name || '-'}</strong></td>
                 <td>${row.vehicle?.vehicleNumber || '-'}</td>
                 <td>₹${row.amount}</td>
@@ -1250,6 +1262,8 @@ const Reports = () => {
                       <TableCell align="right">Freight</TableCell>
                       <TableCell align="right">Commission</TableCell>
                       <TableCell align="right">Advance</TableCell>
+                      <TableCell align="right">Remaining</TableCell>
+                      <TableCell align="right">Hold Amt</TableCell>
                       <TableCell>Start Date</TableCell>
                       <TableCell>Status</TableCell>
                     </TableRow>
@@ -1263,13 +1277,27 @@ const Reports = () => {
                         <TableCell>{row.party?.name}</TableCell>
                         <TableCell align="right">₹{row.freightAmount}</TableCell>
                         <TableCell align="right">₹{row.commission || 0}</TableCell>
-                        <TableCell align="right">₹{row.advance}</TableCell>
-                        <TableCell>{row.startDate}</TableCell>
+                        <TableCell align="right">
+                          ₹{row.advance}
+                          {row.advanceDate && (
+                            <span style={{ fontSize: '0.75rem', display: 'block', color: 'gray' }}>
+                              ({formatDate(row.advanceDate)})
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell align="right">₹{row.remainingPayment || '0.00'}</TableCell>
+                        <TableCell align="right">
+                          ₹{row.balanceHoldAmount || '0.00'}
+                          <Typography variant="caption" sx={{ display: 'block', color: row.podStatus === 'Approved' ? 'success.main' : 'warning.main' }}>
+                            POD: {row.podStatus || 'Pending'}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>{formatDate(row.startDate)}</TableCell>
                         <TableCell>{row.status}</TableCell>
                       </TableRow>
                     ))}
                     {reportData.length === 0 && (
-                      <TableRow><TableCell colSpan={9} align="center">No logs found</TableCell></TableRow>
+                      <TableRow><TableCell colSpan={11} align="center">No logs found</TableCell></TableRow>
                     )}
                   </TableBody>
                 </Table>
@@ -1297,7 +1325,7 @@ const Reports = () => {
                   <TableBody>
                     {reportData.map((row) => (
                       <TableRow key={row.id} hover>
-                        <TableCell>{row.date}</TableCell>
+                        <TableCell>{formatDate(row.date)}</TableCell>
                         <TableCell>{row.party?.name || 'N/A'}</TableCell>
                         <TableCell sx={{ fontWeight: 600 }}>{row.trip?.tripNumber || 'N/A'}</TableCell>
                         <TableCell align="right">₹{row.trip?.freightAmount || '0.00'}</TableCell>
@@ -1401,7 +1429,7 @@ const Reports = () => {
                           {paginatedTrips.map((row) => (
                             <TableRow key={row.id} hover>
                               <TableCell sx={{ fontWeight: 600 }}>{row.tripNumber}</TableCell>
-                              <TableCell>{row.startDate}</TableCell>
+                              <TableCell>{formatDate(row.startDate)}</TableCell>
                               <TableCell>{row.driverName}</TableCell>
                               <TableCell>{row.vehicleNumber}</TableCell>
                               <TableCell>{row.customerName}</TableCell>
@@ -1689,7 +1717,7 @@ const Reports = () => {
                   <TableBody>
                     {reportData.map((row) => (
                       <TableRow key={row.id} hover>
-                        <TableCell>{row.date}</TableCell>
+                        <TableCell>{formatDate(row.date)}</TableCell>
                         <TableCell sx={{ fontWeight: 600 }}>{row.vehicle?.vehicleNumber}</TableCell>
                         <TableCell>{row.pump?.name}</TableCell>
                         <TableCell>{row.driver?.name}</TableCell>
@@ -1725,7 +1753,7 @@ const Reports = () => {
                   <TableBody>
                     {reportData.map((row) => (
                       <TableRow key={row.id} hover>
-                        <TableCell>{row.date}</TableCell>
+                        <TableCell>{formatDate(row.date)}</TableCell>
                         <TableCell sx={{ fontWeight: 600 }}>{row.expenseHead?.name || '-'}</TableCell>
                         <TableCell>{row.vehicle?.vehicleNumber || '-'}</TableCell>
                         <TableCell align="right" sx={{ fontWeight: 600, color: 'error.main' }}>₹{row.amount}</TableCell>

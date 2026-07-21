@@ -33,6 +33,7 @@ import API from '../services/api';
 import DataTable from '../components/DataTable';
 import AdminHeader from '../components/AdminHeader';
 import AltRouteIcon from '@mui/icons-material/AltRoute';
+import { formatDate } from '../utils/dateFormatter';
 
 const printStyles = `
 @media print {
@@ -221,7 +222,12 @@ const Trips = () => {
         API.parties.list({ limit: 100, status: 'Active' })
       ]);
       setVehicles(vRes.data.data);
-      setDrivers(dRes.data.data);
+      const fetchedDrivers = dRes.data.data || [];
+      const hasXYZ = fetchedDrivers.some(d => d.name && d.name.trim().toUpperCase() === 'XYZ');
+      if (!hasXYZ) {
+        fetchedDrivers.push({ id: 'static-xyz', name: 'XYZ', mobile: 'XYZ-DEFAULT' });
+      }
+      setDrivers(fetchedDrivers);
       setLocations(lRes.data.data);
       setParties(pRes.data.data);
     } catch (err) {
@@ -238,6 +244,18 @@ const Trips = () => {
   }, []);
 
   const watchedVehicleId = watch('vehicleId');
+  const watchedFreightAmount = watch('freightAmount');
+  const watchedCommission = watch('commission');
+  const watchedAdvance = watch('advance');
+  const watchedBalanceHoldAmount = watch('balanceHoldAmount');
+
+  useEffect(() => {
+    const freight = parseFloat(watchedFreightAmount || 0);
+    const comm = parseFloat(watchedCommission || 0);
+    const adv = parseFloat(watchedAdvance || 0);
+    const hold = parseFloat(watchedBalanceHoldAmount || 0);
+    setValue('remainingPayment', (freight - comm - adv - hold).toFixed(2));
+  }, [watchedFreightAmount, watchedCommission, watchedAdvance, watchedBalanceHoldAmount, setValue]);
 
   useEffect(() => {
     const autoFillDriver = async () => {
@@ -248,7 +266,13 @@ const Trips = () => {
             setValue('driverId', res.data.driver.id);
             setIsDriverAutoFilled(true);
           } else {
-            setIsDriverAutoFilled(false);
+            const defaultDriver = drivers.find(d => d.name && d.name.trim().toUpperCase() === 'XYZ');
+            if (defaultDriver) {
+              setValue('driverId', defaultDriver.id);
+              setIsDriverAutoFilled(true);
+            } else {
+              setIsDriverAutoFilled(false);
+            }
           }
         } catch (err) {
           console.error('Error auto-filling driver:', err);
@@ -257,7 +281,7 @@ const Trips = () => {
       }
     };
     autoFillDriver();
-  }, [watchedVehicleId, setValue]);
+  }, [watchedVehicleId, setValue, drivers]);
 
   const handleOpenForm = (trip = null) => {
     setSelectedTrip(trip);
@@ -272,24 +296,38 @@ const Trips = () => {
       setValue('freightAmount', trip.freightAmount);
       setValue('commission', trip.commission || 0.00);
       setValue('advance', trip.advance);
+      setValue('advanceDate', trip.advanceDate || '');
+      setValue('remainingPayment', trip.remainingPayment || 0.00);
+      setValue('balanceHoldAmount', trip.balanceHoldAmount || 0.00);
+      setValue('podStatus', trip.podStatus || 'Pending');
+      setValue('balanceReceivedDate', trip.balanceReceivedDate || '');
       setValue('startDate', trip.startDate);
       setValue('endDate', trip.endDate || '');
       setValue('status', trip.status);
     } else {
+      const defaultDriver = drivers.find(d => d.name && d.name.trim().toUpperCase() === 'XYZ');
       reset({
         tripNumber: `TRP-${Date.now().toString().slice(-6)}`,
         vehicleId: '',
-        driverId: '',
+        driverId: defaultDriver ? defaultDriver.id : '',
         fromLocationId: '',
         toLocationId: '',
         partyId: '',
         freightAmount: '',
         commission: 0.00,
         advance: 0.00,
+        advanceDate: '',
+        remainingPayment: 0.00,
+        balanceHoldAmount: 0.00,
+        podStatus: 'Pending',
+        balanceReceivedDate: '',
         startDate: new Date().toISOString().split('T')[0],
         endDate: '',
         status: 'Pending'
       });
+      if (defaultDriver) {
+        setIsDriverAutoFilled(true);
+      }
     }
     setOpenForm(true);
   };
@@ -378,8 +416,50 @@ const Trips = () => {
     {
       field: 'advance',
       headerName: 'Advance',
-      minWidth: 100,
-      renderCell: (row) => `₹${row.advance}`
+      minWidth: 150,
+      renderCell: (row) => (
+        <Box>
+          <Typography variant="body2" sx={{ fontWeight: 600 }}>₹{row.advance}</Typography>
+          {row.advanceDate && (
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+              Date: {formatDate(row.advanceDate)}
+            </Typography>
+          )}
+        </Box>
+      )
+    },
+    {
+      field: 'remainingPayment',
+      headerName: 'Remaining',
+      minWidth: 110,
+      renderCell: (row) => `₹${row.remainingPayment || '0.00'}`
+    },
+    {
+      field: 'balanceHoldAmount',
+      headerName: 'Hold Amt',
+      minWidth: 110,
+      renderCell: (row) => (
+        <Box>
+          <Typography variant="body2" sx={{ fontWeight: 600 }}>₹{row.balanceHoldAmount || '0.00'}</Typography>
+          {row.podStatus && (
+            <Typography variant="caption" sx={{ display: 'block', color: row.podStatus === 'Approved' ? 'success.main' : row.podStatus === 'Received' ? 'info.main' : 'warning.main' }}>
+              POD: {row.podStatus}
+            </Typography>
+          )}
+        </Box>
+      )
+    },
+    {
+      field: 'startDate',
+      headerName: 'Start Date',
+      minWidth: 120,
+      renderCell: (row) => formatDate(row.startDate)
+    },
+    {
+      field: 'endDate',
+      headerName: 'End Date',
+      minWidth: 120,
+      renderCell: (row) => formatDate(row.endDate)
     },
     {
       field: 'status',
@@ -649,6 +729,62 @@ const Trips = () => {
                   fullWidth
                   type="date"
                   InputLabelProps={{ shrink: true }}
+                  label="Advance Received Date"
+                  {...register('advanceDate')}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  fullWidth
+                  type="number"
+                  label="Remaining Payment"
+                  InputProps={{
+                    startAdornment: <InputAdornment position="start">₹</InputAdornment>,
+                    readOnly: true
+                  }}
+                  {...register('remainingPayment')}
+                  helperText="Auto: Freight − Commission − Advance − Hold"
+                />
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  fullWidth
+                  type="number"
+                  label="Balance Hold Amount (POD)"
+                  InputProps={{
+                    startAdornment: <InputAdornment position="start">₹</InputAdornment>
+                  }}
+                  {...register('balanceHoldAmount')}
+                  helperText="Amount held by customer until POD"
+                />
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  fullWidth
+                  select
+                  label="POD Status"
+                  defaultValue="Pending"
+                  {...register('podStatus')}
+                >
+                  <MenuItem value="Pending">Pending</MenuItem>
+                  <MenuItem value="Received">Received</MenuItem>
+                  <MenuItem value="Approved">Approved</MenuItem>
+                </TextField>
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  fullWidth
+                  type="date"
+                  InputLabelProps={{ shrink: true }}
+                  label="Balance Received Date"
+                  {...register('balanceReceivedDate')}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  fullWidth
+                  type="date"
+                  InputLabelProps={{ shrink: true }}
                   label="Start Date"
                   {...register('startDate', { required: 'Start Date is required' })}
                   error={Boolean(errors.startDate)}
@@ -741,7 +877,7 @@ const Trips = () => {
                       Manifest No: {printTripData.tripNumber}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Date: {new Date(printTripData.startDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      Date: {formatDate(printTripData.startDate)}
                     </Typography>
                   </Box>
                 </Box>
@@ -807,15 +943,37 @@ const Trips = () => {
                       <TableCell align="right" sx={{ color: 'error.main', fontWeight: 600 }}>- ₹{parseFloat(printTripData.commission || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell sx={{ color: 'success.main', fontWeight: 600 }}>Less: Advance Paid</TableCell>
+                      <TableCell sx={{ color: 'success.main', fontWeight: 600 }}>
+                        Less: Advance Paid
+                        {printTripData.advanceDate && (
+                          <Typography variant="caption" sx={{ display: 'block', color: 'text.secondary', fontWeight: 400 }}>
+                            Received Date: {formatDate(printTripData.advanceDate)}
+                          </Typography>
+                        )}
+                      </TableCell>
                       <TableCell align="right" sx={{ color: 'success.main', fontWeight: 600 }}>- ₹{parseFloat(printTripData.advance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                     </TableRow>
                     <TableRow sx={{ bgcolor: '#f8fafc' }}>
-                      <TableCell sx={{ fontWeight: 800 }}>Net Outstanding Balance</TableCell>
+                      <TableCell sx={{ fontWeight: 800 }}>Remaining Payment</TableCell>
                       <TableCell align="right" sx={{ fontWeight: 800, fontSize: '1.1rem', color: 'primary.main' }}>
-                        ₹{parseFloat((printTripData.freightAmount || 0) - (printTripData.commission || 0) - (printTripData.advance || 0)).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        ₹{parseFloat(printTripData.remainingPayment || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </TableCell>
                     </TableRow>
+                    {parseFloat(printTripData.balanceHoldAmount || 0) > 0 && (
+                      <TableRow>
+                        <TableCell sx={{ fontWeight: 600 }}>
+                          Balance Hold Amount (POD: {printTripData.podStatus || 'Pending'})
+                          {printTripData.balanceReceivedDate && (
+                            <Typography variant="caption" sx={{ display: 'block', color: 'success.main' }}>
+                              Received Date: {formatDate(printTripData.balanceReceivedDate)}
+                            </Typography>
+                          )}
+                        </TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 600 }}>
+                          ₹{parseFloat(printTripData.balanceHoldAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </TableCell>
+                      </TableRow>
+                    )}
                   </TableBody>
                 </Table>
 

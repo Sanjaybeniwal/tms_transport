@@ -43,6 +43,7 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import MailIcon from '@mui/icons-material/Mail';
 
 import { AuthContext } from '../context/AuthContext';
+import { formatDate } from '../utils/dateFormatter';
 import API from '../services/api';
 
 const drawerWidth = 260;
@@ -75,13 +76,13 @@ const Layout = () => {
         const vehicleAlerts = vRes.data.data.flatMap(v => 
           v.issues.map(issue => ({
             id: `v-${v.id}-${issue.type}`,
-            text: `${v.vehicleNumber}: ${issue.type} expires on ${issue.date} ${issue.expired ? '(EXPIRED)' : ''}`,
+            text: `${v.vehicleNumber}: ${issue.type} expires on ${formatDate(issue.date)} ${issue.expired ? '(EXPIRED)' : ''}`,
             expired: issue.expired
           }))
         );
         const driverAlerts = dRes.data.data.map(d => ({
           id: `d-${d.id}`,
-          text: `Driver ${d.name}: License expires on ${d.licenseExpiry} ${d.expired ? '(EXPIRED)' : ''}`,
+          text: `Driver ${d.name}: License expires on ${formatDate(d.licenseExpiry)} ${d.expired ? '(EXPIRED)' : ''}`,
           expired: d.expired
         }));
         setAlerts([...vehicleAlerts, ...driverAlerts]);
