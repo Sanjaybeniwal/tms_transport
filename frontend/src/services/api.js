@@ -177,6 +177,7 @@ const API = {
     pumps: (params) => axios.get('/api/v1/reports/pumps', { params }),
     income: (params) => axios.get('/api/v1/reports/income', { params }),
     profitLoss: (params) => axios.get('/api/v1/reports/profit-loss', { params }),
+    driverVehiclePL: (params) => axios.get('/api/v1/reports/driver-vehicle-pl', { params }),
     export: (params) => axios.get('/api/v1/reports/export', { params })
   },
 

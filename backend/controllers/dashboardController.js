@@ -88,9 +88,9 @@ exports.getDashboardStats = async (req, res, next) => {
 
     const performance = [];
     for (let v of activeVehicles) {
-      const vIncome = await IncomeLog.sum('amount', {
-        include: [{ model: Trip, as: 'trip', where: { vehicleId: v.id } }]
-      }) || 0;
+      const trips = await Trip.findAll({ where: { vehicleId: v.id }, attributes: ['id'] });
+      const tripIds = trips.map(t => t.id);
+      const vIncome = tripIds.length > 0 ? (await IncomeLog.sum('amount', { where: { tripId: { [Op.in]: tripIds } } }) || 0) : 0;
 
       const vDiesel = await Diesel.sum('totalAmount', { where: { vehicleId: v.id } }) || 0;
       const vOther = await Expense.sum('amount', { where: { vehicleId: v.id } }) || 0;

@@ -3,7 +3,7 @@ const crud = require('./crudController');
 
 const includes = [
   { model: Party, as: 'party', attributes: ['id', 'name'] },
-  { model: Trip, as: 'trip', attributes: ['id', 'tripNumber'] }
+  { model: Trip, as: 'trip', attributes: ['id', 'tripNumber', 'freightAmount', 'commission'] }
 ];
 
 exports.getAllIncomeLogs = crud.getAll(IncomeLog, includes, ['remarks']);

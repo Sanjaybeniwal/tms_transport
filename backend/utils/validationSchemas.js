@@ -41,10 +41,10 @@ const vehicleSchema = Joi.object({
   ownerId: Joi.number().integer().positive().required(),
   rcNumber: Joi.string().required(),
   insuranceNumber: Joi.string().allow('', null),
-  insuranceExpiry: Joi.date().iso().allow(null),
-  fitnessExpiry: Joi.date().iso().allow(null),
-  permitExpiry: Joi.date().iso().allow(null),
-  pollutionExpiry: Joi.date().iso().allow(null),
+  insuranceExpiry: Joi.date().iso().allow('', null).empty('').default(null),
+  fitnessExpiry: Joi.date().iso().allow('', null).empty('').default(null),
+  permitExpiry: Joi.date().iso().allow('', null).empty('').default(null),
+  pollutionExpiry: Joi.date().iso().allow('', null).empty('').default(null),
   status: Joi.string().valid('Active', 'Inactive').default('Active')
 });
 
@@ -54,7 +54,7 @@ const driverSchema = Joi.object({
   address: Joi.string().allow('', null),
   licenseNumber: Joi.string().required(),
   licenseExpiry: Joi.date().iso().required(),
-  joiningDate: Joi.date().iso().allow(null),
+  joiningDate: Joi.date().iso().allow('', null).empty('').default(null),
   salary: Joi.number().precision(2).positive().required(),
   status: Joi.string().valid('Active', 'Inactive').default('Active')
 });
@@ -84,8 +84,9 @@ const tripSchema = Joi.object({
   partyId: Joi.number().integer().positive().required(),
   freightAmount: Joi.number().precision(2).positive().required(),
   advance: Joi.number().precision(2).min(0).default(0.00),
+  commission: Joi.number().precision(2).min(0).default(0.00),
   startDate: Joi.date().iso().required(),
-  endDate: Joi.date().iso().allow(null),
+  endDate: Joi.date().iso().allow('', null).empty('').default(null),
   status: Joi.string().valid('Pending', 'Running', 'Completed', 'Cancelled').default('Pending')
 });
 

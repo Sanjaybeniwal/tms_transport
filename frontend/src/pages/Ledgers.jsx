@@ -139,8 +139,8 @@ const Ledgers = () => {
         partyHistory.push({
           date: t.startDate ? t.startDate.substring(0, 10) : 'N/A',
           type: 'Freight Charge',
-          reference: `Trip: ${t.tripNumber} (${t.vehicle ? t.vehicle.vehicleNumber : 'N/A'})`,
-          debit: parseFloat(t.freightAmount || 0),
+          reference: `Trip: ${t.tripNumber} (${t.vehicle ? t.vehicle.vehicleNumber : 'N/A'})` + (parseFloat(t.commission || 0) > 0 ? ` (Less Comm: ₹${t.commission})` : ''),
+          debit: parseFloat(t.freightAmount || 0) - parseFloat(t.commission || 0),
           credit: 0,
           rawDate: t.startDate ? new Date(t.startDate) : new Date(0)
         });

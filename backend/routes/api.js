@@ -239,6 +239,7 @@ router.get('/reports/diesels', roleMiddleware(...financialRoles), reportControll
 router.get('/reports/pumps', roleMiddleware(...financialRoles), reportController.getPumpReport);
 router.get('/reports/income', roleMiddleware(...financialRoles), reportController.getIncomeReport);
 router.get('/reports/profit-loss', roleMiddleware(...financialRoles), reportController.getProfitLossReport);
+router.get('/reports/driver-vehicle-pl', roleMiddleware(...financialRoles), reportController.getDriverVehiclePLReport);
 router.get('/reports/export', roleMiddleware(...financialRoles), reportController.exportReport);
 router.get('/dashboard/analytics', dashboardController.getDashboardStats);
 router.get('/dashboard/alerts', vehicleController.getExpiryAlerts);

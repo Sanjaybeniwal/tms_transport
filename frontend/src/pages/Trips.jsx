@@ -169,6 +169,7 @@ const Trips = () => {
         toLocationId: parseInt(statusTrip.toLocationId || statusTrip.toLocation?.id, 10),
         freightAmount: parseFloat(statusTrip.freightAmount),
         advance: statusTrip.advance ? parseFloat(statusTrip.advance) : 0.00,
+        commission: statusTrip.commission ? parseFloat(statusTrip.commission) : 0.00,
         startDate: statusTrip.startDate ? statusTrip.startDate.substring(0, 10) : '',
         endDate: statusTrip.endDate ? statusTrip.endDate.substring(0, 10) : null,
         status: tempStatus
@@ -269,6 +270,7 @@ const Trips = () => {
       setValue('toLocationId', trip.toLocationId);
       setValue('partyId', trip.partyId);
       setValue('freightAmount', trip.freightAmount);
+      setValue('commission', trip.commission || 0.00);
       setValue('advance', trip.advance);
       setValue('startDate', trip.startDate);
       setValue('endDate', trip.endDate || '');
@@ -282,6 +284,7 @@ const Trips = () => {
         toLocationId: '',
         partyId: '',
         freightAmount: '',
+        commission: 0.00,
         advance: 0.00,
         startDate: new Date().toISOString().split('T')[0],
         endDate: '',
@@ -365,6 +368,12 @@ const Trips = () => {
       headerName: 'Freight',
       minWidth: 100,
       renderCell: (row) => `₹${row.freightAmount}`
+    },
+    {
+      field: 'commission',
+      headerName: 'Commission',
+      minWidth: 110,
+      renderCell: (row) => `₹${row.commission || 0}`
     },
     {
       field: 'advance',
@@ -600,7 +609,7 @@ const Trips = () => {
                   }}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={4}>
                 <TextField
                   fullWidth
                   type="number"
@@ -613,7 +622,18 @@ const Trips = () => {
                   helperText={errors.freightAmount?.message}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  fullWidth
+                  type="number"
+                  label="Commission Deducted"
+                  InputProps={{
+                    startAdornment: <InputAdornment position="start">₹</InputAdornment>
+                  }}
+                  {...register('commission')}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4}>
                 <TextField
                   fullWidth
                   type="number"
@@ -783,13 +803,17 @@ const Trips = () => {
                       <TableCell align="right">₹{parseFloat(printTripData.freightAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                     </TableRow>
                     <TableRow>
+                      <TableCell sx={{ color: 'error.main', fontWeight: 600 }}>Less: Commission Deducted</TableCell>
+                      <TableCell align="right" sx={{ color: 'error.main', fontWeight: 600 }}>- ₹{parseFloat(printTripData.commission || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                    </TableRow>
+                    <TableRow>
                       <TableCell sx={{ color: 'success.main', fontWeight: 600 }}>Less: Advance Paid</TableCell>
                       <TableCell align="right" sx={{ color: 'success.main', fontWeight: 600 }}>- ₹{parseFloat(printTripData.advance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                     </TableRow>
                     <TableRow sx={{ bgcolor: '#f8fafc' }}>
                       <TableCell sx={{ fontWeight: 800 }}>Net Outstanding Balance</TableCell>
                       <TableCell align="right" sx={{ fontWeight: 800, fontSize: '1.1rem', color: 'primary.main' }}>
-                        ₹{parseFloat((printTripData.freightAmount || 0) - (printTripData.advance || 0)).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        ₹{parseFloat((printTripData.freightAmount || 0) - (printTripData.commission || 0) - (printTripData.advance || 0)).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </TableCell>
                     </TableRow>
                   </TableBody>

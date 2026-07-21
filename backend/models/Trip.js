@@ -60,6 +60,10 @@ const Trip = sequelize.define('Trip', {
     type: DataTypes.DECIMAL(10, 2),
     defaultValue: 0.00
   },
+  commission: {
+    type: DataTypes.DECIMAL(10, 2),
+    defaultValue: 0.00
+  },
   startDate: {
     type: DataTypes.DATEONLY,
     allowNull: false

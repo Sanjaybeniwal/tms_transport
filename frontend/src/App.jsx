@@ -99,6 +99,8 @@ const driverAdvanceFields = [
 const incomeLogFields = [
   { name: 'partyId', label: 'Billing Customer', type: 'select', apiResource: 'parties', nestedKey: 'party', required: true },
   { name: 'tripId', label: 'Trip link', type: 'select', apiResource: 'trips', nestedKey: 'trip', required: true },
+  { name: 'tripFreight', label: 'Trip Freight', nestedKey: 'trip', nestedField: 'freightAmount', isCurrency: true, showInTable: true, formHidden: true },
+  { name: 'tripCommission', label: 'Trip Commission', nestedKey: 'trip', nestedField: 'commission', isCurrency: true, showInTable: true, formHidden: true },
   { name: 'amount', label: 'Revenue Received (₹)', type: 'number', isCurrency: true, halfWidth: true, required: true },
   { name: 'date', label: 'Date Collected', type: 'date', halfWidth: true, required: true },
   { name: 'remarks', label: 'Txn reference info', multiline: true, rows: 2 }

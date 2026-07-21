@@ -267,7 +267,7 @@ exports.getPartyLedger = async (req, res, next) => {
       include: [{ model: Trip, as: 'trip', attributes: ['tripNumber'] }]
     });
 
-    const totalFreight = trips.reduce((acc, curr) => acc + parseFloat(curr.freightAmount || 0), 0);
+    const totalFreight = trips.reduce((acc, curr) => acc + (parseFloat(curr.freightAmount || 0) - parseFloat(curr.commission || 0)), 0);
     const totalReceived = incomes.reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
     const outstanding = totalFreight - totalReceived;
 

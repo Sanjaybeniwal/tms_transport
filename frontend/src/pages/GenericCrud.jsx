@@ -292,6 +292,13 @@ Generated via BUTS Transport Management System`;
       minWidth: f.minWidth || 120,
       renderCell: (row) => {
         if (f.nestedKey && row[f.nestedKey]) {
+          if (f.nestedField) {
+            const nestedVal = row[f.nestedKey][f.nestedField];
+            if (f.isCurrency) {
+              return `₹${parseFloat(nestedVal || 0).toFixed(2)}`;
+            }
+            return nestedVal !== undefined && nestedVal !== null ? nestedVal : 'N/A';
+          }
           return row[f.nestedKey].name || row[f.nestedKey].vehicleNumber || row[f.nestedKey].tripNumber || 'N/A';
         }
         if (f.type === 'select' && !f.apiResource) {
@@ -423,7 +430,7 @@ Generated via BUTS Transport Management System`;
           </DialogTitle>
           <DialogContent dividers sx={{ p: 3 }}>
             <Grid container spacing={2.5}>
-              {fields.map((f) => {
+              {fields.filter(f => !f.formHidden).map((f) => {
                 const getPrefix = () => {
                   const name = f.name.toLowerCase();
                   const label = f.label.toLowerCase();
