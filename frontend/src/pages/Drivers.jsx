@@ -23,6 +23,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import AddIcon from '@mui/icons-material/Add';
+import DownloadIcon from '@mui/icons-material/Download';
 import { useForm } from 'react-hook-form';
 
 import API from '../services/api';
@@ -38,6 +39,7 @@ const Drivers = () => {
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
 
   // Modals state
   const [openForm, setOpenForm] = useState(false);
@@ -134,6 +136,67 @@ const Drivers = () => {
     }
   };
 
+  const handleExportExcel = async () => {
+    try {
+      setExporting(true);
+      const res = await API.drivers.list({ page: 1, limit: 10000, search });
+      const driversList = res.data.data || [];
+
+      if (driversList.length === 0) {
+        alert('No driver records available to export.');
+        return;
+      }
+
+      const csvRows = [];
+      csvRows.push(['Drivers Fleet Registry List']);
+      csvRows.push(['Generated On', new Date().toLocaleString()]);
+      csvRows.push([]);
+
+      csvRows.push([
+        'S.No',
+        'Driver Name',
+        'Mobile Number',
+        'License Number',
+        'License Expiry',
+        'Joining Date',
+        'Salary (₹)',
+        'Status',
+        'Address'
+      ]);
+
+      driversList.forEach((driver, idx) => {
+        csvRows.push([
+          idx + 1,
+          driver.name || '-',
+          driver.mobile || '-',
+          driver.licenseNumber || '-',
+          driver.licenseExpiry ? formatDate(driver.licenseExpiry) : '-',
+          driver.joiningDate ? formatDate(driver.joiningDate) : '-',
+          driver.salary !== undefined && driver.salary !== null ? Number(driver.salary).toFixed(2) : '0.00',
+          driver.status || 'Active',
+          driver.address || '-'
+        ]);
+      });
+
+      const csvContent = '\uFEFF' + csvRows.map(e => e.map(val => `"${String(val).replace(/"/g, '""')}"`).join(',')).join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      const dateStr = new Date().toISOString().split('T')[0];
+      link.setAttribute('download', `drivers_list_${dateStr}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Failed to export drivers list to Excel:', err);
+      alert('Failed to export driver list. Please try again.');
+    } finally {
+      setExporting(false);
+    }
+  };
+
   const columns = [
     { field: 'name', headerName: 'Driver Name', minWidth: 150 },
     { field: 'mobile', headerName: 'Mobile', minWidth: 120 },
@@ -178,19 +241,40 @@ const Drivers = () => {
         description="Register and manage transport drivers, license categories, medical/license expiry alerts, and trip history."
         icon={<PersonIcon />}
         action={
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => handleOpenForm()}
-            sx={{
-              background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
-              color: '#ffffff',
-              fontWeight: 700,
-              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)'
-            }}
-          >
-            Register Driver
-          </Button>
+          <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+            <Button
+              variant="outlined"
+              color="success"
+              startIcon={exporting ? <CircularProgress size={18} color="inherit" /> : <DownloadIcon />}
+              onClick={handleExportExcel}
+              disabled={exporting}
+              sx={{
+                fontWeight: 700,
+                borderColor: '#10b981',
+                color: '#059669',
+                bgcolor: '#ecfdf5',
+                '&:hover': {
+                  borderColor: '#059669',
+                  bgcolor: '#d1fae5'
+                }
+              }}
+            >
+              {exporting ? 'Exporting...' : 'Download Excel'}
+            </Button>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => handleOpenForm()}
+              sx={{
+                background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                color: '#ffffff',
+                fontWeight: 700,
+                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)'
+              }}
+            >
+              Register Driver
+            </Button>
+          </Box>
         }
       />
 
@@ -206,6 +290,19 @@ const Drivers = () => {
         searchQuery={search}
         onSearchChange={setSearch}
         searchPlaceholder="Search by name, license..."
+        filterComponent={
+          <Button
+            size="small"
+            variant="outlined"
+            color="success"
+            startIcon={exporting ? <CircularProgress size={16} color="inherit" /> : <DownloadIcon fontSize="small" />}
+            onClick={handleExportExcel}
+            disabled={exporting}
+            sx={{ fontWeight: 600 }}
+          >
+            {exporting ? 'Exporting...' : 'Export Excel'}
+          </Button>
+        }
         actions={(row) => (
           <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
             <IconButton size="small" color="primary" onClick={() => handleViewHistory(row)}>
