@@ -20,20 +20,22 @@ jobs:
           username: ${{ secrets.AWS_USERNAME }}
           key: ${{ secrets.AWS_SSH_KEY }}
           script: |
-            # Navigate to project directory (update this to your actual server path)
-            cd ~/tms_transport || cd /var/www/tms_transport || exit 1
+            # Navigate to project directory on EC2 server
+            cd /var/www/tms || cd /var/www/tms_transport || cd ~/tms_transport || cd ~/tms || exit 1
             
-            # Fetch latest changes
+            # Fetch latest changes from GitHub
             git pull origin main
             
             # Setup Backend
             cd backend
             npm install --production
             
-            # Setup Frontend
+            # Setup & Build Frontend
             cd ../frontend
             npm install
             npm run build
             
-            # Restart Application Process via PM2
+            # Restart Express API & PM2 Processes
+            cd ../backend
             pm2 restart all || pm2 start server.js --name "tms-backend"
+
