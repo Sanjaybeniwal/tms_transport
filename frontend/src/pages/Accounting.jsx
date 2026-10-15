@@ -1,7 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Alert, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, Checkbox, Grid, MenuItem, Stack, TextField, Typography, Accordion, AccordionSummary, AccordionDetails, Tabs, Tab } from '@mui/material';
-import { ExpandMoreRounded, AddRounded } from '@mui/icons-material';
+import ExpandMoreRounded from '@mui/icons-material/ExpandMoreRounded';
+import AddRounded from '@mui/icons-material/AddRounded';
 import Overview from '../components/accounting/Overview';
 import { labelFor, moneyFields, transactionLabels } from '../components/accounting/labels';
 import StatementPreview from '../components/accounting/StatementPreview';

@@ -1,6 +1,10 @@
 import React from 'react';
 import { Accordion, AccordionSummary, AccordionDetails, Box, Button, Card, CardContent, Grid, Stack, Typography } from '@mui/material';
-import { ArrowDownwardRounded, ArrowUpwardRounded, ReceiptLongRounded, ExpandMoreRounded, ArrowForwardRounded } from '@mui/icons-material';
+import ArrowDownwardRounded from '@mui/icons-material/ArrowDownwardRounded';
+import ArrowUpwardRounded from '@mui/icons-material/ArrowUpwardRounded';
+import ReceiptLongRounded from '@mui/icons-material/ReceiptLongRounded';
+import ExpandMoreRounded from '@mui/icons-material/ExpandMoreRounded';
+import ArrowForwardRounded from '@mui/icons-material/ArrowForwardRounded';
 import { labelFor } from './labels';
 const rupees = n => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(n || 0);
 export default function Overview({ stats, onPayment, onExpense, onReport }) {

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Box, TextField, MenuItem, Autocomplete, Button, Collapse, Stack, Chip } from '@mui/material';
-import { FilterListRounded, ExpandMoreRounded } from '@mui/icons-material';
+import FilterListRounded from '@mui/icons-material/FilterListRounded';
+import ExpandMoreRounded from '@mui/icons-material/ExpandMoreRounded';
 const date = d => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(d);
 export const today = () => date(new Date());
 export function Selector({ label, options = [], value, onChange, getLabel = o => o.name || o.vehicleNumber || o.tripNumber }) {
