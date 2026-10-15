@@ -58,7 +58,8 @@ const startServer = async () => {
   // Sync database models (creates tables if not exist)
   try {
     logger.info('Syncing database models...');
-    await sequelize.sync({ alter: true }); // Automatically updates schema tables safely
+    if (process.env.DB_SYNC === 'true' && process.env.NODE_ENV !== 'production') await sequelize.sync();
+    // Existing installations are upgraded explicitly with npm run db:accounting.
     logger.info('Database models synced successfully.');
 
     // Seed default records only if explicitly requested (never in production)

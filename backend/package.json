@@ -8,7 +8,9 @@
     "dev": "nodemon server.js",
     "db:migrate": "npx sequelize-cli db:migrate",
     "db:seed": "npx sequelize-cli db:seed:all",
-    "db:undo:all": "npx sequelize-cli db:migrate:undo:all"
+    "db:undo:all": "npx sequelize-cli db:migrate:undo:all",
+    "db:accounting": "node accounting/migrate.js",
+    "test": "node --test tests/*.test.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

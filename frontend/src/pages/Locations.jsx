@@ -21,29 +21,36 @@ import { useForm } from 'react-hook-form';
 import API from '../services/api';
 import DataTable from '../components/DataTable';
 import AdminHeader from '../components/AdminHeader';
+import ManagementNotice from '../components/ManagementNotice';
+import useManagementFeedback from '../hooks/useManagementFeedback';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 
 const Locations = () => {
+  const { notice, clearNotice, reportError, reportSuccess } = useManagementFeedback();
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [listError, setListError] = useState(false);
 
   // Modals state
   const [openForm, setOpenForm] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
 
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm();
+  const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting } } = useForm();
 
   const fetchLocations = async () => {
     setLoading(true);
+    setListError(false);
     try {
       const res = await API.locations.list({ page: page + 1, limit, search });
       setData(res.data.data);
       setTotal(res.data.total);
     } catch (err) {
+      setListError(true);
+      reportError(err);
       console.error(err);
     } finally {
       setLoading(false);
@@ -55,6 +62,8 @@ const Locations = () => {
   }, [page, limit, search]);
 
   const handleOpenForm = (loc = null) => {
+    clearNotice();
+    reset();
     setSelectedLocation(loc);
     if (loc) {
       setValue('name', loc.name);
@@ -79,8 +88,10 @@ const Locations = () => {
         await API.locations.create(formData);
       }
       fetchLocations();
+      reportSuccess();
       handleCloseForm();
     } catch (err) {
+      reportError(err);
       console.error(err);
     }
   };
@@ -89,8 +100,10 @@ const Locations = () => {
     if (window.confirm('Are you sure you want to delete this location?')) {
       try {
         await API.locations.delete(id);
-        fetchLocations();
+        if (data.length === 1 && page > 0) setPage(page - 1);
+        else fetchLocations();
       } catch (err) {
+        reportError(err);
         console.error(err);
       }
     }
@@ -116,9 +129,10 @@ const Locations = () => {
 
   return (
     <Box>
+      <ManagementNotice notice={notice} onClose={clearNotice} />
       <AdminHeader
-        title="Locations Manager"
-        description="Register and manage warehouse hubs, loading depots, cities, states, and delivery destination terminals."
+        title="Locations"
+        description="Add loading points, delivery locations and transport yards."
         icon={<LocationOnIcon />}
         action={
           <Button
@@ -126,13 +140,13 @@ const Locations = () => {
             startIcon={<AddIcon />}
             onClick={() => handleOpenForm()}
             sx={{
-              background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+              background: '#197769',
               color: '#ffffff',
               fontWeight: 700,
-              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)'
+              boxShadow: 'none'
             }}
           >
-            Add Location Hub
+            Add location
           </Button>
         }
       />
@@ -144,17 +158,19 @@ const Locations = () => {
         page={page}
         limit={limit}
         loading={loading}
+        error={listError}
+        onRetry={fetchLocations}
         onPageChange={setPage}
-        onLimitChange={setLimit}
+        onLimitChange={(value) => { setLimit(value); setPage(0); }}
         searchQuery={search}
-        onSearchChange={setSearch}
+        onSearchChange={(value) => { setSearch(value); setPage(0); }}
         searchPlaceholder="Search location by name or city..."
         actions={(row) => (
           <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-            <IconButton size="small" color="secondary" onClick={() => handleOpenForm(row)}>
+            <IconButton aria-label="Edit record" size="small" color="secondary" onClick={() => handleOpenForm(row)}>
               <EditIcon fontSize="small" />
             </IconButton>
-            <IconButton size="small" color="error" onClick={() => handleDelete(row.id)}>
+            <IconButton aria-label="Delete record" size="small" color="error" onClick={() => handleDelete(row.id)}>
               <DeleteIcon fontSize="small" />
             </IconButton>
           </Box>
@@ -165,12 +181,12 @@ const Locations = () => {
       <Dialog open={openForm} onClose={handleCloseForm} maxWidth="sm" fullWidth>
         <form onSubmit={handleSubmit(onSubmitForm)}>
           <DialogTitle sx={{ fontWeight: 800, bgcolor: '#f8fafc', borderBottom: '1px solid #e2e8f0', px: 3, py: 2 }}>
-            {selectedLocation ? 'Edit Hub Details' : 'Add New Location Hub'}
+            {selectedLocation ? 'Edit location' : 'Add location'}
           </DialogTitle>
           <DialogContent dividers sx={{ p: 3 }}>
             <Grid container spacing={2.5}>
               <Grid item xs={12}>
-                <TextField
+                <TextField required
                   fullWidth
                   label="Location Name (e.g. Mumbai Yard)"
                   {...register('name', { required: 'Name is required' })}
@@ -179,7 +195,7 @@ const Locations = () => {
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <TextField
+                <TextField required
                   fullWidth
                   label="City"
                   {...register('city', { required: 'City is required' })}
@@ -188,7 +204,7 @@ const Locations = () => {
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <TextField
+                <TextField required
                   fullWidth
                   label="State"
                   {...register('state', { required: 'State is required' })}
@@ -216,14 +232,15 @@ const Locations = () => {
             </Button>
             <Button
               type="submit"
+              disabled={isSubmitting}
               variant="contained"
               sx={{
-                background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                background: '#197769',
                 color: '#ffffff',
                 fontWeight: 700,
                 borderRadius: '8px',
                 px: 3,
-                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)'
+                boxShadow: 'none'
               }}
             >
               Save Hub

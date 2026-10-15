@@ -12,7 +12,9 @@ import {
   InputAdornment,
   Box,
   CircularProgress,
-  Typography
+  Typography,
+  Alert,
+  Button
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 
@@ -23,11 +25,13 @@ const DataTable = ({
   page = 0,
   limit = 10,
   loading = false,
+  error = false,
+  onRetry,
   onPageChange,
   onLimitChange,
   searchQuery = '',
   onSearchChange,
-  searchPlaceholder = 'Search...',
+  searchPlaceholder = 'Search records...',
   filterComponent,
   actions
 }) => {
@@ -48,14 +52,16 @@ const DataTable = ({
                 </InputAdornment>
               )
             }}
-            sx={{ minWidth: 260 }}
+            inputProps={{ 'aria-label': searchPlaceholder }}
+            sx={{ width: { xs: '100%', sm: 300 } }}
           />
         )}
-        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
           {filterComponent}
         </Box>
       </Box>
 
+      {error && <Alert severity="error" sx={{ mx: 2, mb: 2 }} action={onRetry && <Button color="inherit" onClick={onRetry}>Retry</Button>}>Could not load this register. Please try again.</Alert>}
       <TableContainer sx={{ maxHeight: 600, position: 'relative' }}>
         {loading && (
           <Box sx={{
@@ -92,12 +98,12 @@ const DataTable = ({
           <TableBody>
             {data.length > 0 ? (
               data.map((row, index) => (
-                <TableRow hover role="checkbox" tabIndex={-1} key={row.id || index}>
+                <TableRow hover key={row.id || index}>
                   {columns.map((col) => {
                     const value = row[col.field];
                     return (
                       <TableCell key={col.field} align={col.align || 'left'}>
-                        {col.renderCell ? col.renderCell(row) : value}
+                        {col.renderCell ? col.renderCell(row) : (value ?? '—')}
                       </TableCell>
                     );
                   })}
@@ -112,7 +118,7 @@ const DataTable = ({
               <TableRow>
                 <TableCell colSpan={columns.length + (actions ? 1 : 0)} align="center" sx={{ py: 6 }}>
                   <Typography variant="body1" color="text.secondary">
-                    No records found
+                    {loading ? 'Loading entries…' : error ? 'Entries are unavailable.' : searchQuery ? 'No matching records. Try another search.' : 'No records yet. Add your first entry to get started.'}
                   </Typography>
                 </TableCell>
               </TableRow>
@@ -123,11 +129,13 @@ const DataTable = ({
 
       {onPageChange && onLimitChange && (
         <TablePagination
+          labelRowsPerPage="Entries per page"
           rowsPerPageOptions={[5, 10, 25, 50]}
           component="div"
+          sx={{ '& .MuiTablePagination-toolbar': { flexWrap: 'wrap', justifyContent: 'flex-end', px: 1 }, '& .MuiTablePagination-spacer': { display: { xs: 'none', sm: 'block' } } }}
           count={total}
           rowsPerPage={limit}
-          page={page}
+          page={Math.min(page, Math.max(0, Math.ceil(total / limit) - 1))}
           onPageChange={(e, newPage) => onPageChange(newPage)}
           onRowsPerPageChange={(e) => onLimitChange(parseInt(e.target.value, 10))}
         />

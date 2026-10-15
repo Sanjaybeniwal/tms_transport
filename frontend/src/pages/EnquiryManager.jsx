@@ -51,6 +51,7 @@ const EnquiryManager = () => {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [statusInput, setStatusInput] = useState('');
   const [notesInput, setNotesInput] = useState('');
+  const [saving, setSaving] = useState(false);
 
   // Notifications feedback
   const [toast, setToast] = useState({ open: false, message: '', severity: 'success' });
@@ -127,7 +128,8 @@ const EnquiryManager = () => {
   };
 
   const handleSaveDetail = async () => {
-    if (!selectedEnquiry) return;
+    if (!selectedEnquiry || saving) return;
+    setSaving(true);
     try {
       const response = await API.enquiries.updateStatus(selectedEnquiry.id, {
         status: statusInput,
@@ -143,7 +145,9 @@ const EnquiryManager = () => {
       window.dispatchEvent(new Event('enquiryUpdate'));
     } catch (err) {
       console.error('Error saving details:', err);
-      showToast('Failed to update details', 'error');
+      showToast(err.response?.data?.message || 'Failed to update details', 'error');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -185,7 +189,7 @@ const EnquiryManager = () => {
       <Card
         sx={{
           mb: 4,
-          background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+          background: '#163738',
           color: '#ffffff',
           borderRadius: '12px',
           boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
@@ -195,15 +199,15 @@ const EnquiryManager = () => {
           <Grid container alignItems="center" spacing={2}>
             <Grid item xs={12} sm={8}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-                <Avatar sx={{ bgcolor: '#2563eb', width: 56, height: 56 }}>
+                <Avatar sx={{ bgcolor: '#197769', width: 56, height: 56 }}>
                   <MailIcon sx={{ fontSize: '1.8rem', color: '#fff' }} />
                 </Avatar>
                 <Box>
                   <Typography variant="h4" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
-                    Customer Enquiry Manager
+                    Customer enquiries
                   </Typography>
                   <Typography variant="body1" sx={{ color: '#94a3b8', mt: 0.5 }}>
-                    Manage client transport booking quotes and messages submitted from the public site contact page.
+                    Follow up on transport enquiries received through your website.
                   </Typography>
                 </Box>
               </Box>
@@ -215,7 +219,7 @@ const EnquiryManager = () => {
       {/* KPI Metrics Widgets */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         {[
-          { title: 'Total Enquiries', count: kpis.total, color: '#475569', subtitle: 'All time submissions' },
+          { title: 'Matching enquiries', count: kpis.total, color: '#475569', subtitle: 'Current search and status filter' },
           { title: 'New Submissions', count: kpis.new, color: '#2563eb', subtitle: 'Awaiting response' },
           { title: 'In Progress', count: kpis.inProgress, color: '#f59e0b', subtitle: 'Under follow up' },
           { title: 'Resolved Quotes', count: kpis.resolved, color: '#10b981', subtitle: 'Completed and closed' }
@@ -335,7 +339,7 @@ const EnquiryManager = () => {
                         >
                           View & Edit
                         </Button>
-                        <IconButton
+                        <IconButton aria-label="Delete record"
                           color="error"
                           size="small"
                           onClick={() => handleDeleteEnquiry(enquiry.id)}
@@ -451,7 +455,7 @@ const EnquiryManager = () => {
               <Button
                 variant="contained"
                 startIcon={<SaveIcon />}
-                onClick={handleSaveDetail}
+                onClick={handleSaveDetail} disabled={saving}
                 sx={{ textTransform: 'none', fontWeight: 700, px: 3 }}
               >
                 Save Changes

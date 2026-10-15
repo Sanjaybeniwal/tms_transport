@@ -13,7 +13,7 @@ axios.interceptors.response.use(
       localStorage.removeItem('token');
       // If we are not on login page, redirect
       if (!window.location.pathname.includes('/login')) {
-        window.location.href = '/login';
+        window.location.href = '/buts/login';
       }
     }
     return Promise.reject(error);

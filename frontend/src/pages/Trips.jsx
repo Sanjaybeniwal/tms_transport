@@ -1,3 +1,4 @@
+import { formatAmount, indiaDateInput } from '../utils/indiaFormat';
 import React, { useState, useEffect } from 'react';
 import {
   Typography,
@@ -32,6 +33,8 @@ import { useForm, Controller } from 'react-hook-form';
 import API from '../services/api';
 import DataTable from '../components/DataTable';
 import AdminHeader from '../components/AdminHeader';
+import ManagementNotice from '../components/ManagementNotice';
+import useManagementFeedback from '../hooks/useManagementFeedback';
 import AltRouteIcon from '@mui/icons-material/AltRoute';
 import { formatDate } from '../utils/dateFormatter';
 
@@ -99,12 +102,14 @@ const printStyles = `
 `;
 
 const Trips = () => {
+  const { notice, clearNotice, reportError, reportSuccess } = useManagementFeedback();
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [listError, setListError] = useState(false);
 
   // supporting data lists for form dropdowns
   const [vehicles, setVehicles] = useState([]);
@@ -142,6 +147,7 @@ const Trips = () => {
           setCompanyContact(res.data.data);
         }
       } catch (err) {
+        reportError(err);
         console.error('Failed to load contact info for trip receipt:', err);
       }
     };
@@ -179,6 +185,7 @@ const Trips = () => {
       fetchTrips();
       handleCloseStatusDialog();
     } catch (err) {
+      reportError(err);
       console.error('Error updating status:', err);
       alert(err.response?.data?.message || 'Error updating status. Please verify entries.');
     }
@@ -198,15 +205,18 @@ const Trips = () => {
     window.print();
   };
 
-  const { register, handleSubmit, reset, setValue, watch, control, formState: { errors } } = useForm();
+  const { register, handleSubmit, reset, setValue, watch, control, formState: { errors, isSubmitting } } = useForm();
 
   const fetchTrips = async () => {
     setLoading(true);
+    setListError(false);
     try {
       const res = await API.trips.list({ page: page + 1, limit, search });
       setData(res.data.data);
       setTotal(res.data.total);
     } catch (err) {
+      setListError(true);
+      reportError(err);
       console.error(err);
     } finally {
       setLoading(false);
@@ -231,6 +241,7 @@ const Trips = () => {
       setLocations(lRes.data.data);
       setParties(pRes.data.data);
     } catch (err) {
+      reportError(err);
       console.error('Error fetching masters for trip formulation:', err);
     }
   };
@@ -275,6 +286,7 @@ const Trips = () => {
             }
           }
         } catch (err) {
+          reportError(err);
           console.error('Error auto-filling driver:', err);
           setIsDriverAutoFilled(false);
         }
@@ -284,6 +296,8 @@ const Trips = () => {
   }, [watchedVehicleId, setValue, drivers]);
 
   const handleOpenForm = (trip = null) => {
+    clearNotice();
+    reset();
     setSelectedTrip(trip);
     setIsDriverAutoFilled(false); // Reset feedback flag on form open
     if (trip) {
@@ -321,7 +335,7 @@ const Trips = () => {
         balanceHoldAmount: 0.00,
         podStatus: 'Pending',
         balanceReceivedDate: '',
-        startDate: new Date().toISOString().split('T')[0],
+        startDate: indiaDateInput(),
         endDate: '',
         status: 'Pending'
       });
@@ -344,8 +358,10 @@ const Trips = () => {
         await API.trips.create(formData);
       }
       fetchTrips();
+      reportSuccess();
       handleCloseForm();
     } catch (err) {
+      reportError(err);
       console.error(err);
     }
   };
@@ -354,8 +370,10 @@ const Trips = () => {
     if (window.confirm('Are you sure you want to delete this trip record?')) {
       try {
         await API.trips.delete(id);
-        fetchTrips();
+        if (data.length === 1 && page > 0) setPage(page - 1);
+        else fetchTrips();
       } catch (err) {
+        reportError(err);
         console.error(err);
       }
     }
@@ -405,13 +423,13 @@ const Trips = () => {
       field: 'freightAmount',
       headerName: 'Freight',
       minWidth: 100,
-      renderCell: (row) => `₹${row.freightAmount}`
+      renderCell: (row) => `₹${formatAmount(row.freightAmount)}`
     },
     {
       field: 'commission',
       headerName: 'Commission',
       minWidth: 110,
-      renderCell: (row) => `₹${row.commission || 0}`
+      renderCell: (row) => `₹${formatAmount(row.commission)}`
     },
     {
       field: 'advance',
@@ -419,7 +437,7 @@ const Trips = () => {
       minWidth: 150,
       renderCell: (row) => (
         <Box>
-          <Typography variant="body2" sx={{ fontWeight: 600 }}>₹{row.advance}</Typography>
+          <Typography variant="body2" sx={{ fontWeight: 600 }}>₹{formatAmount(row.advance)}</Typography>
           {row.advanceDate && (
             <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
               Date: {formatDate(row.advanceDate)}
@@ -432,7 +450,7 @@ const Trips = () => {
       field: 'remainingPayment',
       headerName: 'Remaining',
       minWidth: 110,
-      renderCell: (row) => `₹${row.remainingPayment || '0.00'}`
+      renderCell: (row) => `₹${formatAmount(row.remainingPayment)}`
     },
     {
       field: 'balanceHoldAmount',
@@ -440,7 +458,7 @@ const Trips = () => {
       minWidth: 110,
       renderCell: (row) => (
         <Box>
-          <Typography variant="body2" sx={{ fontWeight: 600 }}>₹{row.balanceHoldAmount || '0.00'}</Typography>
+          <Typography variant="body2" sx={{ fontWeight: 600 }}>₹{formatAmount(row.balanceHoldAmount)}</Typography>
           {row.podStatus && (
             <Typography variant="caption" sx={{ display: 'block', color: row.podStatus === 'Approved' ? 'success.main' : row.podStatus === 'Received' ? 'info.main' : 'warning.main' }}>
               POD: {row.podStatus}
@@ -477,9 +495,10 @@ const Trips = () => {
 
   return (
     <Box>
+      <ManagementNotice notice={notice} onClose={clearNotice} />
       <AdminHeader
-        title="Trips Management Hub"
-        description="Plan, formulate, and monitor cargo transport trips, route logs, fuel slip allocations, and driver payments."
+        title="Trip register"
+        description="Book trips, choose vehicles and drivers, and track freight and delivery."
         icon={<AltRouteIcon />}
         action={
           <Button
@@ -487,13 +506,13 @@ const Trips = () => {
             startIcon={<AddIcon />}
             onClick={() => handleOpenForm()}
             sx={{
-              background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+              background: '#197769',
               color: '#ffffff',
               fontWeight: 700,
-              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)'
+              boxShadow: 'none'
             }}
           >
-            Formulate New Trip
+            Book a trip
           </Button>
         }
       />
@@ -505,23 +524,25 @@ const Trips = () => {
         page={page}
         limit={limit}
         loading={loading}
+        error={listError}
+        onRetry={fetchTrips}
         onPageChange={setPage}
-        onLimitChange={setLimit}
+        onLimitChange={(value) => { setLimit(value); setPage(0); }}
         searchQuery={search}
-        onSearchChange={setSearch}
+        onSearchChange={(value) => { setSearch(value); setPage(0); }}
         searchPlaceholder="Search by trip number..."
         actions={(row) => (
           <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-            <IconButton size="small" color="warning" onClick={() => handleOpenStatusDialog(row)} title="Quick Update Status">
+            <IconButton aria-label="Update status" size="small" color="warning" onClick={() => handleOpenStatusDialog(row)} title="Quick Update Status">
               <SyncIcon fontSize="small" />
             </IconButton>
-            <IconButton size="small" color="primary" onClick={() => handleOpenPrint(row)} title="Print Receipt / Manifest">
+            <IconButton aria-label="Print receipt" size="small" color="primary" onClick={() => handleOpenPrint(row)} title="Print Receipt / Manifest">
               <PrintIcon fontSize="small" />
             </IconButton>
-            <IconButton size="small" color="secondary" onClick={() => handleOpenForm(row)}>
+            <IconButton aria-label="Edit record" size="small" color="secondary" onClick={() => handleOpenForm(row)}>
               <EditIcon fontSize="small" />
             </IconButton>
-            <IconButton size="small" color="error" onClick={() => handleDelete(row.id)}>
+            <IconButton aria-label="Delete record" size="small" color="error" onClick={() => handleDelete(row.id)}>
               <DeleteIcon fontSize="small" />
             </IconButton>
           </Box>
@@ -532,12 +553,12 @@ const Trips = () => {
       <Dialog open={openForm} onClose={handleCloseForm} maxWidth="md" fullWidth>
         <form onSubmit={handleSubmit(onSubmitForm)}>
           <DialogTitle sx={{ fontWeight: 800, bgcolor: '#f8fafc', borderBottom: '1px solid #e2e8f0', px: 3, py: 2 }}>
-            {selectedTrip ? 'Update Trip Manifest' : 'Initiate New Delivery Trip'}
+            {selectedTrip ? 'Edit trip' : 'Book a trip'}
           </DialogTitle>
           <DialogContent dividers sx={{ p: 3 }}>
             <Grid container spacing={2.5}>
               <Grid item xs={12} sm={6}>
-                <TextField
+                <TextField required
                   fullWidth
                   label="Trip Number"
                   {...register('tripNumber', { required: 'Trip Number is required' })}
@@ -651,7 +672,7 @@ const Trips = () => {
                         renderInput={(params) => (
                           <TextField
                             {...params}
-                            label="Source Location"
+                            label="Loading location"
                             error={Boolean(error)}
                             helperText={error?.message}
                           />
@@ -679,7 +700,7 @@ const Trips = () => {
                         renderInput={(params) => (
                           <TextField
                             {...params}
-                            label="Destination Location"
+                            label="Delivery location"
                             error={Boolean(error)}
                             helperText={error?.message}
                           />
@@ -690,10 +711,11 @@ const Trips = () => {
                 />
               </Grid>
               <Grid item xs={12} sm={4}>
-                <TextField
+                <TextField required
                   fullWidth
                   type="number"
-                  label="Total Freight Billing Amount"
+                  inputProps={{ step: '0.01', inputMode: 'decimal' }}
+                  label="Freight amount"
                   InputProps={{
                     startAdornment: <InputAdornment position="start">₹</InputAdornment>
                   }}
@@ -706,7 +728,8 @@ const Trips = () => {
                 <TextField
                   fullWidth
                   type="number"
-                  label="Commission Deducted"
+                  inputProps={{ step: '0.01', inputMode: 'decimal' }}
+                  label="Commission"
                   InputProps={{
                     startAdornment: <InputAdornment position="start">₹</InputAdornment>
                   }}
@@ -717,6 +740,7 @@ const Trips = () => {
                 <TextField
                   fullWidth
                   type="number"
+                  inputProps={{ step: '0.01', inputMode: 'decimal' }}
                   label="Advance Amount Paid"
                   InputProps={{
                     startAdornment: <InputAdornment position="start">₹</InputAdornment>
@@ -737,6 +761,7 @@ const Trips = () => {
                 <TextField
                   fullWidth
                   type="number"
+                  inputProps={{ step: '0.01', inputMode: 'decimal' }}
                   label="Remaining Payment"
                   InputProps={{
                     startAdornment: <InputAdornment position="start">₹</InputAdornment>,
@@ -750,6 +775,7 @@ const Trips = () => {
                 <TextField
                   fullWidth
                   type="number"
+                  inputProps={{ step: '0.01', inputMode: 'decimal' }}
                   label="Balance Hold Amount (POD)"
                   InputProps={{
                     startAdornment: <InputAdornment position="start">₹</InputAdornment>
@@ -762,7 +788,7 @@ const Trips = () => {
                 <TextField
                   fullWidth
                   select
-                  label="POD Status"
+                  label="POD / delivery proof status"
                   defaultValue="Pending"
                   {...register('podStatus')}
                 >
@@ -781,7 +807,7 @@ const Trips = () => {
                 />
               </Grid>
               <Grid item xs={12} sm={4}>
-                <TextField
+                <TextField required
                   fullWidth
                   type="date"
                   InputLabelProps={{ shrink: true }}
@@ -822,17 +848,18 @@ const Trips = () => {
             </Button>
             <Button
               type="submit"
+              disabled={isSubmitting}
               variant="contained"
               sx={{
-                background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                background: '#197769',
                 color: '#ffffff',
                 fontWeight: 700,
                 borderRadius: '8px',
                 px: 3,
-                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)'
+                boxShadow: 'none'
               }}
             >
-              Save Trip Manifest
+              {isSubmitting ? 'Saving…' : 'Save trip'}
             </Button>
           </DialogActions>
         </form>
@@ -939,7 +966,7 @@ const Trips = () => {
                       <TableCell align="right">₹{parseFloat(printTripData.freightAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell sx={{ color: 'error.main', fontWeight: 600 }}>Less: Commission Deducted</TableCell>
+                      <TableCell sx={{ color: 'error.main', fontWeight: 600 }}>Less: Commission</TableCell>
                       <TableCell align="right" sx={{ color: 'error.main', fontWeight: 600 }}>- ₹{parseFloat(printTripData.commission || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                     </TableRow>
                     <TableRow>
@@ -1066,12 +1093,12 @@ const Trips = () => {
             onClick={handleSaveStatus}
             variant="contained"
             sx={{
-              background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+              background: '#197769',
               color: '#ffffff',
               fontWeight: 700,
               borderRadius: '8px',
               px: 3,
-              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)'
+              boxShadow: 'none'
             }}
           >
             Update Lifecycle

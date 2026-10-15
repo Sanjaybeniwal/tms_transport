@@ -45,8 +45,8 @@ const ChangePassword = () => {
   return (
     <Box>
       <AdminHeader
-        title="Security & Password Change"
-        description="Update your account credentials to keep your dispatcher ledger records safe."
+        title="Change password"
+        description="Choose a new password for your office account."
         icon={<LockOpenIcon />}
       />
 

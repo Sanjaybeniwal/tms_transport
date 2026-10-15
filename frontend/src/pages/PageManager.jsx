@@ -166,8 +166,8 @@ const PageManager = () => {
   };
 
   const handleCreatePage = async () => {
-    if (!newPageData.title || !newPageData.slug) {
-      alert('Title and Slug are required.');
+    if (!newPageData.title.trim() || !newPageData.slug.trim()) {
+      setErrorMsg('Enter a page title and a page URL name.');
       return;
     }
     setLoading(true);
@@ -189,7 +189,7 @@ const PageManager = () => {
       }
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.message || 'Failed to create page.');
+      setErrorMsg(err.response?.data?.message || 'Could not create the page. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -361,7 +361,7 @@ const PageManager = () => {
                   <Grid item xs={12} sm={6}>
                     <TextField
                       fullWidth
-                      label="URL slug path"
+                      label="Page URL name"
                       value={editPage.slug}
                       onChange={(e) => setEditPage({ ...editPage, slug: e.target.value })}
                       size="small"
@@ -373,7 +373,7 @@ const PageManager = () => {
                   <Grid item xs={12} sm={8}>
                     <TextField
                       fullWidth
-                      label="SEO Meta Description Tag"
+                      label="Search description (optional)"
                       value={editPage.metaDescription}
                       onChange={(e) => setEditPage({ ...editPage, metaDescription: e.target.value })}
                       size="small"
@@ -479,7 +479,7 @@ const PageManager = () => {
                   flexGrow: 1, 
                   border: '1px solid #e2e8f0', 
                   borderRadius: 3, 
-                  overflow: 'hidden', 
+                  overflowX: 'auto',
                   display: 'flex', 
                   flexDirection: 'column',
                   boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
@@ -548,7 +548,7 @@ const PageManager = () => {
   return (
     <Box>
       <AdminHeader
-        title="Public Website CMS Builder"
+        title="Website pages"
         description="Edit layouts, customize styling configurations, and add custom scripts to construct pages for your public website in real-time."
         icon={<WebIcon />}
         action={
@@ -559,7 +559,7 @@ const PageManager = () => {
             sx={{ 
               fontWeight: 700,
               boxShadow: '0 4px 14px 0 rgba(37,99,235,0.4)',
-              background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+              background: '#197769',
               color: '#ffffff'
             }}
           >
@@ -572,7 +572,7 @@ const PageManager = () => {
       {errorMsg && <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>{errorMsg}</Alert>}
 
       {/* Pages List View */}
-      <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
+      <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', overflowX: 'auto' }}>
         <Table>
           <TableHead sx={{ bgcolor: '#f8fafc' }}>
             <TableRow>
@@ -603,7 +603,7 @@ const PageManager = () => {
                     }} 
                   />
                 </TableCell>
-                <TableCell sx={{ color: 'text.secondary', maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <TableCell sx={{ color: 'text.secondary', maxWidth: 300, overflowX: 'auto', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {page.metaDescription || <Box component="span" sx={{ fontStyle: 'italic', opacity: 0.5 }}>No tag provided</Box>}
                 </TableCell>
                 <TableCell>
@@ -616,13 +616,13 @@ const PageManager = () => {
                 </TableCell>
                 <TableCell align="right">
                   <Tooltip title="Edit Code & Meta">
-                    <IconButton color="primary" onClick={() => handleEditClick(page)} sx={{ mr: 1 }}>
+                    <IconButton aria-label="Edit record" color="primary" onClick={() => handleEditClick(page)} sx={{ mr: 1 }}>
                       <EditIcon />
                     </IconButton>
                   </Tooltip>
                   <Tooltip title={['home', 'about', 'services', 'contact'].includes(page.slug) ? "System Page (Cannot Delete)" : "Delete Page"}>
                     <span>
-                      <IconButton 
+                      <IconButton aria-label="Delete record"
                         color="error" 
                         onClick={() => handleDeletePage(page.id)} 
                         disabled={['home', 'about', 'services', 'contact'].includes(page.slug)}
@@ -657,15 +657,16 @@ const PageManager = () => {
           <AutoAwesomeIcon color="primary" /> Create New Web Page
         </DialogTitle>
         <DialogContent sx={{ pb: 1 }}>
+          {errorMsg && <Alert severity="error" sx={{ mb: 2 }}>{errorMsg}</Alert>}
           <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            Initialize a blank template page on the public company server.
+            Create a page for your company website. You can edit its content after saving.
           </Typography>
           
           <Grid container spacing={2.5}>
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Page Title Name"
+                label="Page title"
                 placeholder="E.g., Careers, FAQ"
                 value={newPageData.title}
                 onChange={(e) => handleTitleChange(e.target.value)}
@@ -675,7 +676,7 @@ const PageManager = () => {
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Public Slug Address"
+                label="Page URL name"
                 placeholder="E.g., careers, faq"
                 value={newPageData.slug}
                 onChange={(e) => setNewPageData({ ...newPageData, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-_]/g, '') })}
@@ -686,7 +687,7 @@ const PageManager = () => {
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="SEO Meta Description Tag"
+                label="Search description (optional)"
                 placeholder="Briefly describe what this page contains for search engines..."
                 multiline
                 rows={3}
@@ -715,9 +716,9 @@ const PageManager = () => {
             Cancel
           </Button>
           <Button 
-            onClick={handleCreatePage} 
+            onClick={handleCreatePage}
             variant="contained"
-            disabled={!newPageData.title || !newPageData.slug}
+            disabled={loading || !newPageData.title.trim() || !newPageData.slug.trim()}
             sx={{ 
               textTransform: 'none', 
               fontWeight: 700, 

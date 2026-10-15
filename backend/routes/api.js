@@ -48,6 +48,10 @@ const managersAndAdmins = ['Super Admin', 'Admin', 'Manager'];
 const financialRoles = ['Super Admin', 'Admin', 'Manager', 'Accountant'];
 const nonOperators = ['Super Admin', 'Admin', 'Manager', 'Accountant'];
 
+router.use('/accounting', roleMiddleware(...financialRoles), require('../accounting/routes'));
+router.use(require('../accounting/legacyGuard'));
+
+
 // ------------------------------------------
 // DASHBOARD
 // ------------------------------------------

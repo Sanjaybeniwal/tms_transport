@@ -23,16 +23,20 @@ import { useForm } from 'react-hook-form';
 import API from '../services/api';
 import DataTable from '../components/DataTable';
 import AdminHeader from '../components/AdminHeader';
+import ManagementNotice from '../components/ManagementNotice';
+import useManagementFeedback from '../hooks/useManagementFeedback';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import { formatDate } from '../utils/dateFormatter';
 
 const Vehicles = () => {
+  const { notice, clearNotice, reportError, reportSuccess } = useManagementFeedback();
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [listError, setListError] = useState(false);
 
   // Owners list for select dropdown
   const [owners, setOwners] = useState([]);
@@ -42,10 +46,11 @@ const Vehicles = () => {
   const [openForm, setOpenForm] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
 
-  const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm();
+  const { register, handleSubmit, reset, setValue, watch, formState: { errors, isSubmitting } } = useForm();
 
   const fetchVehicles = async () => {
     setLoading(true);
+    setListError(false);
     try {
       const params = { page: page + 1, limit, search };
       if (selectedOwnerFilter) {
@@ -55,6 +60,8 @@ const Vehicles = () => {
       setData(res.data.data);
       setTotal(res.data.total);
     } catch (err) {
+      setListError(true);
+      reportError(err);
       console.error(err);
     } finally {
       setLoading(false);
@@ -66,6 +73,7 @@ const Vehicles = () => {
       const res = await API.owners.list({ limit: 100 });
       setOwners(res.data.data);
     } catch (err) {
+      reportError(err);
       console.error(err);
     }
   };
@@ -79,6 +87,8 @@ const Vehicles = () => {
   }, []);
 
   const handleOpenForm = (vehicle = null) => {
+    clearNotice();
+    reset();
     setSelectedVehicle(vehicle);
     if (vehicle) {
       setValue('vehicleNumber', vehicle.vehicleNumber);
@@ -126,8 +136,10 @@ const Vehicles = () => {
         await API.vehicles.create(formData);
       }
       fetchVehicles();
+      reportSuccess();
       handleCloseForm();
     } catch (err) {
+      reportError(err);
       console.error(err);
     }
   };
@@ -136,8 +148,10 @@ const Vehicles = () => {
     if (window.confirm('Are you sure you want to delete this vehicle?')) {
       try {
         await API.vehicles.delete(id);
-        fetchVehicles();
+        if (data.length === 1 && page > 0) setPage(page - 1);
+        else fetchVehicles();
       } catch (err) {
+        reportError(err);
         console.error(err);
       }
     }
@@ -187,7 +201,7 @@ const Vehicles = () => {
     },
     {
       field: 'nationalPermitExpiry',
-      headerName: 'Nat. Permit Expiry',
+      headerName: 'National permit expiry',
       minWidth: 140,
       renderCell: (row) => getDocExpiryStatus(row.nationalPermitExpiry)
     },
@@ -199,7 +213,7 @@ const Vehicles = () => {
     },
     {
       field: 'docAlertResponsibility',
-      headerName: 'Alert Resp.',
+      headerName: 'Renewal reminder',
       minWidth: 130,
       renderCell: (row) => (
         <Chip
@@ -226,9 +240,10 @@ const Vehicles = () => {
 
   return (
     <Box>
+      <ManagementNotice notice={notice} onClose={clearNotice} />
       <AdminHeader
-        title="Vehicles Fleet Manager"
-        description="Register and manage fleet trucks, trailers, insurance, fitness, permit expiry status, and assigned owners."
+        title="Vehicles"
+        description="Manage your vehicles, owners and document renewal dates."
         icon={<LocalShippingIcon />}
         action={
           <Button
@@ -236,10 +251,10 @@ const Vehicles = () => {
             startIcon={<AddIcon />}
             onClick={() => handleOpenForm()}
             sx={{
-              background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+              background: '#197769',
               color: '#ffffff',
               fontWeight: 700,
-              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)'
+              boxShadow: 'none'
             }}
           >
             Add New Vehicle
@@ -254,10 +269,12 @@ const Vehicles = () => {
         page={page}
         limit={limit}
         loading={loading}
+        error={listError}
+        onRetry={fetchVehicles}
         onPageChange={setPage}
-        onLimitChange={setLimit}
+        onLimitChange={(value) => { setLimit(value); setPage(0); }}
         searchQuery={search}
-        onSearchChange={setSearch}
+        onSearchChange={(value) => { setSearch(value); setPage(0); }}
         searchPlaceholder="Search by vehicle number..."
         filterComponent={
           <TextField
@@ -276,10 +293,10 @@ const Vehicles = () => {
         }
         actions={(row) => (
           <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-            <IconButton size="small" color="secondary" onClick={() => handleOpenForm(row)}>
+            <IconButton aria-label="Edit record" size="small" color="secondary" onClick={() => handleOpenForm(row)}>
               <EditIcon fontSize="small" />
             </IconButton>
-            <IconButton size="small" color="error" onClick={() => handleDelete(row.id)}>
+            <IconButton aria-label="Delete record" size="small" color="error" onClick={() => handleDelete(row.id)}>
               <DeleteIcon fontSize="small" />
             </IconButton>
           </Box>
@@ -290,21 +307,22 @@ const Vehicles = () => {
       <Dialog open={openForm} onClose={handleCloseForm} maxWidth="md" fullWidth>
         <form onSubmit={handleSubmit(onSubmitForm)}>
           <DialogTitle sx={{ fontWeight: 800, bgcolor: '#f8fafc', borderBottom: '1px solid #e2e8f0', px: 3, py: 2 }}>
-            {selectedVehicle ? 'Edit Vehicle Fleet Record' : 'Register New Vehicle'}
+            {selectedVehicle ? 'Edit vehicle' : 'Add vehicle'}
           </DialogTitle>
           <DialogContent dividers sx={{ p: 3 }}>
             <Grid container spacing={2.5}>
               <Grid item xs={12} sm={4}>
-                <TextField
+                <TextField required
                   fullWidth
-                  label="Vehicle Number"
-                  {...register('vehicleNumber', { required: 'Vehicle Number is required' })}
+                  label="Vehicle number"
+                  placeholder="e.g. MH 04 AB 1234"
+                  {...register('vehicleNumber', { required: 'Vehicle number is required', setValueAs: value => value?.trim().toUpperCase() })}
                   error={Boolean(errors.vehicleNumber)}
                   helperText={errors.vehicleNumber?.message}
                 />
               </Grid>
               <Grid item xs={12} sm={4}>
-                <TextField
+                <TextField required
                   fullWidth
                   label="Vehicle Type (e.g. 10-Tyre Truck)"
                   {...register('vehicleType', { required: 'Vehicle Type is required' })}
@@ -313,7 +331,7 @@ const Vehicles = () => {
                 />
               </Grid>
               <Grid item xs={12} sm={4}>
-                <TextField
+                <TextField required
                   fullWidth
                   select
                   label="Fleet Owner"
@@ -329,7 +347,7 @@ const Vehicles = () => {
                 </TextField>
               </Grid>
               <Grid item xs={12} sm={4}>
-                <TextField
+                <TextField required
                   fullWidth
                   label="RC Book Number"
                   {...register('rcNumber', { required: 'RC Number is required' })}
@@ -354,7 +372,7 @@ const Vehicles = () => {
               
               <Grid item xs={12}>
                 <Typography variant="subtitle2" sx={{ fontWeight: 800, mt: 1, color: 'text.secondary', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  Document Expiration Dates
+                  Document renewal dates
                 </Typography>
               </Grid>
               
@@ -399,7 +417,7 @@ const Vehicles = () => {
                   fullWidth
                   type="date"
                   InputLabelProps={{ shrink: true }}
-                  label="Pollution Expiry"
+                  label="PUC expiry"
                   {...register('pollutionExpiry')}
                 />
               </Grid>
@@ -440,14 +458,15 @@ const Vehicles = () => {
             </Button>
             <Button
               type="submit"
+              disabled={isSubmitting}
               variant="contained"
               sx={{
-                background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                background: '#197769',
                 color: '#ffffff',
                 fontWeight: 700,
                 borderRadius: '8px',
                 px: 3,
-                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)'
+                boxShadow: 'none'
               }}
             >
               Save Vehicle

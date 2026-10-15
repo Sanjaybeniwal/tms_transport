@@ -1,3 +1,4 @@
+import { formatAmount } from '../utils/indiaFormat';
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import {
@@ -27,6 +28,8 @@ import SearchIcon from '@mui/icons-material/Search';
 
 import API from '../services/api';
 import AdminHeader from '../components/AdminHeader';
+import ManagementNotice from '../components/ManagementNotice';
+import useManagementFeedback from '../hooks/useManagementFeedback';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import { formatDate } from '../utils/dateFormatter';
 
@@ -34,6 +37,7 @@ const Ledgers = () => {
   const location = useLocation();
   const [ledgerType, setLedgerType] = useState('pump');
   const [selectedEntityId, setSelectedEntityId] = useState('');
+  const { notice, clearNotice, reportError } = useManagementFeedback();
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
@@ -64,6 +68,7 @@ const Ledgers = () => {
           setCompanyContact(res.data.data);
         }
       } catch (err) {
+        reportError(err);
         console.error('Failed to load contact info for ledgers:', err);
       }
     };
@@ -95,6 +100,7 @@ const Ledgers = () => {
       setEntities(res.data.data);
       setSelectedEntityId('all');
     } catch (err) {
+      reportError(err);
       console.error('Error fetching dropdown list:', err);
     } finally {
       setLoadingEntities(false);
@@ -106,6 +112,11 @@ const Ledgers = () => {
   }, [ledgerType]);
 
   const handleSearchLedger = async () => {
+    if (startDate && endDate && startDate > endDate) {
+      reportError({}, 'The end date must be on or after the start date.');
+      return;
+    }
+    clearNotice();
     if (!selectedEntityId) return;
     setLoadingLedger(true);
     try {
@@ -119,6 +130,7 @@ const Ledgers = () => {
 
       setLedgerData(res.data.data);
     } catch (err) {
+      reportError(err);
       console.error('Error fetching ledger details:', err);
     } finally {
       setLoadingLedger(false);
@@ -173,9 +185,10 @@ const Ledgers = () => {
 
   return (
     <Box>
+      <ManagementNotice notice={notice} onClose={clearNotice} />
       <AdminHeader
-        title="Financial Ledger Center"
-        description="Review detailed debit/credit logs, transaction statements, diesel station dues, and outstanding balances."
+        title="Account khata"
+        description="Check money received, payments made and balances for each account."
         icon={<AccountBalanceIcon />}
       />
 
@@ -186,7 +199,7 @@ const Ledgers = () => {
             <TextField
               fullWidth
               select
-              label="Ledger Type"
+              label="Khata type"
               value={ledgerType}
               onChange={(e) => setLedgerType(e.target.value)}
             >
@@ -205,7 +218,7 @@ const Ledgers = () => {
               <TextField
                 fullWidth
                 select
-                label="Select Entity"
+                label="Select account"
                 value={selectedEntityId}
                 onChange={(e) => setSelectedEntityId(e.target.value)}
               >
@@ -226,6 +239,7 @@ const Ledgers = () => {
               InputLabelProps={{ shrink: true }}
               label="Start Date"
               value={startDate}
+              inputProps={{ max: endDate || undefined }}
               onChange={(e) => setStartDate(e.target.value)}
             />
           </Grid>
@@ -237,6 +251,7 @@ const Ledgers = () => {
               InputLabelProps={{ shrink: true }}
               label="End Date"
               value={endDate}
+              inputProps={{ min: startDate || undefined }}
               onChange={(e) => setEndDate(e.target.value)}
             />
           </Grid>
@@ -247,6 +262,7 @@ const Ledgers = () => {
               variant="contained"
               startIcon={<SearchIcon />}
               onClick={handleSearchLedger}
+              disabled={loadingLedger || loadingEntities || !selectedEntityId}
               sx={{ height: 56 }}
             >
               Search
@@ -453,13 +469,13 @@ const Ledgers = () => {
                         </TableCell>
                         <TableCell>{tx.reference}</TableCell>
                         <TableCell align="right" sx={{ color: tx.debit > 0 ? 'error.main' : 'inherit' }}>
-                          {tx.debit > 0 ? `₹${tx.debit.toFixed(2)}` : '-'}
+                          {tx.debit > 0 ? `₹${formatAmount(tx.debit)}` : '-'}
                         </TableCell>
                         <TableCell align="right" sx={{ color: tx.credit > 0 ? 'success.main' : 'inherit' }}>
-                          {tx.credit > 0 ? `₹${tx.credit.toFixed(2)}` : '-'}
+                          {tx.credit > 0 ? `₹${formatAmount(tx.credit)}` : '-'}
                         </TableCell>
                         <TableCell align="right" sx={{ fontWeight: 700 }}>
-                          ₹{tx.runningBalance.toFixed(2)}
+                          ₹{formatAmount(tx.runningBalance)}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -522,13 +538,13 @@ const Ledgers = () => {
                         </TableCell>
                         <TableCell>{tx.reference}</TableCell>
                         <TableCell align="right" sx={{ color: tx.debit > 0 ? '#ef4444' : 'inherit', fontWeight: tx.debit > 0 ? 600 : 'inherit' }}>
-                          {tx.debit > 0 ? `₹${tx.debit.toFixed(2)}` : '-'}
+                          {tx.debit > 0 ? `₹${formatAmount(tx.debit)}` : '-'}
                         </TableCell>
                         <TableCell align="right" sx={{ color: tx.credit > 0 ? '#10b981' : 'inherit', fontWeight: tx.credit > 0 ? 600 : 'inherit' }}>
-                          {tx.credit > 0 ? `₹${tx.credit.toFixed(2)}` : '-'}
+                          {tx.credit > 0 ? `₹${formatAmount(tx.credit)}` : '-'}
                         </TableCell>
                         <TableCell align="right" sx={{ fontWeight: 700 }}>
-                          ₹{tx.runningBalance.toFixed(2)}
+                          ₹{formatAmount(tx.runningBalance)}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -650,13 +666,13 @@ const Ledgers = () => {
                             <TableCell sx={{ py: 1.2, fontWeight: 600 }}>{tx.type}</TableCell>
                             <TableCell sx={{ py: 1.2 }}>{tx.reference}</TableCell>
                             <TableCell align="right" sx={{ py: 1.2 }}>
-                              {tx.debit > 0 ? `₹${tx.debit.toFixed(2)}` : '-'}
+                              {tx.debit > 0 ? `₹${formatAmount(tx.debit)}` : '-'}
                             </TableCell>
                             <TableCell align="right" sx={{ py: 1.2 }}>
-                              {tx.credit > 0 ? `₹${tx.credit.toFixed(2)}` : '-'}
+                              {tx.credit > 0 ? `₹${formatAmount(tx.credit)}` : '-'}
                             </TableCell>
                             <TableCell align="right" sx={{ py: 1.2, fontWeight: 700 }}>
-                              ₹{tx.runningBalance.toFixed(2)}
+                              ₹{formatAmount(tx.runningBalance)}
                             </TableCell>
                           </TableRow>
                         ))}
@@ -719,12 +735,12 @@ const Ledgers = () => {
                 onClick={() => window.print()}
                 variant="contained"
                 sx={{
-                  background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                  background: '#197769',
                   color: '#ffffff',
                   fontWeight: 700,
                   borderRadius: '8px',
                   px: 3,
-                  boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)'
+                  boxShadow: 'none'
                 }}
               >
                 Print Ledger / Save PDF

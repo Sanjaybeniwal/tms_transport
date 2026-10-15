@@ -15,22 +15,22 @@ const AdminHeader = ({ title, description, icon, action }) => {
         borderBottom: '1px solid #e2e8f0'
       }}
     >
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, minWidth: 0 }}>
         {icon && (
           <Avatar 
             sx={{ 
-              bgcolor: '#eff6ff', 
-              color: '#2563eb',
+              bgcolor: '#e9f2ed',
+              color: 'primary.main',
               width: 48, 
               height: 48,
-              border: '1px solid #dbeafe',
+              border: '1px solid #d5e5dc',
             }}
           >
             {icon}
           </Avatar>
         )}
         <Box>
-          <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: '-0.02em', color: '#0f172a', mb: 0.5 }}>
+          <Typography variant="h5" component="h1" sx={{ fontWeight: 800, letterSpacing: '-0.02em', color: '#0f172a', mb: 0.5 }}>
             {title}
           </Typography>
           {description && (
@@ -41,7 +41,7 @@ const AdminHeader = ({ title, description, icon, action }) => {
         </Box>
       </Box>
       {action && (
-        <Box sx={{ mt: { xs: 2, sm: 0 } }}>
+        <Box sx={{ mt: { xs: 0, sm: 0 }, width: { xs: '100%', sm: 'auto' }, '& > .MuiButton-root': { width: { xs: '100%', sm: 'auto' } }, '& > .MuiBox-root': { flexWrap: 'wrap' } }}>
           {action}
         </Box>
       )}

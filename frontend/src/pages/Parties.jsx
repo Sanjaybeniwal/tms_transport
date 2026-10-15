@@ -20,31 +20,39 @@ import AddIcon from '@mui/icons-material/Add';
 import { useForm } from 'react-hook-form';
 
 import API from '../services/api';
+import { validateIndianMobile, normalizeIndianMobile } from '../utils/formValidation';
 import DataTable from '../components/DataTable';
 import AdminHeader from '../components/AdminHeader';
+import ManagementNotice from '../components/ManagementNotice';
+import useManagementFeedback from '../hooks/useManagementFeedback';
 import BusinessIcon from '@mui/icons-material/Business';
 
 const Parties = () => {
+  const { notice, clearNotice, reportError, reportSuccess } = useManagementFeedback();
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [listError, setListError] = useState(false);
 
   // Modals state
   const [openForm, setOpenForm] = useState(false);
   const [selectedParty, setSelectedParty] = useState(null);
 
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm();
+  const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting } } = useForm();
 
   const fetchParties = async () => {
     setLoading(true);
+    setListError(false);
     try {
       const res = await API.parties.list({ page: page + 1, limit, search });
       setData(res.data.data);
       setTotal(res.data.total);
     } catch (err) {
+      setListError(true);
+      reportError(err);
       console.error(err);
     } finally {
       setLoading(false);
@@ -56,6 +64,8 @@ const Parties = () => {
   }, [page, limit, search]);
 
   const handleOpenForm = (party = null) => {
+    clearNotice();
+    reset();
     setSelectedParty(party);
     if (party) {
       setValue('name', party.name);
@@ -82,8 +92,10 @@ const Parties = () => {
         await API.parties.create(formData);
       }
       fetchParties();
+      reportSuccess();
       handleCloseForm();
     } catch (err) {
+      reportError(err);
       console.error(err);
     }
   };
@@ -92,8 +104,10 @@ const Parties = () => {
     if (window.confirm('Are you sure you want to delete this customer?')) {
       try {
         await API.parties.delete(id);
-        fetchParties();
+        if (data.length === 1 && page > 0) setPage(page - 1);
+        else fetchParties();
       } catch (err) {
+        reportError(err);
         console.error(err);
       }
     }
@@ -103,7 +117,7 @@ const Parties = () => {
     { field: 'name', headerName: 'Customer (Party) Name', minWidth: 150 },
     { field: 'contactPerson', headerName: 'Contact Person', minWidth: 120 },
     { field: 'mobile', headerName: 'Mobile Number', minWidth: 120 },
-    { field: 'gstNumber', headerName: 'GST Number', minWidth: 120 },
+    { field: 'gstNumber', headerName: 'GSTIN', minWidth: 120 },
     {
       field: 'status',
       headerName: 'Status',
@@ -120,9 +134,10 @@ const Parties = () => {
 
   return (
     <Box>
+      <ManagementNotice notice={notice} onClose={clearNotice} />
       <AdminHeader
-        title="Customers / Parties Manager"
-        description="Register and manage business clients, freight accounts, contact channels, and transaction ledgers."
+        title="Customers / parties"
+        description="Manage party contacts, GSTIN and freight accounts."
         icon={<BusinessIcon />}
         action={
           <Button
@@ -130,10 +145,10 @@ const Parties = () => {
             startIcon={<AddIcon />}
             onClick={() => handleOpenForm()}
             sx={{
-              background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+              background: '#197769',
               color: '#ffffff',
               fontWeight: 700,
-              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)'
+              boxShadow: 'none'
             }}
           >
             Add New Customer
@@ -148,17 +163,19 @@ const Parties = () => {
         page={page}
         limit={limit}
         loading={loading}
+        error={listError}
+        onRetry={fetchParties}
         onPageChange={setPage}
-        onLimitChange={setLimit}
+        onLimitChange={(value) => { setLimit(value); setPage(0); }}
         searchQuery={search}
-        onSearchChange={setSearch}
+        onSearchChange={(value) => { setSearch(value); setPage(0); }}
         searchPlaceholder="Search customer by name or GST..."
         actions={(row) => (
           <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-            <IconButton size="small" color="secondary" onClick={() => handleOpenForm(row)}>
+            <IconButton aria-label="Edit record" size="small" color="secondary" onClick={() => handleOpenForm(row)}>
               <EditIcon fontSize="small" />
             </IconButton>
-            <IconButton size="small" color="error" onClick={() => handleDelete(row.id)}>
+            <IconButton aria-label="Delete record" size="small" color="error" onClick={() => handleDelete(row.id)}>
               <DeleteIcon fontSize="small" />
             </IconButton>
           </Box>
@@ -174,7 +191,7 @@ const Parties = () => {
           <DialogContent dividers sx={{ p: 3 }}>
             <Grid container spacing={2.5}>
               <Grid item xs={12}>
-                <TextField
+                <TextField required
                   fullWidth
                   label="Company Name"
                   {...register('name', { required: 'Company Name is required' })}
@@ -190,13 +207,17 @@ const Parties = () => {
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <TextField
+                <TextField required
                   fullWidth
-                  label="Mobile Number"
+                  label="Mobile number"
+                  type="tel"
+                  autoComplete="tel-national"
+                  inputProps={{ inputMode: 'tel' }}
+                  placeholder="98765 43210"
                   InputProps={{
-                    startAdornment: <InputAdornment position="start">📞</InputAdornment>
+                    startAdornment: <InputAdornment position="start">IN</InputAdornment>
                   }}
-                  {...register('mobile', { required: 'Mobile is required' })}
+                  {...register('mobile', { required: 'Mobile number is required', validate: validateIndianMobile, setValueAs: normalizeIndianMobile })}
                   error={Boolean(errors.mobile)}
                   helperText={errors.mobile?.message}
                 />
@@ -204,8 +225,10 @@ const Parties = () => {
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="GST Registration Number"
-                  {...register('gstNumber')}
+                  label="GSTIN (optional)"
+                  placeholder="e.g. 27ABCDE1234F1Z5"
+                  inputProps={{ maxLength: 15, style: { textTransform: 'uppercase' } }}
+                  {...register('gstNumber', { setValueAs: value => value?.trim().toUpperCase() })}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -237,14 +260,15 @@ const Parties = () => {
             </Button>
             <Button
               type="submit"
+              disabled={isSubmitting}
               variant="contained"
               sx={{
-                background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                background: '#197769',
                 color: '#ffffff',
                 fontWeight: 700,
                 borderRadius: '8px',
                 px: 3,
-                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)'
+                boxShadow: 'none'
               }}
             >
               Save Customer

@@ -1,0 +1,50 @@
+#accounting-statement { padding: 32px; background: #fff; color: #111; font: 12px/1.5 Arial, sans-serif; }
+#accounting-statement * { box-sizing: border-box; }
+#accounting-statement .statement-letterhead { text-align: center; padding-bottom: 22px; border-bottom: 2px solid #111; margin-bottom: 24px; }
+#accounting-statement h1 { margin: 0; font-size: 25px; line-height: 1.2; font-weight: 900; letter-spacing: .02em; text-transform: uppercase; }
+#accounting-statement .statement-tagline { font-weight: 600; color: #64748b; margin: 7px 0 4px; }
+#accounting-statement .statement-contact { white-space: pre-line; color: #64748b; margin: 0; font-size: 10px; }
+#accounting-statement h2 { margin: 0 0 5px; font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: .05em; }
+#accounting-statement h3 { margin: 0 0 6px; font-size: 17px; color: #2563eb; }
+#accounting-statement .statement-metadata { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+#accounting-statement .statement-metadata p { margin: 3px 0; }
+#accounting-statement .statement-duration { text-align: right; }
+#accounting-statement .statement-duration p { font-size: 10px; color: #64748b; }
+#accounting-statement .statement-table-wrap { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 24px; overflow-x: auto; }
+#accounting-statement table { border-collapse: collapse; width: 100%; table-layout: fixed; }
+#accounting-statement th { background: #f8fafc; font-weight: 700; text-align: left; }
+#accounting-statement td, #accounting-statement th { padding: 9px 7px; border-bottom: 1px solid #e2e8f0; overflow-wrap: anywhere; vertical-align: top; font-size: 10px; }
+#accounting-statement tr:last-child td { border-bottom: 0; }
+#accounting-statement .statement-number { text-align: right; font-variant-numeric: tabular-nums; }
+#accounting-statement .statement-empty { text-align: center; padding: 24px; }
+#accounting-statement .statement-summary { padding: 20px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; break-inside: avoid; }
+#accounting-statement .statement-summary strong { font-size: 17px; }
+#accounting-statement .statement-balance { color: #b91c1c; }
+#accounting-statement .statement-note { color: #64748b; font-size: 10px; }
+#accounting-statement .statement-signatures { display: flex; justify-content: space-between; align-items: end; gap: 25px; margin-top: 65px; break-inside: avoid; }
+#accounting-statement .statement-signatures p { font-size: 10px; color: #64748b; font-style: italic; }
+#accounting-statement .statement-signatures div { width: 220px; border-top: 1px solid #111; padding-top: 8px; text-align: center; }
+#accounting-statement .statement-signatures span { display: block; color: #64748b; font-size: 10px; }
+@media (max-width: 600px) {
+  #accounting-statement { padding: 16px; }
+  #accounting-statement h1 { font-size: 20px; }
+  #accounting-statement .statement-metadata { grid-template-columns: 1fr; }
+  #accounting-statement .statement-duration { text-align: left; }
+  #accounting-statement .statement-table-wrap table { min-width: 650px; }
+  #accounting-statement .statement-summary { grid-template-columns: 1fr; }
+}
+@media print {
+  body:has(.accounting-statement-dialog) > :not(.accounting-statement-dialog) { display: none !important; }
+  body:has(.accounting-statement-dialog) { margin: 0 !important; height: auto !important; overflow: visible !important; }
+  .accounting-statement-dialog, .accounting-statement-dialog .MuiDialog-container { position: static !important; display: block !important; height: auto !important; overflow: visible !important; }
+  .accounting-statement-dialog .MuiBackdrop-root, .accounting-statement-dialog .statement-controls { display: none !important; }
+  .accounting-statement-dialog .MuiDialog-paper { display: block !important; width: 100% !important; max-width: none !important; max-height: none !important; margin: 0 !important; box-shadow: none !important; border-radius: 0 !important; overflow: visible !important; }
+  .accounting-statement-dialog .MuiDialogContent-root { padding: 0 !important; overflow: visible !important; }
+  #accounting-statement { padding: 0; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  #accounting-statement .statement-table-wrap { overflow: visible; border-radius: 0; }
+  #accounting-statement table { min-width: 0 !important; }
+  #accounting-statement thead { display: table-header-group; }
+  #accounting-statement tr { break-inside: avoid; }
+  #accounting-statement.statement-landscape td, #accounting-statement.statement-landscape th { font-size: 8px; padding: 6px 4px; }
+  #accounting-statement .statement-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}

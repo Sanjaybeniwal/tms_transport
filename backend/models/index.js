@@ -108,3 +108,5 @@ module.exports = {
   Enquiry,
   Setting
 };
+
+require('../accounting/models').install(module.exports);

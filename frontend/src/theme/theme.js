@@ -4,19 +4,19 @@ const theme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#2563eb', // Electric blue
-      light: '#60a5fa',
-      dark: '#1d4ed8',
+      main: '#197769', // Electric blue
+      light: '#65a69b',
+      dark: '#105e52',
       contrastText: '#ffffff'
     },
     secondary: {
-      main: '#7c3aed', // Purple violet
-      light: '#a78bfa',
-      dark: '#5b21b6',
+      main: '#b97930', // Purple violet
+      light: '#ebbc80',
+      dark: '#925b20',
       contrastText: '#ffffff'
     },
     background: {
-      default: '#f8fafc', // Clean light gray-blue
+      default: '#f4f6f3', // Clean light gray-blue
       paper: '#ffffff'
     },
     text: {
@@ -37,7 +37,7 @@ const theme = createTheme({
     }
   },
   typography: {
-    fontFamily: '"Outfit", "Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Inter", "Noto Sans Devanagari", "Segoe UI", "Arial", sans-serif',
     h1: {
       fontWeight: 700,
       fontSize: '2.25rem',
@@ -73,6 +73,19 @@ const theme = createTheme({
     borderRadius: 12
   },
   components: {
+    MuiDialog: {
+      styleOverrides: { paper: { borderRadius: 14, margin: 16, width: 'calc(100% - 32px)', maxHeight: 'calc(100% - 32px)' } }
+    },
+    MuiDialogTitle: {
+      styleOverrides: { root: { fontSize: '1.1rem', lineHeight: 1.5 } }
+    },
+    MuiDialogContent: {
+      styleOverrides: { root: { paddingTop: '24px !important' } }
+    },
+    MuiDialogActions: {
+      styleOverrides: { root: { flexWrap: 'wrap', gap: 8, position: 'sticky', bottom: 0, backgroundColor: '#ffffff', zIndex: 1 } }
+    },
+    MuiTabs: { defaultProps: { variant: 'scrollable', scrollButtons: 'auto', allowScrollButtonsMobile: true } },
     MuiButton: {
       styleOverrides: {
         root: {
@@ -115,11 +128,19 @@ const theme = createTheme({
         }
       }
     },
+    MuiPaper: {
+      defaultProps: { elevation: 0 },
+      styleOverrides: { root: { backgroundImage: 'none' } }
+    },
+    MuiTableRow: {
+      styleOverrides: { root: { '&:last-child td': { borderBottom: 0 } } }
+    },
     MuiTableCell: {
       styleOverrides: {
+        root: { borderColor: '#edf0ee', padding: '16px', fontVariantNumeric: 'tabular-nums' },
         head: {
           fontWeight: 600,
-          backgroundColor: '#f1f5f9',
+          backgroundColor: '#f4f7f5',
           color: '#475569'
         }
       }

@@ -35,8 +35,12 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { useForm, Controller } from 'react-hook-form';
 
 import API from '../services/api';
+import { indiaDateInput } from '../utils/indiaFormat';
+import { validateIndianMobile, normalizeIndianMobile } from '../utils/formValidation';
 import DataTable from '../components/DataTable';
 import AdminHeader from '../components/AdminHeader';
+import ManagementNotice from '../components/ManagementNotice';
+import useManagementFeedback from '../hooks/useManagementFeedback';
 import { formatDate } from '../utils/dateFormatter';
 
 const printStyles = `
@@ -103,12 +107,14 @@ const printStyles = `
 `;
 
 const GenericCrud = ({ resource, title, fields }) => {
+  const { notice, clearNotice, reportError, reportSuccess } = useManagementFeedback();
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [listError, setListError] = useState(false);
 
   // Modals state
   const [openForm, setOpenForm] = useState(false);
@@ -146,7 +152,7 @@ Driver Name: ${row.driver?.name || 'N/A'}
 Pump Vendor: ${row.pump?.name || 'N/A'}
 --------------------------------
 Product: High Speed Diesel (HSD)
-Quantity: ${parseFloat(row.quantity || 0).toFixed(2)} Liters
+Quantity: ${parseFloat(row.quantity || 0).toFixed(2)} litres
 Rate: Rs. ${parseFloat(row.rate || 0).toFixed(2)} / L
 *Total Cost: Rs. ${parseFloat(row.totalAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}*
 --------------------------------
@@ -161,14 +167,14 @@ Generated via BUTS Transport Management System`;
 
   const [isDriverAutoFilled, setIsDriverAutoFilled] = useState(false);
 
-  const { register, handleSubmit, reset, setValue, watch, control, formState: { errors } } = useForm();
+  const { register, handleSubmit, reset, setValue, watch, control, formState: { errors, isSubmitting } } = useForm();
 
   // Watch for quantity and rate changes in diesel log to automatically calculate totalAmount
   const watchedQuantity = watch('quantity');
   const watchedRate = watch('rate');
 
   useEffect(() => {
-    if (resource === 'diesels' && watchedQuantity && watchedRate) {
+    if (resource === 'diesels') {
       const total = parseFloat(watchedQuantity) * parseFloat(watchedRate);
       setValue('totalAmount', isNaN(total) ? 0 : total.toFixed(2));
     }
@@ -188,6 +194,7 @@ Generated via BUTS Transport Management System`;
             setIsDriverAutoFilled(false);
           }
         } catch (err) {
+          reportError(err);
           console.error('Error auto-filling driver in generic crud:', err);
           setIsDriverAutoFilled(false);
         }
@@ -198,11 +205,14 @@ Generated via BUTS Transport Management System`;
 
   const fetchData = async () => {
     setLoading(true);
+    setListError(false);
     try {
       const res = await API[resource].list({ page: page + 1, limit, search });
       setData(res.data.data);
       setTotal(res.data.total);
     } catch (err) {
+      setListError(true);
+      reportError(err);
       console.error(`Error loading generic crud resource ${resource}:`, err);
     } finally {
       setLoading(false);
@@ -221,6 +231,7 @@ Generated via BUTS Transport Management System`;
       }
       setDropdownData(cache);
     } catch (err) {
+      reportError(err);
       console.error('Error fetching generic dropdown mappings:', err);
     }
   };
@@ -234,21 +245,23 @@ Generated via BUTS Transport Management System`;
   }, [resource]);
 
   const handleOpenForm = (item = null) => {
+    clearNotice();
+    reset();
     setSelectedItem(item);
     setIsDriverAutoFilled(false); // Reset feedback on open
     if (item) {
-      fields.forEach(f => {
+      fields.filter(f => !f.formHidden).forEach(f => {
         let val = item[f.name];
         // If nested relationship (e.g. item.expenseHead.id)
         if (f.nestedKey && item[f.nestedKey]) {
           val = item[f.nestedKey].id;
         }
-        setValue(f.name, val || '');
+        setValue(f.name, val ?? '');
       });
     } else {
       const defaults = {};
-      fields.forEach(f => {
-        defaults[f.name] = f.defaultValue !== undefined ? f.defaultValue : '';
+      fields.filter(f => !f.formHidden).forEach(f => {
+        defaults[f.name] = f.defaultValue !== undefined ? f.defaultValue : f.type === 'date' ? indiaDateInput() : '';
       });
       reset(defaults);
     }
@@ -267,8 +280,10 @@ Generated via BUTS Transport Management System`;
         await API[resource].create(formData);
       }
       fetchData();
+      reportSuccess();
       handleCloseForm();
     } catch (err) {
+      reportError(err);
       console.error(err);
     }
   };
@@ -277,8 +292,10 @@ Generated via BUTS Transport Management System`;
     if (window.confirm(`Are you sure you want to delete this record?`)) {
       try {
         await API[resource].delete(id);
-        fetchData();
+        if (data.length === 1 && page > 0) setPage(page - 1);
+        else fetchData();
       } catch (err) {
+        reportError(err);
         console.error(err);
       }
     }
@@ -296,7 +313,7 @@ Generated via BUTS Transport Management System`;
           if (f.nestedField) {
             const nestedVal = row[f.nestedKey][f.nestedField];
             if (f.isCurrency) {
-              return `₹${parseFloat(nestedVal || 0).toFixed(2)}`;
+              return `₹${parseFloat(nestedVal || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
             }
             return nestedVal !== undefined && nestedVal !== null ? nestedVal : 'N/A';
           }
@@ -316,7 +333,7 @@ Generated via BUTS Transport Management System`;
           return formatDate(row[f.name]);
         }
         if (f.isCurrency) {
-          return `₹${parseFloat(row[f.name] || 0).toFixed(2)}`;
+          return `₹${parseFloat(row[f.name] || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         }
         return row[f.name];
       }
@@ -326,37 +343,37 @@ Generated via BUTS Transport Management System`;
     switch (resource) {
       case 'expenseHeads':
         return {
-          description: 'Manage categorization ledger accounts for operations expenditures.',
+          description: 'Organise expenses such as toll, repairs, loading and driver bhatta.',
           icon: <ReceiptIcon />
         };
       case 'pumps':
         return {
-          description: 'Register and manage diesel fueling station vendors and credit contracts.',
+          description: 'Manage diesel pumps, contact details and credit limits.',
           icon: <LocalGasStationIcon />
         };
       case 'expenses':
         return {
-          description: 'Log and monitor trip-specific and general vehicle operating expenses.',
+          description: 'Record toll, repairs, loading and other trip or vehicle expenses.',
           icon: <TrendingDownIcon />
         };
       case 'diesels':
         return {
-          description: 'Track fuel refueling quantities, fuel rates, driver signatures, and slips.',
+          description: 'Record diesel quantity, rate, vehicle and pump details.',
           icon: <LocalGasStationIcon />
         };
       case 'pumpPayments':
         return {
-          description: 'Process and log payments made to fuel station vendors against outstanding credit.',
+          description: 'Record payments to diesel pumps and keep their khata up to date.',
           icon: <PaymentIcon />
         };
       case 'driverAdvances':
         return {
-          description: 'Log trip advance cash payments handed out to dispatch drivers.',
+          description: 'Record advances given to drivers for a trip.',
           icon: <AttachMoneyIcon />
         };
       case 'incomeLogs':
         return {
-          description: 'Record freight incomes, load bookings revenues, and payment collections.',
+          description: 'Record freight payments received from customers and parties.',
           icon: <TrendingUpIcon />
         };
       default:
@@ -371,6 +388,7 @@ Generated via BUTS Transport Management System`;
 
   return (
     <Box>
+      <ManagementNotice notice={notice} onClose={clearNotice} />
       <AdminHeader
         title={title}
         description={resDetails.description}
@@ -381,13 +399,13 @@ Generated via BUTS Transport Management System`;
             startIcon={<AddIcon />}
             onClick={() => handleOpenForm()}
             sx={{
-              background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+              background: '#197769',
               color: '#ffffff',
               fontWeight: 700,
-              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)'
+              boxShadow: 'none'
             }}
           >
-            Create Record
+            {{ expenseHeads: 'Add category', pumps: 'Add pump', expenses: 'Add expense', diesels: 'Add diesel entry', pumpPayments: 'Record payment', driverAdvances: 'Add advance', incomeLogs: 'Record collection' }[resource] || 'Add entry'}
           </Button>
         }
       />
@@ -399,15 +417,17 @@ Generated via BUTS Transport Management System`;
         page={page}
         limit={limit}
         loading={loading}
+        error={listError}
+        onRetry={fetchData}
         onPageChange={setPage}
-        onLimitChange={setLimit}
+        onLimitChange={(value) => { setLimit(value); setPage(0); }}
         searchQuery={search}
-        onSearchChange={setSearch}
+        onSearchChange={(value) => { setSearch(value); setPage(0); }}
         searchPlaceholder="Filter list..."
         actions={(row) => (
           <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
             {(resource === 'diesels' || resource === 'pumpPayments') && (
-              <IconButton size="small" color="primary" onClick={() => handleOpenPrint(row)} title={resource === 'diesels' ? "Print Fuel Slip" : "Print Payment Receipt"}>
+              <IconButton aria-label="Print receipt" size="small" color="primary" onClick={() => handleOpenPrint(row)} title={resource === 'diesels' ? "Print Fuel Slip" : "Print Payment Receipt"}>
                 <PrintIcon fontSize="small" />
               </IconButton>
             )}
@@ -416,10 +436,10 @@ Generated via BUTS Transport Management System`;
                 <WhatsAppIcon fontSize="small" />
               </IconButton>
             )}
-            <IconButton size="small" color="secondary" onClick={() => handleOpenForm(row)}>
+            <IconButton aria-label="Edit record" size="small" color="secondary" onClick={() => handleOpenForm(row)}>
               <EditIcon fontSize="small" />
             </IconButton>
-            <IconButton size="small" color="error" onClick={() => handleDelete(row.id)}>
+            <IconButton aria-label="Delete record" size="small" color="error" onClick={() => handleDelete(row.id)}>
               <DeleteIcon fontSize="small" />
             </IconButton>
           </Box>
@@ -430,7 +450,7 @@ Generated via BUTS Transport Management System`;
       <Dialog open={openForm} onClose={handleCloseForm} maxWidth="sm" fullWidth>
         <form onSubmit={handleSubmit(onSubmitForm)}>
           <DialogTitle sx={{ fontWeight: 800, bgcolor: '#f8fafc', borderBottom: '1px solid #e2e8f0', px: 3, py: 2 }}>
-            {selectedItem ? `Edit ${title} Entry` : `Create New ${title}`}
+            {selectedItem ? `Edit entry · ${title}` : `Add entry · ${title}`}
           </DialogTitle>
           <DialogContent dividers sx={{ p: 3 }}>
             <Grid container spacing={2.5}>
@@ -442,7 +462,7 @@ Generated via BUTS Transport Management System`;
                     return <InputAdornment position="start">₹</InputAdornment>;
                   }
                   if (name.includes('phone') || name.includes('mobile') || label.includes('phone') || label.includes('mobile')) {
-                    return <InputAdornment position="start">📞</InputAdornment>;
+                    return <InputAdornment position="start">IN</InputAdornment>;
                   }
                   if (name.includes('email') || label.includes('email')) {
                     return <InputAdornment position="start">✉</InputAdornment>;
@@ -478,6 +498,7 @@ Generated via BUTS Transport Management System`;
                                   <TextField
                                     {...params}
                                     label={f.label}
+                      required={Boolean(f.required)}
                                     error={Boolean(error)}
                                     helperText={error?.message || (isAutoFilled ? "Last active driver auto-selected!" : "")}
                                     FormHelperTextProps={{
@@ -499,10 +520,11 @@ Generated via BUTS Transport Management System`;
                         fullWidth
                         select
                         label={f.label}
+                      required={Boolean(f.required)}
                         defaultValue={f.defaultValue || ''}
-                        {...register(f.name, { required: f.required ? `${f.label} is required` : false })}
+                        {...register(f.name, { required: f.required ? `${f.label} is required` : false, validate: f.name === 'mobile' ? value => !value && !f.required || validateIndianMobile(value) : undefined, setValueAs: f.name === 'mobile' ? normalizeIndianMobile : undefined })}
                         error={Boolean(errors[f.name])}
-                        helperText={errors[f.name]?.message}
+                        helperText={errors[f.name]?.message || (f.disabled ? 'Calculated automatically from quantity × rate.' : f.name === 'mobile' ? '10-digit mobile number; +91 prefix is optional.' : f.type === 'date' ? 'Dates are shown as DD-MM-YYYY in the register.' : '')}
                       >
                         <MenuItem value="">Select {f.label}</MenuItem>
                         {f.options.map(opt => (
@@ -517,15 +539,17 @@ Generated via BUTS Transport Management System`;
                   <Grid item xs={12} sm={f.halfWidth ? 6 : 12} key={f.name}>
                     <TextField
                       fullWidth
-                      type={f.type || 'text'}
+                      type={f.name === 'mobile' ? 'tel' : f.type || 'text'}
+                      inputProps={f.type === 'number' ? { step: '0.01', inputMode: 'decimal', min: 0 } : f.name === 'mobile' ? { inputMode: 'tel' } : undefined}
                       label={f.label}
+                      required={Boolean(f.required)}
                       multiline={f.multiline}
                       rows={f.rows || 1}
                       InputLabelProps={f.type === 'date' ? { shrink: true } : undefined}
-                      InputProps={getPrefix() ? { startAdornment: getPrefix() } : undefined}
-                      {...register(f.name, { required: f.required ? `${f.label} is required` : false })}
+                      InputProps={{ startAdornment: getPrefix(), readOnly: Boolean(f.disabled) }}
+                      {...register(f.name, { required: f.required ? `${f.label} is required` : false, validate: f.name === 'mobile' ? value => !value && !f.required || validateIndianMobile(value) : undefined, setValueAs: f.name === 'mobile' ? normalizeIndianMobile : undefined })}
                       error={Boolean(errors[f.name])}
-                      helperText={errors[f.name]?.message}
+                      helperText={errors[f.name]?.message || (f.disabled ? 'Calculated automatically from quantity × rate.' : f.name === 'mobile' ? '10-digit mobile number; +91 prefix is optional.' : f.type === 'date' ? 'Dates are shown as DD-MM-YYYY in the register.' : '')}
                     />
                   </Grid>
                 );
@@ -538,17 +562,18 @@ Generated via BUTS Transport Management System`;
             </Button>
             <Button
               type="submit"
+              disabled={isSubmitting}
               variant="contained"
               sx={{
-                background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                background: '#197769',
                 color: '#ffffff',
                 fontWeight: 700,
                 borderRadius: '8px',
                 px: 3,
-                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)'
+                boxShadow: 'none'
               }}
             >
-              Save Record
+              {isSubmitting ? 'Saving…' : 'Save entry'}
             </Button>
           </DialogActions>
         </form>
@@ -640,7 +665,7 @@ Generated via BUTS Transport Management System`;
                     <TableRow sx={{ bgcolor: '#f1f5f9' }}>
                       <TableCell sx={{ fontWeight: 700 }}>Description</TableCell>
                       <TableCell align="right" sx={{ fontWeight: 700 }}>Quantity</TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 700 }}>Rate per Liter</TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 700 }}>Rate per litre</TableCell>
                       <TableCell align="right" sx={{ fontWeight: 700 }}>Total Amount (₹)</TableCell>
                     </TableRow>
                   </TableHead>
@@ -649,7 +674,7 @@ Generated via BUTS Transport Management System`;
                       <TableCell>
                         High Speed Diesel Refueling Charges
                       </TableCell>
-                      <TableCell align="right">{parseFloat(printDieselData.quantity || 0).toFixed(2)} Liters</TableCell>
+                      <TableCell align="right">{parseFloat(printDieselData.quantity || 0).toFixed(2)} litres</TableCell>
                       <TableCell align="right">₹{parseFloat(printDieselData.rate || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} / L</TableCell>
                       <TableCell align="right" sx={{ fontWeight: 800 }}>₹{parseFloat(printDieselData.totalAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                     </TableRow>

@@ -107,7 +107,17 @@ exports.deleteOne = (Model) => async (req, res, next) => {
       return next(new AppError('No document found with that ID', 404));
     }
 
-    await doc.destroy();
+    if (['Expense', 'Diesel', 'DriverAdvance', 'IncomeLog'].includes(Model.name)) {
+      const { sequelize } = require('../config/database');
+      await sequelize.transaction(async transaction => {
+        await doc.reload({ transaction, lock: transaction.LOCK.UPDATE });
+        const before = doc.toJSON();
+        await doc.update({ voidedAt: new Date(), voidReason: 'Reversed through original register' }, { transaction });
+        await require('../accounting/service').audit(Model.name, doc.id, 'reverse', before, doc.toJSON(), req.user, transaction);
+      });
+    } else {
+      await doc.destroy();
+    }
 
     res.status(204).json({
       status: 'success',

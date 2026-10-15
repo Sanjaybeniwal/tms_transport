@@ -154,3 +154,7 @@ server {
     }
 }
 ```
+
+## Transport Accounting & Brokerage Upgrade
+
+See [the accounting setup, schema, workflows, API reference, verification, and changed-file guide](docs/TRANSPORT_ACCOUNTING.md). Existing installations must run `npm run db:accounting --prefix backend` before restarting the upgraded backend. Schema alteration is no longer automatic on startup. Open `/admin/accounting/dashboard` after login, classify vehicles, and reconcile/enroll trips before using accounting totals.

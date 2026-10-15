@@ -28,17 +28,22 @@ import AddIcon from '@mui/icons-material/Add';
 import { useForm } from 'react-hook-form';
 
 import API from '../services/api';
+import { validateIndianMobile, normalizeIndianMobile } from '../utils/formValidation';
 import DataTable from '../components/DataTable';
 import AdminHeader from '../components/AdminHeader';
+import ManagementNotice from '../components/ManagementNotice';
+import useManagementFeedback from '../hooks/useManagementFeedback';
 import PeopleIcon from '@mui/icons-material/People';
 
 const Owners = () => {
+  const { notice, clearNotice, reportError, reportSuccess } = useManagementFeedback();
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [listError, setListError] = useState(false);
 
   // Modals state
   const [openForm, setOpenForm] = useState(false);
@@ -47,15 +52,18 @@ const Owners = () => {
   const [ownerDetail, setOwnerDetail] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
 
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm();
+  const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting } } = useForm();
 
   const fetchOwners = async () => {
     setLoading(true);
+    setListError(false);
     try {
       const res = await API.owners.list({ page: page + 1, limit, search });
       setData(res.data.data);
       setTotal(res.data.total);
     } catch (err) {
+      setListError(true);
+      reportError(err);
       console.error(err);
     } finally {
       setLoading(false);
@@ -67,6 +75,8 @@ const Owners = () => {
   }, [page, limit, search]);
 
   const handleOpenForm = (owner = null) => {
+    clearNotice();
+    reset();
     setSelectedOwner(owner);
     if (owner) {
       setValue('name', owner.name);
@@ -92,8 +102,10 @@ const Owners = () => {
         await API.owners.create(formData);
       }
       fetchOwners();
+      reportSuccess();
       handleCloseForm();
     } catch (err) {
+      reportError(err);
       console.error(err);
     }
   };
@@ -102,8 +114,10 @@ const Owners = () => {
     if (window.confirm('Are you sure you want to delete this owner?')) {
       try {
         await API.owners.delete(id);
-        fetchOwners();
+        if (data.length === 1 && page > 0) setPage(page - 1);
+        else fetchOwners();
       } catch (err) {
+        reportError(err);
         console.error(err);
       }
     }
@@ -117,6 +131,7 @@ const Owners = () => {
       const res = await API.owners.detail(owner.id);
       setOwnerDetail(res.data.data);
     } catch (err) {
+      reportError(err);
       console.error(err);
     } finally {
       setDetailLoading(false);
@@ -143,9 +158,10 @@ const Owners = () => {
 
   return (
     <Box>
+      <ManagementNotice notice={notice} onClose={clearNotice} />
       <AdminHeader
-        title="Vehicle Owners Manager"
-        description="Register and manage vehicle owners, office addresses, primary contact lines, and ledger status."
+        title="Vehicle owners"
+        description="Add vehicle owners and keep their contact details up to date."
         icon={<PeopleIcon />}
         action={
           <Button
@@ -153,10 +169,10 @@ const Owners = () => {
             startIcon={<AddIcon />}
             onClick={() => handleOpenForm()}
             sx={{
-              background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+              background: '#197769',
               color: '#ffffff',
               fontWeight: 700,
-              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)'
+              boxShadow: 'none'
             }}
           >
             Add New Owner
@@ -171,20 +187,22 @@ const Owners = () => {
         page={page}
         limit={limit}
         loading={loading}
+        error={listError}
+        onRetry={fetchOwners}
         onPageChange={setPage}
-        onLimitChange={setLimit}
+        onLimitChange={(value) => { setLimit(value); setPage(0); }}
         searchQuery={search}
-        onSearchChange={setSearch}
+        onSearchChange={(value) => { setSearch(value); setPage(0); }}
         searchPlaceholder="Search owner by name or mobile..."
         actions={(row) => (
           <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-            <IconButton size="small" color="primary" onClick={() => handleViewDetail(row)}>
+            <IconButton aria-label="View details" size="small" color="primary" onClick={() => handleViewDetail(row)}>
               <VisibilityIcon fontSize="small" />
             </IconButton>
-            <IconButton size="small" color="secondary" onClick={() => handleOpenForm(row)}>
+            <IconButton aria-label="Edit record" size="small" color="secondary" onClick={() => handleOpenForm(row)}>
               <EditIcon fontSize="small" />
             </IconButton>
-            <IconButton size="small" color="error" onClick={() => handleDelete(row.id)}>
+            <IconButton aria-label="Delete record" size="small" color="error" onClick={() => handleDelete(row.id)}>
               <DeleteIcon fontSize="small" />
             </IconButton>
           </Box>
@@ -200,7 +218,7 @@ const Owners = () => {
           <DialogContent dividers sx={{ p: 3 }}>
             <Grid container spacing={2.5}>
               <Grid item xs={12}>
-                <TextField
+                <TextField required
                   fullWidth
                   label="Owner Name"
                   {...register('name', { required: 'Owner Name is required' })}
@@ -209,13 +227,17 @@ const Owners = () => {
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <TextField
+                <TextField required
                   fullWidth
-                  label="Mobile Number"
+                  label="Mobile number"
+                  type="tel"
+                  autoComplete="tel-national"
+                  inputProps={{ inputMode: 'tel' }}
+                  placeholder="98765 43210"
                   InputProps={{
-                    startAdornment: <InputAdornment position="start">📞</InputAdornment>
+                    startAdornment: <InputAdornment position="start">IN</InputAdornment>
                   }}
-                  {...register('mobile', { required: 'Mobile is required' })}
+                  {...register('mobile', { required: 'Mobile number is required', validate: validateIndianMobile, setValueAs: normalizeIndianMobile })}
                   error={Boolean(errors.mobile)}
                   helperText={errors.mobile?.message}
                 />
@@ -260,17 +282,18 @@ const Owners = () => {
             </Button>
             <Button
               type="submit"
+              disabled={isSubmitting}
               variant="contained"
               sx={{
-                background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                background: '#197769',
                 color: '#ffffff',
                 fontWeight: 700,
                 borderRadius: '8px',
                 px: 3,
-                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)'
+                boxShadow: 'none'
               }}
             >
-              Save Details
+              {isSubmitting ? 'Saving…' : 'Save details'}
             </Button>
           </DialogActions>
         </form>

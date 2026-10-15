@@ -1,3 +1,4 @@
+import { formatAmount } from '../utils/indiaFormat';
 import React, { useState, useEffect } from 'react';
 import {
   Typography,
@@ -30,10 +31,13 @@ import BarChartIcon from '@mui/icons-material/BarChart';
 
 import API from '../services/api';
 import AdminHeader from '../components/AdminHeader';
+import ManagementNotice from '../components/ManagementNotice';
+import useManagementFeedback from '../hooks/useManagementFeedback';
 import { formatDate } from '../utils/dateFormatter';
 
 const Reports = () => {
   const [reportType, setReportType] = useState('profit-loss');
+  const { notice, clearNotice, reportError } = useManagementFeedback();
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   
@@ -77,6 +81,7 @@ const Reports = () => {
           setCompanyContact(res.data.data);
         }
       } catch (err) {
+        reportError(err);
         console.error('Failed to load contact info for reports:', err);
       }
     };
@@ -97,6 +102,7 @@ const Reports = () => {
         setParties(partiesRes.data.data || []);
         setTripsList(tripsRes.data.data || []);
       } catch (err) {
+        reportError(err);
         console.error('Failed to load filters data:', err);
       }
     };
@@ -172,6 +178,11 @@ const Reports = () => {
   };
 
   const handleGenerateReport = async () => {
+    if (startDate && endDate && startDate > endDate) {
+      reportError({}, 'The end date must be on or after the start date.');
+      return;
+    }
+    clearNotice();
     setLoading(true);
     setReportData(null);
     setExportMessage('');
@@ -213,6 +224,7 @@ const Reports = () => {
       }
       setReportData(res.data.data);
     } catch (err) {
+      reportError(err);
       console.error('Error generating report:', err);
     } finally {
       setLoading(false);
@@ -225,7 +237,7 @@ const Reports = () => {
     if (reportType === 'profit-loss') {
       csvRows.push(["Category", "Amount"]);
       csvRows.push(["Total Revenue", `${reportData.summary.totalIncome}`]);
-      csvRows.push(["Total Commission Deducted", `${reportData.summary.totalCommission || '0.00'}`]);
+      csvRows.push(["Total Commission", `${reportData.summary.totalCommission || '0.00'}`]);
       csvRows.push(["Total Costs", `${reportData.summary.totalExpense}`]);
       csvRows.push(["Net Operating Margins", `${reportData.summary.netProfit}`]);
       csvRows.push(["Diesel Refueling", `${reportData.summary.dieselExpense}`]);
@@ -427,7 +439,7 @@ const Reports = () => {
             
             <div class="title-bar">
               <h2 style="margin: 0; color: #1e3a8a;">TRIP PROFIT & LOSS ANALYSIS REPORT</h2>
-              <div style="font-size: 11px; color: #64748b; margin-top: 4px;">Generated on: ${new Date().toLocaleString()}</div>
+              <div style="font-size: 11px; color: #64748b; margin-top: 4px;">Generated on: ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}</div>
             </div>
 
             <div class="details-grid">
@@ -444,31 +456,31 @@ const Reports = () => {
 
               <div class="details-box">
                 <h3>Financial Summary</h3>
-                <div class="details-row"><span class="details-label">Freight Amount (A):</span><span class="details-value" style="color: #10b981;">₹${row.freightAmount.toFixed(2)}</span></div>
-                <div class="details-row"><span class="details-label">Fuel Expense:</span><span class="details-value">₹${row.fuelExpense.toFixed(2)}</span></div>
-                <div class="details-row"><span class="details-label">Driver Advance:</span><span class="details-value">₹${row.driverAdvance.toFixed(2)}</span></div>
-                <div class="details-row"><span class="details-label">Bhatta (Allowance):</span><span class="details-value">₹${row.driverAllowance.toFixed(2)}</span></div>
-                <div class="details-row"><span class="details-label">Toll Charges:</span><span class="details-value">₹${row.tollCharges.toFixed(2)}</span></div>
-                <div class="details-row"><span class="details-label">Loading/Unloading:</span><span class="details-value">₹${row.loadingUnloading.toFixed(2)}</span></div>
-                <div class="details-row"><span class="details-label">Other Expenses:</span><span class="details-value">₹${row.rawOtherExpenses.toFixed(2)}</span></div>
-                <div class="details-row" style="border-top: 1px solid #cbd5e1; padding-top: 5px;"><span class="details-label">Total Expenses (B):</span><span class="details-value" style="color: #ef4444;">₹${row.totalExpenses.toFixed(2)}</span></div>
+                <div class="details-row"><span class="details-label">Freight Amount (A):</span><span class="details-value" style="color: #10b981;">₹${formatAmount(row.freightAmount)}</span></div>
+                <div class="details-row"><span class="details-label">Fuel Expense:</span><span class="details-value">₹${formatAmount(row.fuelExpense)}</span></div>
+                <div class="details-row"><span class="details-label">Driver Advance:</span><span class="details-value">₹${formatAmount(row.driverAdvance)}</span></div>
+                <div class="details-row"><span class="details-label">Bhatta (Allowance):</span><span class="details-value">₹${formatAmount(row.driverAllowance)}</span></div>
+                <div class="details-row"><span class="details-label">Toll Charges:</span><span class="details-value">₹${formatAmount(row.tollCharges)}</span></div>
+                <div class="details-row"><span class="details-label">Loading/Unloading:</span><span class="details-value">₹${formatAmount(row.loadingUnloading)}</span></div>
+                <div class="details-row"><span class="details-label">Other Expenses:</span><span class="details-value">₹${formatAmount(row.rawOtherExpenses)}</span></div>
+                <div class="details-row" style="border-top: 1px solid #cbd5e1; padding-top: 5px;"><span class="details-label">Total Expenses (B):</span><span class="details-value" style="color: #ef4444;">₹${formatAmount(row.totalExpenses)}</span></div>
               </div>
             </div>
 
             <div class="details-grid">
               <div class="details-box">
                 <h3>Driver Settlement Details</h3>
-                <div class="details-row"><span class="details-label">Driver Allowance (Bhatta):</span><span class="details-value">₹${row.driverAllowance.toFixed(2)}</span></div>
-                <div class="details-row"><span class="details-label">Driver Advance:</span><span class="details-value">₹${row.driverAdvance.toFixed(2)}</span></div>
-                <div class="details-row" style="border-top: 1px solid #cbd5e1; padding-top: 5px;"><span class="details-label">Net Settlement Amount:</span><span class="details-value">₹${row.driverSettlementAmount.toFixed(2)}</span></div>
-                <div class="details-row"><span class="details-label">Remaining Balance:</span><span class="details-value">₹${row.remainingDriverBalance.toFixed(2)}</span></div>
+                <div class="details-row"><span class="details-label">Driver Allowance (Bhatta):</span><span class="details-value">₹${formatAmount(row.driverAllowance)}</span></div>
+                <div class="details-row"><span class="details-label">Driver Advance:</span><span class="details-value">₹${formatAmount(row.driverAdvance)}</span></div>
+                <div class="details-row" style="border-top: 1px solid #cbd5e1; padding-top: 5px;"><span class="details-label">Net Settlement Amount:</span><span class="details-value">₹${formatAmount(row.driverSettlementAmount)}</span></div>
+                <div class="details-row"><span class="details-label">Remaining Balance:</span><span class="details-value">₹${formatAmount(row.remainingDriverBalance)}</span></div>
                 <div class="details-row"><span class="details-label">Payment Status:</span><span class="details-value" style="color: ${row.paymentStatus === 'Settled' ? '#10b981' : '#f59e0b'};">${row.paymentStatus}</span></div>
               </div>
 
               <div class="details-box" style="display: flex; flex-direction: column; justify-content: center; align-items: center; background: ${row.profitLoss >= 0 ? '#ecfdf5' : '#fef2f2'}; border-color: ${row.profitLoss >= 0 ? '#10b981' : '#ef4444'};">
                 <div style="font-size: 14px; font-weight: bold; color: ${row.profitLoss >= 0 ? '#065f46' : '#991b1b'}; text-transform: uppercase;">Net Profit / Loss</div>
                 <div style="font-size: 32px; font-weight: 800; color: ${row.profitLoss >= 0 ? '#10b981' : '#ef4444'}; margin-top: 8px;">
-                  ₹${row.profitLoss.toFixed(2)}
+                  ₹${formatAmount(row.profitLoss)}
                 </div>
               </div>
             </div>
@@ -484,7 +496,7 @@ const Reports = () => {
     } else if (format === 'excel') {
       const csvRows = [];
       csvRows.push(["Trip Profit & Loss Analysis Details"]);
-      csvRows.push(["Generated on", new Date().toLocaleString()]);
+      csvRows.push(["Generated on", new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })]);
       csvRows.push([]);
       
       csvRows.push(["TRIP INFORMATION"]);
@@ -570,7 +582,7 @@ const Reports = () => {
           </table>
           <div class="report-title-bar">
             <h2 style="margin: 0; color: #1e3a8a; font-size: 18px;">${reportType.replace('-', ' ').toUpperCase()} REPORT</h2>
-            <div style="font-size: 11px; color: #64748b; margin-top: 4px;">Generated on: ${new Date().toLocaleString()}</div>
+            <div style="font-size: 11px; color: #64748b; margin-top: 4px;">Generated on: ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}</div>
           </div>
     `;
 
@@ -623,35 +635,35 @@ const Reports = () => {
                   <td>${row.vehicleNumber}</td>
                   <td>${row.customerName}</td>
                   <td>${row.route}</td>
-                  <td style="text-align: right;">₹${row.freightAmount.toFixed(2)}</td>
-                  <td style="text-align: right;">₹${row.driverAdvance.toFixed(2)}</td>
-                  <td style="text-align: right;">₹${row.driverAllowance.toFixed(2)}</td>
-                  <td style="text-align: right;">₹${row.fuelExpense.toFixed(2)}</td>
-                  <td style="text-align: right;">₹${row.tollCharges.toFixed(2)}</td>
-                  <td style="text-align: right;">₹${row.loadingUnloading.toFixed(2)}</td>
-                  <td style="text-align: right;">₹${row.otherExpenses.toFixed(2)}</td>
-                  <td style="text-align: right; font-weight: bold;">₹${row.totalExpenses.toFixed(2)}</td>
-                  <td style="text-align: right;">₹${row.driverSettlementAmount.toFixed(2)}</td>
-                  <td style="text-align: right;">₹${row.remainingDriverBalance.toFixed(2)}</td>
+                  <td style="text-align: right;">₹${formatAmount(row.freightAmount)}</td>
+                  <td style="text-align: right;">₹${formatAmount(row.driverAdvance)}</td>
+                  <td style="text-align: right;">₹${formatAmount(row.driverAllowance)}</td>
+                  <td style="text-align: right;">₹${formatAmount(row.fuelExpense)}</td>
+                  <td style="text-align: right;">₹${formatAmount(row.tollCharges)}</td>
+                  <td style="text-align: right;">₹${formatAmount(row.loadingUnloading)}</td>
+                  <td style="text-align: right;">₹${formatAmount(row.otherExpenses)}</td>
+                  <td style="text-align: right; font-weight: bold;">₹${formatAmount(row.totalExpenses)}</td>
+                  <td style="text-align: right;">₹${formatAmount(row.driverSettlementAmount)}</td>
+                  <td style="text-align: right;">₹${formatAmount(row.remainingDriverBalance)}</td>
                   <td style="text-align: right; font-weight: bold; color: ${row.profitLoss >= 0 ? '#10b981' : '#ef4444'};">
-                    ₹${row.profitLoss.toFixed(2)}
+                    ₹${formatAmount(row.profitLoss)}
                   </td>
                   <td>${row.paymentStatus}</td>
                 </tr>
               `).join('')}
               <tr style="background-color: #f3f4f6; font-weight: bold;">
                 <td colspan="6">Overall Totals</td>
-                <td style="text-align: right;">₹${totalFreight.toFixed(2)}</td>
-                <td style="text-align: right;">₹${totalAdvance.toFixed(2)}</td>
-                <td style="text-align: right;">₹${totalAllowance.toFixed(2)}</td>
-                <td style="text-align: right;">₹${totalFuel.toFixed(2)}</td>
-                <td style="text-align: right;">₹${totalToll.toFixed(2)}</td>
-                <td style="text-align: right;">₹${totalLoading.toFixed(2)}</td>
-                <td style="text-align: right;">₹${totalOther.toFixed(2)}</td>
-                <td style="text-align: right;">₹${totalExpenses.toFixed(2)}</td>
-                <td style="text-align: right;">₹${totalSettlement.toFixed(2)}</td>
-                <td style="text-align: right;">₹${totalRemaining.toFixed(2)}</td>
-                <td style="text-align: right; color: ${totalPL >= 0 ? '#10b981' : '#ef4444'};">₹${totalPL.toFixed(2)}</td>
+                <td style="text-align: right;">₹${formatAmount(totalFreight)}</td>
+                <td style="text-align: right;">₹${formatAmount(totalAdvance)}</td>
+                <td style="text-align: right;">₹${formatAmount(totalAllowance)}</td>
+                <td style="text-align: right;">₹${formatAmount(totalFuel)}</td>
+                <td style="text-align: right;">₹${formatAmount(totalToll)}</td>
+                <td style="text-align: right;">₹${formatAmount(totalLoading)}</td>
+                <td style="text-align: right;">₹${formatAmount(totalOther)}</td>
+                <td style="text-align: right;">₹${formatAmount(totalExpenses)}</td>
+                <td style="text-align: right;">₹${formatAmount(totalSettlement)}</td>
+                <td style="text-align: right;">₹${formatAmount(totalRemaining)}</td>
+                <td style="text-align: right; color: ${totalPL >= 0 ? '#10b981' : '#ef4444'};">₹${formatAmount(totalPL)}</td>
                 <td></td>
               </tr>
             </tbody>
@@ -689,27 +701,27 @@ const Reports = () => {
                 <tr>
                   <td><strong>${row.vehicleNumber}</strong></td>
                   <td style="text-align: right;">${row.totalTrips}</td>
-                  <td style="text-align: right;">₹${row.totalRevenue.toFixed(2)}</td>
-                  <td style="text-align: right;">₹${row.fuelCost.toFixed(2)}</td>
-                  <td style="text-align: right;">₹${row.maintenanceCost.toFixed(2)}</td>
-                  <td style="text-align: right;">₹${row.driverCost.toFixed(2)}</td>
-                  <td style="text-align: right;">₹${row.tollOtherCost.toFixed(2)}</td>
-                  <td style="text-align: right; font-weight: bold;">₹${row.totalExpenses.toFixed(2)}</td>
+                  <td style="text-align: right;">₹${formatAmount(row.totalRevenue)}</td>
+                  <td style="text-align: right;">₹${formatAmount(row.fuelCost)}</td>
+                  <td style="text-align: right;">₹${formatAmount(row.maintenanceCost)}</td>
+                  <td style="text-align: right;">₹${formatAmount(row.driverCost)}</td>
+                  <td style="text-align: right;">₹${formatAmount(row.tollOtherCost)}</td>
+                  <td style="text-align: right; font-weight: bold;">₹${formatAmount(row.totalExpenses)}</td>
                   <td style="text-align: right; font-weight: bold; color: ${row.netProfitLoss >= 0 ? '#10b981' : '#ef4444'};">
-                    ₹${row.netProfitLoss.toFixed(2)}
+                    ₹${formatAmount(row.netProfitLoss)}
                   </td>
                 </tr>
               `).join('')}
               <tr style="background-color: #f3f4f6; font-weight: bold;">
                 <td>Overall Totals</td>
                 <td style="text-align: right;">${totalTrips}</td>
-                <td style="text-align: right;">₹${totalRev.toFixed(2)}</td>
-                <td style="text-align: right;">₹${totalFuel.toFixed(2)}</td>
-                <td style="text-align: right;">₹${totalMaint.toFixed(2)}</td>
-                <td style="text-align: right;">₹${totalDriver.toFixed(2)}</td>
-                <td style="text-align: right;">₹${totalTollOther.toFixed(2)}</td>
-                <td style="text-align: right;">₹${totalExpenses.toFixed(2)}</td>
-                <td style="text-align: right; color: ${totalPL >= 0 ? '#10b981' : '#ef4444'};">₹${totalPL.toFixed(2)}</td>
+                <td style="text-align: right;">₹${formatAmount(totalRev)}</td>
+                <td style="text-align: right;">₹${formatAmount(totalFuel)}</td>
+                <td style="text-align: right;">₹${formatAmount(totalMaint)}</td>
+                <td style="text-align: right;">₹${formatAmount(totalDriver)}</td>
+                <td style="text-align: right;">₹${formatAmount(totalTollOther)}</td>
+                <td style="text-align: right;">₹${formatAmount(totalExpenses)}</td>
+                <td style="text-align: right; color: ${totalPL >= 0 ? '#10b981' : '#ef4444'};">₹${formatAmount(totalPL)}</td>
               </tr>
             </tbody>
           </table>
@@ -719,15 +731,15 @@ const Reports = () => {
           <div class="summary-cards">
             <div class="card success">
               <div class="card-title">Total Revenue</div>
-              <div class="card-value">₹${reportData.summary.totalRevenue.toLocaleString()}</div>
+              <div class="card-value">₹${reportData.summary.totalRevenue.toLocaleString('en-IN')}</div>
             </div>
             <div class="card">
               <div class="card-title">Total Fleet Expenses</div>
-              <div class="card-value">₹${reportData.summary.totalExpenses.toLocaleString()}</div>
+              <div class="card-value">₹${reportData.summary.totalExpenses.toLocaleString('en-IN')}</div>
             </div>
             <div class="card ${reportData.summary.netProfitLoss >= 0 ? 'success' : 'error'}">
               <div class="card-title">Net Operating Margins (Profit/Loss)</div>
-              <div class="card-value">₹${reportData.summary.netProfitLoss.toLocaleString()}</div>
+              <div class="card-value">₹${reportData.summary.netProfitLoss.toLocaleString('en-IN')}</div>
             </div>
           </div>
           
@@ -747,7 +759,7 @@ const Reports = () => {
                     <tr>
                       <td>${row.driverName}</td>
                       <td>${row.totalTrips}</td>
-                      <td style="font-weight: bold; color: ${row.netProfitLoss >= 0 ? '#10b981' : '#ef4444'}">₹${row.netProfitLoss.toFixed(2)}</td>
+                      <td style="font-weight: bold; color: ${row.netProfitLoss >= 0 ? '#10b981' : '#ef4444'}">₹${formatAmount(row.netProfitLoss)}</td>
                     </tr>
                   `).join('')}
                 </tbody>
@@ -769,7 +781,7 @@ const Reports = () => {
                     <tr>
                       <td>${row.vehicleNumber}</td>
                       <td>${row.totalTrips}</td>
-                      <td style="font-weight: bold; color: ${row.netProfitLoss >= 0 ? '#10b981' : '#ef4444'}">₹${row.netProfitLoss.toFixed(2)}</td>
+                      <td style="font-weight: bold; color: ${row.netProfitLoss >= 0 ? '#10b981' : '#ef4444'}">₹${formatAmount(row.netProfitLoss)}</td>
                     </tr>
                   `).join('')}
                 </tbody>
@@ -786,7 +798,7 @@ const Reports = () => {
             <div class="card-value">₹${reportData.summary.totalIncome}</div>
           </div>
           <div style="border-left-color: #f59e0b;" class="card">
-            <div class="card-title">Total Commission Deducted</div>
+            <div class="card-title">Total Commission</div>
             <div class="card-value">₹${reportData.summary.totalCommission || '0.00'}</div>
           </div>
           <div class="card error">
@@ -1003,9 +1015,10 @@ const Reports = () => {
 
   return (
     <Box>
+      <ManagementNotice notice={notice} onClose={clearNotice} />
       <AdminHeader
-        title="Reports & Analytics Center"
-        description="Generate official profit-loss summaries, trips registries, diesel consumption logs, and pump vendor clearance reports."
+        title="Reports"
+        description="View trip accounts, diesel usage, pump dues and profit or loss."
         icon={<BarChartIcon />}
       />
 
@@ -1016,9 +1029,9 @@ const Reports = () => {
             <TextField
               fullWidth
               select
-              label="Select Report Registry"
+              label="Report type"
               value={reportType}
-              onChange={(e) => setReportType(e.target.value)}
+              onChange={(e) => { setReportType(e.target.value); setReportData(null); }}
             >
               <MenuItem value="profit-loss">Profit & Loss Report</MenuItem>
               <MenuItem value="trips">Trips Summary Report</MenuItem>
@@ -1037,6 +1050,7 @@ const Reports = () => {
               InputLabelProps={{ shrink: true }}
               label="Start Date"
               value={startDate}
+              inputProps={{ max: endDate || undefined }}
               onChange={(e) => setStartDate(e.target.value)}
             />
           </Grid>
@@ -1048,6 +1062,7 @@ const Reports = () => {
               InputLabelProps={{ shrink: true }}
               label="End Date"
               value={endDate}
+              inputProps={{ min: startDate || undefined }}
               onChange={(e) => setEndDate(e.target.value)}
             />
           </Grid>
@@ -1057,6 +1072,7 @@ const Reports = () => {
               fullWidth
               variant="contained"
               onClick={handleGenerateReport}
+              disabled={loading}
               sx={{ height: 56 }}
             >
               Generate
@@ -1192,7 +1208,7 @@ const Reports = () => {
                 <Grid item xs={12} sm={3}>
                   <Card sx={{ borderLeft: '6px solid #f59e0b' }}>
                     <CardContent>
-                      <Typography variant="body2" color="text.secondary">Total Commission Deducted</Typography>
+                      <Typography variant="body2" color="text.secondary">Total Commission</Typography>
                       <Typography variant="h4" sx={{ fontWeight: 700 }}>₹{reportData.summary.totalCommission || '0.00'}</Typography>
                     </CardContent>
                   </Card>
@@ -1233,7 +1249,7 @@ const Reports = () => {
                       {reportData.expensesBreakdown.map((row, idx) => (
                         <TableRow key={idx} hover>
                           <TableCell sx={{ fontWeight: 600 }}>{row.headName}</TableCell>
-                          <TableCell align="right" sx={{ color: 'error.main' }}>₹{row.amount}</TableCell>
+                          <TableCell align="right" sx={{ color: 'error.main' }}>₹{formatAmount(row.amount)}</TableCell>
                         </TableRow>
                       ))}
                       <TableRow sx={{ bgcolor: '#f8fafc' }}>
@@ -1275,19 +1291,19 @@ const Reports = () => {
                         <TableCell>{row.vehicle?.vehicleNumber}</TableCell>
                         <TableCell>{row.driver?.name}</TableCell>
                         <TableCell>{row.party?.name}</TableCell>
-                        <TableCell align="right">₹{row.freightAmount}</TableCell>
-                        <TableCell align="right">₹{row.commission || 0}</TableCell>
+                        <TableCell align="right">₹{formatAmount(row.freightAmount)}</TableCell>
+                        <TableCell align="right">₹{formatAmount(row.commission || 0)}</TableCell>
                         <TableCell align="right">
-                          ₹{row.advance}
+                          ₹{formatAmount(row.advance)}
                           {row.advanceDate && (
                             <span style={{ fontSize: '0.75rem', display: 'block', color: 'gray' }}>
                               ({formatDate(row.advanceDate)})
                             </span>
                           )}
                         </TableCell>
-                        <TableCell align="right">₹{row.remainingPayment || '0.00'}</TableCell>
+                        <TableCell align="right">₹{formatAmount(row.remainingPayment || '0.00')}</TableCell>
                         <TableCell align="right">
-                          ₹{row.balanceHoldAmount || '0.00'}
+                          ₹{formatAmount(row.balanceHoldAmount || '0.00')}
                           <Typography variant="caption" sx={{ display: 'block', color: row.podStatus === 'Approved' ? 'success.main' : 'warning.main' }}>
                             POD: {row.podStatus || 'Pending'}
                           </Typography>
@@ -1328,9 +1344,9 @@ const Reports = () => {
                         <TableCell>{formatDate(row.date)}</TableCell>
                         <TableCell>{row.party?.name || 'N/A'}</TableCell>
                         <TableCell sx={{ fontWeight: 600 }}>{row.trip?.tripNumber || 'N/A'}</TableCell>
-                        <TableCell align="right">₹{row.trip?.freightAmount || '0.00'}</TableCell>
-                        <TableCell align="right" sx={{ color: 'error.main' }}>₹{row.trip?.commission || '0.00'}</TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 600, color: 'success.main' }}>₹{row.amount}</TableCell>
+                        <TableCell align="right">₹{formatAmount(row.trip?.freightAmount || '0.00')}</TableCell>
+                        <TableCell align="right" sx={{ color: 'error.main' }}>₹{formatAmount(row.trip?.commission || '0.00')}</TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 600, color: 'success.main' }}>₹{formatAmount(row.amount)}</TableCell>
                         <TableCell>{row.remarks || 'N/A'}</TableCell>
                       </TableRow>
                     ))}
@@ -1434,18 +1450,18 @@ const Reports = () => {
                               <TableCell>{row.vehicleNumber}</TableCell>
                               <TableCell>{row.customerName}</TableCell>
                               <TableCell>{row.route}</TableCell>
-                              <TableCell align="right">₹{row.freightAmount.toFixed(2)}</TableCell>
-                              <TableCell align="right">₹{row.driverAdvance.toFixed(2)}</TableCell>
-                              <TableCell align="right">₹{row.driverAllowance.toFixed(2)}</TableCell>
-                              <TableCell align="right">₹{row.fuelExpense.toFixed(2)}</TableCell>
-                              <TableCell align="right">₹{row.tollCharges.toFixed(2)}</TableCell>
-                              <TableCell align="right">₹{row.loadingUnloading.toFixed(2)}</TableCell>
-                              <TableCell align="right">₹{row.otherExpenses.toFixed(2)}</TableCell>
-                              <TableCell align="right" sx={{ fontWeight: 600 }}>₹{row.totalExpenses.toFixed(2)}</TableCell>
-                              <TableCell align="right">₹{row.driverSettlementAmount.toFixed(2)}</TableCell>
-                              <TableCell align="right">₹{row.remainingDriverBalance.toFixed(2)}</TableCell>
+                              <TableCell align="right">₹{formatAmount(row.freightAmount)}</TableCell>
+                              <TableCell align="right">₹{formatAmount(row.driverAdvance)}</TableCell>
+                              <TableCell align="right">₹{formatAmount(row.driverAllowance)}</TableCell>
+                              <TableCell align="right">₹{formatAmount(row.fuelExpense)}</TableCell>
+                              <TableCell align="right">₹{formatAmount(row.tollCharges)}</TableCell>
+                              <TableCell align="right">₹{formatAmount(row.loadingUnloading)}</TableCell>
+                              <TableCell align="right">₹{formatAmount(row.otherExpenses)}</TableCell>
+                              <TableCell align="right" sx={{ fontWeight: 600 }}>₹{formatAmount(row.totalExpenses)}</TableCell>
+                              <TableCell align="right">₹{formatAmount(row.driverSettlementAmount)}</TableCell>
+                              <TableCell align="right">₹{formatAmount(row.remainingDriverBalance)}</TableCell>
                               <TableCell align="right" sx={{ fontWeight: 700, color: row.profitLoss >= 0 ? 'success.main' : 'error.main' }}>
-                                ₹{row.profitLoss.toFixed(2)}
+                                ₹{formatAmount(row.profitLoss)}
                               </TableCell>
                               <TableCell>
                                 <Chip 
@@ -1456,7 +1472,7 @@ const Reports = () => {
                               </TableCell>
                               <TableCell align="center">
                                 <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
-                                  <IconButton size="small" color="primary" onClick={() => handleExportSingleTrip('pdf', row)} title="Download Details PDF">
+                                  <IconButton aria-label="Print receipt" size="small" color="primary" onClick={() => handleExportSingleTrip('pdf', row)} title="Download Details PDF">
                                     <PrintIcon fontSize="small" />
                                   </IconButton>
                                   <IconButton size="small" color="secondary" onClick={() => handleExportSingleTrip('excel', row)} title="Download Details Excel">
@@ -1474,18 +1490,18 @@ const Reports = () => {
                           {sortedAndFilteredTrips.length > 0 && (
                             <TableRow sx={{ bgcolor: '#f8fafc', fontStyle: 'italic' }}>
                               <TableCell colSpan={6} sx={{ fontWeight: 700 }}>Overall Totals</TableCell>
-                              <TableCell align="right" sx={{ fontWeight: 700 }}>₹{totalFreight.toFixed(2)}</TableCell>
-                              <TableCell align="right" sx={{ fontWeight: 700 }}>₹{totalAdvance.toFixed(2)}</TableCell>
-                              <TableCell align="right" sx={{ fontWeight: 700 }}>₹{totalAllowance.toFixed(2)}</TableCell>
-                              <TableCell align="right" sx={{ fontWeight: 700 }}>₹{totalFuel.toFixed(2)}</TableCell>
-                              <TableCell align="right" sx={{ fontWeight: 700 }}>₹{totalToll.toFixed(2)}</TableCell>
-                              <TableCell align="right" sx={{ fontWeight: 700 }}>₹{totalLoading.toFixed(2)}</TableCell>
-                              <TableCell align="right" sx={{ fontWeight: 700 }}>₹{totalOther.toFixed(2)}</TableCell>
-                              <TableCell align="right" sx={{ fontWeight: 800 }}>₹{totalExpenses.toFixed(2)}</TableCell>
-                              <TableCell align="right" sx={{ fontWeight: 700 }}>₹{totalSettlement.toFixed(2)}</TableCell>
-                              <TableCell align="right" sx={{ fontWeight: 700 }}>₹{totalRemaining.toFixed(2)}</TableCell>
+                              <TableCell align="right" sx={{ fontWeight: 700 }}>₹{formatAmount(totalFreight)}</TableCell>
+                              <TableCell align="right" sx={{ fontWeight: 700 }}>₹{formatAmount(totalAdvance)}</TableCell>
+                              <TableCell align="right" sx={{ fontWeight: 700 }}>₹{formatAmount(totalAllowance)}</TableCell>
+                              <TableCell align="right" sx={{ fontWeight: 700 }}>₹{formatAmount(totalFuel)}</TableCell>
+                              <TableCell align="right" sx={{ fontWeight: 700 }}>₹{formatAmount(totalToll)}</TableCell>
+                              <TableCell align="right" sx={{ fontWeight: 700 }}>₹{formatAmount(totalLoading)}</TableCell>
+                              <TableCell align="right" sx={{ fontWeight: 700 }}>₹{formatAmount(totalOther)}</TableCell>
+                              <TableCell align="right" sx={{ fontWeight: 800 }}>₹{formatAmount(totalExpenses)}</TableCell>
+                              <TableCell align="right" sx={{ fontWeight: 700 }}>₹{formatAmount(totalSettlement)}</TableCell>
+                              <TableCell align="right" sx={{ fontWeight: 700 }}>₹{formatAmount(totalRemaining)}</TableCell>
                               <TableCell align="right" sx={{ fontWeight: 800, color: totalPL >= 0 ? 'success.main' : 'error.main' }}>
-                                ₹{totalPL.toFixed(2)}
+                                ₹{formatAmount(totalPL)}
                               </TableCell>
                               <TableCell />
                               <TableCell />
@@ -1546,14 +1562,14 @@ const Reports = () => {
                             <TableRow key={idx} hover>
                               <TableCell sx={{ fontWeight: 600 }}>{row.vehicleNumber}</TableCell>
                               <TableCell align="right">{row.totalTrips}</TableCell>
-                              <TableCell align="right">₹{row.totalRevenue.toFixed(2)}</TableCell>
-                              <TableCell align="right">₹{row.fuelCost.toFixed(2)}</TableCell>
-                              <TableCell align="right">₹{row.maintenanceCost.toFixed(2)}</TableCell>
-                              <TableCell align="right">₹{row.driverCost.toFixed(2)}</TableCell>
-                              <TableCell align="right">₹{row.tollOtherCost.toFixed(2)}</TableCell>
-                              <TableCell align="right" sx={{ fontWeight: 600 }}>₹{row.totalExpenses.toFixed(2)}</TableCell>
+                              <TableCell align="right">₹{formatAmount(row.totalRevenue)}</TableCell>
+                              <TableCell align="right">₹{formatAmount(row.fuelCost)}</TableCell>
+                              <TableCell align="right">₹{formatAmount(row.maintenanceCost)}</TableCell>
+                              <TableCell align="right">₹{formatAmount(row.driverCost)}</TableCell>
+                              <TableCell align="right">₹{formatAmount(row.tollOtherCost)}</TableCell>
+                              <TableCell align="right" sx={{ fontWeight: 600 }}>₹{formatAmount(row.totalExpenses)}</TableCell>
                               <TableCell align="right" sx={{ fontWeight: 700, color: row.netProfitLoss >= 0 ? 'success.main' : 'error.main' }}>
-                                ₹{row.netProfitLoss.toFixed(2)}
+                                ₹{formatAmount(row.netProfitLoss)}
                               </TableCell>
                             </TableRow>
                           ))}
@@ -1566,14 +1582,14 @@ const Reports = () => {
                             <TableRow sx={{ bgcolor: '#f8fafc', fontStyle: 'italic' }}>
                               <TableCell sx={{ fontWeight: 700 }}>Overall Totals</TableCell>
                               <TableCell align="right" sx={{ fontWeight: 700 }}>{totalTrips}</TableCell>
-                              <TableCell align="right" sx={{ fontWeight: 700 }}>₹{totalRev.toFixed(2)}</TableCell>
-                              <TableCell align="right" sx={{ fontWeight: 700 }}>₹{totalFuel.toFixed(2)}</TableCell>
-                              <TableCell align="right" sx={{ fontWeight: 700 }}>₹{totalMaint.toFixed(2)}</TableCell>
-                              <TableCell align="right" sx={{ fontWeight: 700 }}>₹{totalDriver.toFixed(2)}</TableCell>
-                              <TableCell align="right" sx={{ fontWeight: 700 }}>₹{totalTollOther.toFixed(2)}</TableCell>
-                              <TableCell align="right" sx={{ fontWeight: 800 }}>₹{totalExpenses.toFixed(2)}</TableCell>
+                              <TableCell align="right" sx={{ fontWeight: 700 }}>₹{formatAmount(totalRev)}</TableCell>
+                              <TableCell align="right" sx={{ fontWeight: 700 }}>₹{formatAmount(totalFuel)}</TableCell>
+                              <TableCell align="right" sx={{ fontWeight: 700 }}>₹{formatAmount(totalMaint)}</TableCell>
+                              <TableCell align="right" sx={{ fontWeight: 700 }}>₹{formatAmount(totalDriver)}</TableCell>
+                              <TableCell align="right" sx={{ fontWeight: 700 }}>₹{formatAmount(totalTollOther)}</TableCell>
+                              <TableCell align="right" sx={{ fontWeight: 800 }}>₹{formatAmount(totalExpenses)}</TableCell>
                               <TableCell align="right" sx={{ fontWeight: 800, color: totalPL >= 0 ? 'success.main' : 'error.main' }}>
-                                ₹{totalPL.toFixed(2)}
+                                ₹{formatAmount(totalPL)}
                               </TableCell>
                             </TableRow>
                           )}
@@ -1602,7 +1618,7 @@ const Reports = () => {
                       <Card sx={{ borderLeft: '6px solid #10b981' }}>
                         <CardContent>
                           <Typography variant="body2" color="text.secondary">Total Revenue</Typography>
-                          <Typography variant="h4" sx={{ fontWeight: 700 }}>₹{reportData.summary.totalRevenue.toLocaleString()}</Typography>
+                          <Typography variant="h4" sx={{ fontWeight: 700 }}>₹{reportData.summary.totalRevenue.toLocaleString('en-IN')}</Typography>
                         </CardContent>
                       </Card>
                     </Grid>
@@ -1610,7 +1626,7 @@ const Reports = () => {
                       <Card sx={{ borderLeft: '6px solid #ef4444' }}>
                         <CardContent>
                           <Typography variant="body2" color="text.secondary">Total Fleet Expenses</Typography>
-                          <Typography variant="h4" sx={{ fontWeight: 700 }}>₹{reportData.summary.totalExpenses.toLocaleString()}</Typography>
+                          <Typography variant="h4" sx={{ fontWeight: 700 }}>₹{reportData.summary.totalExpenses.toLocaleString('en-IN')}</Typography>
                         </CardContent>
                       </Card>
                     </Grid>
@@ -1618,7 +1634,7 @@ const Reports = () => {
                       <Card sx={{ bgcolor: reportData.summary.netProfitLoss >= 0 ? 'success.light' : 'error.light', color: '#ffffff' }}>
                         <CardContent>
                           <Typography variant="body2">Net Operating Margins (Profit/Loss)</Typography>
-                          <Typography variant="h4" sx={{ fontWeight: 700 }}>₹{reportData.summary.netProfitLoss.toLocaleString()}</Typography>
+                          <Typography variant="h4" sx={{ fontWeight: 700 }}>₹{reportData.summary.netProfitLoss.toLocaleString('en-IN')}</Typography>
                         </CardContent>
                       </Card>
                     </Grid>
@@ -1647,9 +1663,9 @@ const Reports = () => {
                                   <TableRow key={idx} hover>
                                     <TableCell sx={{ fontWeight: 600 }}>{row.driverName}</TableCell>
                                     <TableCell align="right">{row.totalTrips}</TableCell>
-                                    <TableCell align="right">₹{row.totalRevenue.toFixed(2)}</TableCell>
+                                    <TableCell align="right">₹{formatAmount(row.totalRevenue)}</TableCell>
                                     <TableCell align="right" sx={{ fontWeight: 700, color: row.netProfitLoss >= 0 ? 'success.main' : 'error.main' }}>
-                                      ₹{row.netProfitLoss.toFixed(2)}
+                                      ₹{formatAmount(row.netProfitLoss)}
                                     </TableCell>
                                   </TableRow>
                                 ))}
@@ -1680,9 +1696,9 @@ const Reports = () => {
                                   <TableRow key={idx} hover>
                                     <TableCell sx={{ fontWeight: 600 }}>{row.vehicleNumber}</TableCell>
                                     <TableCell align="right">{row.totalTrips}</TableCell>
-                                    <TableCell align="right">₹{row.totalRevenue.toFixed(2)}</TableCell>
+                                    <TableCell align="right">₹{formatAmount(row.totalRevenue)}</TableCell>
                                     <TableCell align="right" sx={{ fontWeight: 700, color: row.netProfitLoss >= 0 ? 'success.main' : 'error.main' }}>
-                                      ₹{row.netProfitLoss.toFixed(2)}
+                                      ₹{formatAmount(row.netProfitLoss)}
                                     </TableCell>
                                   </TableRow>
                                 ))}
@@ -1722,8 +1738,8 @@ const Reports = () => {
                         <TableCell>{row.pump?.name}</TableCell>
                         <TableCell>{row.driver?.name}</TableCell>
                         <TableCell align="right">{row.quantity}L</TableCell>
-                        <TableCell align="right">₹{row.rate}</TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 600 }}>₹{row.totalAmount}</TableCell>
+                        <TableCell align="right">₹{formatAmount(row.rate)}</TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 600 }}>₹{formatAmount(row.totalAmount)}</TableCell>
                       </TableRow>
                     ))}
                     {reportData.length === 0 && (
@@ -1756,7 +1772,7 @@ const Reports = () => {
                         <TableCell>{formatDate(row.date)}</TableCell>
                         <TableCell sx={{ fontWeight: 600 }}>{row.expenseHead?.name || '-'}</TableCell>
                         <TableCell>{row.vehicle?.vehicleNumber || '-'}</TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 600, color: 'error.main' }}>₹{row.amount}</TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 600, color: 'error.main' }}>₹{formatAmount(row.amount)}</TableCell>
                         <TableCell>{row.remarks || '-'}</TableCell>
                       </TableRow>
                     ))}
@@ -1790,10 +1806,10 @@ const Reports = () => {
                       <TableRow key={row.id} hover>
                         <TableCell sx={{ fontWeight: 600 }}>{row.name}</TableCell>
                         <TableCell>{row.contactPerson || '-'}</TableCell>
-                        <TableCell align="right">₹{row.openingBalance}</TableCell>
-                        <TableCell align="right">₹{row.totalDieselPurchased}</TableCell>
-                        <TableCell align="right">₹{row.totalPayments}</TableCell>
-                        <TableCell align="right" sx={{ fontWeight: 700, color: 'primary.main' }}>₹{row.outstandingBalance}</TableCell>
+                        <TableCell align="right">₹{formatAmount(row.openingBalance)}</TableCell>
+                        <TableCell align="right">₹{formatAmount(row.totalDieselPurchased)}</TableCell>
+                        <TableCell align="right">₹{formatAmount(row.totalPayments)}</TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 700, color: 'primary.main' }}>₹{formatAmount(row.outstandingBalance)}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

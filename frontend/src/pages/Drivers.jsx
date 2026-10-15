@@ -1,3 +1,4 @@
+import { formatAmount } from '../utils/indiaFormat';
 import React, { useState, useEffect } from 'react';
 import {
   Typography,
@@ -27,18 +28,23 @@ import DownloadIcon from '@mui/icons-material/Download';
 import { useForm } from 'react-hook-form';
 
 import API from '../services/api';
+import { validateIndianMobile, normalizeIndianMobile } from '../utils/formValidation';
 import DataTable from '../components/DataTable';
 import AdminHeader from '../components/AdminHeader';
+import ManagementNotice from '../components/ManagementNotice';
+import useManagementFeedback from '../hooks/useManagementFeedback';
 import PersonIcon from '@mui/icons-material/Person';
 import { formatDate } from '../utils/dateFormatter';
 
 const Drivers = () => {
+  const { notice, clearNotice, reportError, reportSuccess } = useManagementFeedback();
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [listError, setListError] = useState(false);
   const [exporting, setExporting] = useState(false);
 
   // Modals state
@@ -48,15 +54,18 @@ const Drivers = () => {
   const [driverHistory, setDriverHistory] = useState(null);
   const [historyLoading, setHistoryLoading] = useState(false);
 
-  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm();
+  const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting } } = useForm();
 
   const fetchDrivers = async () => {
     setLoading(true);
+    setListError(false);
     try {
       const res = await API.drivers.list({ page: page + 1, limit, search });
       setData(res.data.data);
       setTotal(res.data.total);
     } catch (err) {
+      setListError(true);
+      reportError(err);
       console.error(err);
     } finally {
       setLoading(false);
@@ -68,6 +77,8 @@ const Drivers = () => {
   }, [page, limit, search]);
 
   const handleOpenForm = (driver = null) => {
+    clearNotice();
+    reset();
     setSelectedDriver(driver);
     if (driver) {
       setValue('name', driver.name);
@@ -105,8 +116,10 @@ const Drivers = () => {
         await API.drivers.create(formData);
       }
       fetchDrivers();
+      reportSuccess();
       handleCloseForm();
     } catch (err) {
+      reportError(err);
       console.error(err);
     }
   };
@@ -115,8 +128,10 @@ const Drivers = () => {
     if (window.confirm('Are you sure you want to delete this driver?')) {
       try {
         await API.drivers.delete(id);
-        fetchDrivers();
+        if (data.length === 1 && page > 0) setPage(page - 1);
+        else fetchDrivers();
       } catch (err) {
+        reportError(err);
         console.error(err);
       }
     }
@@ -130,6 +145,7 @@ const Drivers = () => {
       const res = await API.drivers.history(driver.id);
       setDriverHistory(res.data.data);
     } catch (err) {
+      reportError(err);
       console.error(err);
     } finally {
       setHistoryLoading(false);
@@ -148,8 +164,8 @@ const Drivers = () => {
       }
 
       const csvRows = [];
-      csvRows.push(['Drivers Fleet Registry List']);
-      csvRows.push(['Generated On', new Date().toLocaleString()]);
+      csvRows.push(['Drivers List']);
+      csvRows.push(['Generated On', new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })]);
       csvRows.push([]);
 
       csvRows.push([
@@ -157,7 +173,7 @@ const Drivers = () => {
         'Driver Name',
         'Mobile Number',
         'License Number',
-        'License Expiry',
+        'Licence expiry',
         'Joining Date',
         'Salary (₹)',
         'Status',
@@ -190,6 +206,7 @@ const Drivers = () => {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     } catch (err) {
+      reportError(err);
       console.error('Failed to export drivers list to Excel:', err);
       alert('Failed to export driver list. Please try again.');
     } finally {
@@ -200,10 +217,10 @@ const Drivers = () => {
   const columns = [
     { field: 'name', headerName: 'Driver Name', minWidth: 150 },
     { field: 'mobile', headerName: 'Mobile', minWidth: 120 },
-    { field: 'licenseNumber', headerName: 'License No', minWidth: 130 },
+    { field: 'licenseNumber', headerName: 'Licence no.', minWidth: 130 },
     {
       field: 'licenseExpiry',
-      headerName: 'License Expiry',
+      headerName: 'Licence expiry',
       minWidth: 120,
       renderCell: (row) => {
         const today = new Date();
@@ -218,7 +235,7 @@ const Drivers = () => {
       field: 'salary',
       headerName: 'Salary',
       minWidth: 100,
-      renderCell: (row) => `₹${row.salary}`
+      renderCell: (row) => `₹${formatAmount(row.salary)}`
     },
     {
       field: 'status',
@@ -236,9 +253,10 @@ const Drivers = () => {
 
   return (
     <Box>
+      <ManagementNotice notice={notice} onClose={clearNotice} />
       <AdminHeader
-        title="Drivers Fleet Registry"
-        description="Register and manage transport drivers, license categories, medical/license expiry alerts, and trip history."
+        title="Drivers"
+        description="Keep driver contacts, driving licences, salaries and trip history in one place."
         icon={<PersonIcon />}
         action={
           <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
@@ -266,10 +284,10 @@ const Drivers = () => {
               startIcon={<AddIcon />}
               onClick={() => handleOpenForm()}
               sx={{
-                background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                background: '#197769',
                 color: '#ffffff',
                 fontWeight: 700,
-                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)'
+                boxShadow: 'none'
               }}
             >
               Register Driver
@@ -285,10 +303,12 @@ const Drivers = () => {
         page={page}
         limit={limit}
         loading={loading}
+        error={listError}
+        onRetry={fetchDrivers}
         onPageChange={setPage}
-        onLimitChange={setLimit}
+        onLimitChange={(value) => { setLimit(value); setPage(0); }}
         searchQuery={search}
-        onSearchChange={setSearch}
+        onSearchChange={(value) => { setSearch(value); setPage(0); }}
         searchPlaceholder="Search by name, license..."
         filterComponent={
           <Button
@@ -305,13 +325,13 @@ const Drivers = () => {
         }
         actions={(row) => (
           <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-            <IconButton size="small" color="primary" onClick={() => handleViewHistory(row)}>
+            <IconButton aria-label="View details" size="small" color="primary" onClick={() => handleViewHistory(row)}>
               <VisibilityIcon fontSize="small" />
             </IconButton>
-            <IconButton size="small" color="secondary" onClick={() => handleOpenForm(row)}>
+            <IconButton aria-label="Edit record" size="small" color="secondary" onClick={() => handleOpenForm(row)}>
               <EditIcon fontSize="small" />
             </IconButton>
-            <IconButton size="small" color="error" onClick={() => handleDelete(row.id)}>
+            <IconButton aria-label="Delete record" size="small" color="error" onClick={() => handleDelete(row.id)}>
               <DeleteIcon fontSize="small" />
             </IconButton>
           </Box>
@@ -322,12 +342,12 @@ const Drivers = () => {
       <Dialog open={openForm} onClose={handleCloseForm} maxWidth="md" fullWidth>
         <form onSubmit={handleSubmit(onSubmitForm)}>
           <DialogTitle sx={{ fontWeight: 800, bgcolor: '#f8fafc', borderBottom: '1px solid #e2e8f0', px: 3, py: 2 }}>
-            {selectedDriver ? 'Edit Driver Registry Record' : 'Register New Driver'}
+            {selectedDriver ? 'Edit driver' : 'Add driver'}
           </DialogTitle>
           <DialogContent dividers sx={{ p: 3 }}>
             <Grid container spacing={2.5}>
               <Grid item xs={12} sm={6}>
-                <TextField
+                <TextField required
                   fullWidth
                   label="Driver Name"
                   {...register('name', { required: 'Driver Name is required' })}
@@ -336,33 +356,37 @@ const Drivers = () => {
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <TextField
+                <TextField required
                   fullWidth
-                  label="Mobile Number"
+                  label="Mobile number"
+                  type="tel"
+                  autoComplete="tel-national"
+                  inputProps={{ inputMode: 'tel' }}
+                  placeholder="98765 43210"
                   InputProps={{
-                    startAdornment: <InputAdornment position="start">📞</InputAdornment>
+                    startAdornment: <InputAdornment position="start">IN</InputAdornment>
                   }}
-                  {...register('mobile', { required: 'Mobile is required' })}
+                  {...register('mobile', { required: 'Mobile number is required', validate: validateIndianMobile, setValueAs: normalizeIndianMobile })}
                   error={Boolean(errors.mobile)}
                   helperText={errors.mobile?.message}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <TextField
+                <TextField required
                   fullWidth
-                  label="Driving License Number"
+                  label="Driving licence number"
                   {...register('licenseNumber', { required: 'License is required' })}
                   error={Boolean(errors.licenseNumber)}
                   helperText={errors.licenseNumber?.message}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <TextField
+                <TextField required
                   fullWidth
                   type="date"
                   InputLabelProps={{ shrink: true }}
-                  label="License Expiration Date"
-                  {...register('licenseExpiry', { required: 'License Expiry is required' })}
+                  label="Licence expiry date"
+                  {...register('licenseExpiry', { required: 'Licence expiry is required' })}
                   error={Boolean(errors.licenseExpiry)}
                   helperText={errors.licenseExpiry?.message}
                 />
@@ -377,10 +401,11 @@ const Drivers = () => {
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <TextField
+                <TextField required
                   fullWidth
                   type="number"
-                  label="Monthly Base Salary"
+                  inputProps={{ step: '0.01', inputMode: 'decimal' }}
+                  label="Monthly salary (₹)"
                   InputProps={{
                     startAdornment: <InputAdornment position="start">₹</InputAdornment>
                   }}
@@ -418,14 +443,15 @@ const Drivers = () => {
             </Button>
             <Button
               type="submit"
+              disabled={isSubmitting}
               variant="contained"
               sx={{
-                background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)',
+                background: '#197769',
                 color: '#ffffff',
                 fontWeight: 700,
                 borderRadius: '8px',
                 px: 3,
-                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)'
+                boxShadow: 'none'
               }}
             >
               Save Driver

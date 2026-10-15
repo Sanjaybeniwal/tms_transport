@@ -16,6 +16,7 @@ import Parties from './pages/Parties';
 import Trips from './pages/Trips';
 import Ledgers from './pages/Ledgers';
 import Reports from './pages/Reports';
+import Accounting from './pages/Accounting';
 import GenericCrud from './pages/GenericCrud';
 import Profile from './pages/Profile';
 import PageManager from './pages/PageManager';
@@ -54,56 +55,56 @@ const pumpFields = [
   { name: 'contactPerson', label: 'Contact Person', halfWidth: true },
   { name: 'mobile', label: 'Mobile Number', halfWidth: true, required: true },
   { name: 'address', label: 'Pump Address', multiline: true, rows: 2 },
-  { name: 'openingBalance', label: 'Opening Owed Dues (₹)', type: 'number', halfWidth: true, defaultValue: 0 },
-  { name: 'allocatedLimit', label: 'Allocated Limit (₹)', type: 'number', halfWidth: true, defaultValue: 0 },
+  { name: 'openingBalance', label: 'Opening balance due (₹)', type: 'number', halfWidth: true, defaultValue: 0 },
+  { name: 'allocatedLimit', label: 'Credit limit (₹)', type: 'number', halfWidth: true, defaultValue: 0 },
   { name: 'status', label: 'Status', type: 'select', options: ['Active', 'Inactive'], halfWidth: true, defaultValue: 'Active' }
 ];
 
 const expenseFields = [
-  { name: 'expenseHeadId', label: 'Expense Head Category', type: 'select', apiResource: 'expenseHeads', nestedKey: 'expenseHead', required: true },
-  { name: 'vehicleId', label: 'Truck Number Link', type: 'select', apiResource: 'vehicles', nestedKey: 'vehicle', halfWidth: true },
-  { name: 'tripId', label: 'Trip link', type: 'select', apiResource: 'trips', nestedKey: 'trip', halfWidth: true },
-  { name: 'amount', label: 'Expense Cost (₹)', type: 'number', halfWidth: true, isCurrency: true, required: true },
+  { name: 'expenseHeadId', label: 'Expense category', type: 'select', apiResource: 'expenseHeads', nestedKey: 'expenseHead', required: true },
+  { name: 'vehicleId', label: 'Vehicle number', type: 'select', apiResource: 'vehicles', nestedKey: 'vehicle', halfWidth: true },
+  { name: 'tripId', label: 'Trip', type: 'select', apiResource: 'trips', nestedKey: 'trip', halfWidth: true },
+  { name: 'amount', label: 'Amount (₹)', type: 'number', halfWidth: true, isCurrency: true, required: true },
   { name: 'date', label: 'Expense Date', type: 'date', halfWidth: true, required: true },
-  { name: 'remarks', label: 'Remarks / Receipt Memo', multiline: true, rows: 2 }
+  { name: 'remarks', label: 'Remarks / receipt number', multiline: true, rows: 2 }
 ];
 
 const dieselFields = [
-  { name: 'vehicleId', label: 'Refueling Vehicle', type: 'select', apiResource: 'vehicles', nestedKey: 'vehicle', required: true },
+  { name: 'vehicleId', label: 'Vehicle number', type: 'select', apiResource: 'vehicles', nestedKey: 'vehicle', required: true },
   { name: 'pumpId', label: 'Fuel Pump', type: 'select', apiResource: 'pumps', nestedKey: 'pump', required: true },
   { name: 'driverId', label: 'Driver', type: 'select', apiResource: 'drivers', nestedKey: 'driver', required: true },
-  { name: 'tripId', label: 'Associated Trip ID', type: 'select', apiResource: 'trips', nestedKey: 'trip' },
-  { name: 'quantity', label: 'Fuel Volume (Liters)', type: 'number', halfWidth: true, required: true },
-  { name: 'rate', label: 'Fuel Rate Per Liter (₹)', type: 'number', halfWidth: true, required: true },
-  { name: 'totalAmount', label: 'Total Refuel Cost (₹)', type: 'number', isCurrency: true, required: true, disabled: true },
-  { name: 'date', label: 'Fueling Date', type: 'date', required: true }
+  { name: 'tripId', label: 'Trip', type: 'select', apiResource: 'trips', nestedKey: 'trip' },
+  { name: 'quantity', label: 'Diesel quantity (litres)', type: 'number', halfWidth: true, required: true },
+  { name: 'rate', label: 'Rate per litre (₹)', type: 'number', halfWidth: true, required: true },
+  { name: 'totalAmount', label: 'Total amount (₹)', type: 'number', isCurrency: true, required: true, disabled: true },
+  { name: 'date', label: 'Diesel entry date', type: 'date', required: true }
 ];
 
 const pumpPaymentFields = [
-  { name: 'pumpId', label: 'Fuel Pump Vendor', type: 'select', apiResource: 'pumps', nestedKey: 'pump', required: true },
-  { name: 'amount', label: 'Paid Settlement Amount (₹)', type: 'number', isCurrency: true, halfWidth: true, required: true },
+  { name: 'pumpId', label: 'Diesel pump', type: 'select', apiResource: 'pumps', nestedKey: 'pump', required: true },
+  { name: 'amount', label: 'Amount paid (₹)', type: 'number', isCurrency: true, halfWidth: true, required: true },
   { name: 'date', label: 'Payment Date', type: 'date', halfWidth: true, required: true },
-  { name: 'transactionNumber', label: 'Txn Code / Check Number', halfWidth: true },
+  { name: 'transactionNumber', label: 'UPI reference / cheque number', halfWidth: true },
   { name: 'paymentMethod', label: 'Payment Method', type: 'select', options: ['Cash', 'UPI', 'PhonePe', 'Paytm', 'Net Banking', 'CRED', 'Cheque'], halfWidth: true, required: true },
-  { name: 'remarks', label: 'Transaction Memo', multiline: true, rows: 2 }
+  { name: 'remarks', label: 'Remarks', multiline: true, rows: 2 }
 ];
 
 const driverAdvanceFields = [
   { name: 'driverId', label: 'Driver Name', type: 'select', apiResource: 'drivers', nestedKey: 'driver', required: true },
-  { name: 'tripId', label: 'Trip ID Link', type: 'select', apiResource: 'trips', nestedKey: 'trip', required: true },
+  { name: 'tripId', label: 'Trip', type: 'select', apiResource: 'trips', nestedKey: 'trip', required: true },
   { name: 'amount', label: 'Advance Amount (₹)', type: 'number', isCurrency: true, halfWidth: true, required: true },
   { name: 'date', label: 'Payment Date', type: 'date', halfWidth: true, required: true },
   { name: 'remarks', label: 'Memo', multiline: true, rows: 2 }
 ];
 
 const incomeLogFields = [
-  { name: 'partyId', label: 'Billing Customer', type: 'select', apiResource: 'parties', nestedKey: 'party', required: true },
-  { name: 'tripId', label: 'Trip link', type: 'select', apiResource: 'trips', nestedKey: 'trip', required: true },
+  { name: 'partyId', label: 'Customer / party', type: 'select', apiResource: 'parties', nestedKey: 'party', required: true },
+  { name: 'tripId', label: 'Trip', type: 'select', apiResource: 'trips', nestedKey: 'trip', required: true },
   { name: 'tripFreight', label: 'Trip Freight', nestedKey: 'trip', nestedField: 'freightAmount', isCurrency: true, showInTable: true, formHidden: true },
   { name: 'tripCommission', label: 'Trip Commission', nestedKey: 'trip', nestedField: 'commission', isCurrency: true, showInTable: true, formHidden: true },
-  { name: 'amount', label: 'Revenue Received (₹)', type: 'number', isCurrency: true, halfWidth: true, required: true },
-  { name: 'date', label: 'Date Collected', type: 'date', halfWidth: true, required: true },
-  { name: 'remarks', label: 'Txn reference info', multiline: true, rows: 2 }
+  { name: 'amount', label: 'Amount received (₹)', type: 'number', isCurrency: true, halfWidth: true, required: true },
+  { name: 'date', label: 'Collection date', type: 'date', halfWidth: true, required: true },
+  { name: 'remarks', label: 'Payment reference / remarks', multiline: true, rows: 2 }
 ];
 
 const App = () => {
@@ -119,6 +120,8 @@ const App = () => {
             {/* Protected Routes inside layout */}
             <Route path="/admin" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
               <Route index element={<Dashboard />} />
+              <Route path="accounting/:section" element={<Accounting />} />
+              <Route path="accounting" element={<Navigate to="/admin/accounting/dashboard" replace />} />
               <Route path="change-password" element={<ChangePassword />} />
               <Route path="profile" element={<Profile />} />
               <Route path="pages-manager" element={<PageManager />} />
@@ -130,16 +133,16 @@ const App = () => {
               <Route path="drivers" element={<Drivers />} />
               <Route path="locations" element={<Locations />} />
               <Route path="parties" element={<Parties />} />
-              <Route path="expense-heads" element={<GenericCrud resource="expenseHeads" title="Expense Heads Category Manager" fields={expenseHeadFields} />} />
-              <Route path="pumps" element={<GenericCrud resource="pumps" title="Diesel Pump Stations Registry" fields={pumpFields} />} />
+              <Route path="expense-heads" element={<GenericCrud key="expenseHeads" resource="expenseHeads" title="Expense categories" fields={expenseHeadFields} />} />
+              <Route path="pumps" element={<GenericCrud key="pumps" resource="pumps" title="Diesel pumps" fields={pumpFields} />} />
 
               {/* Operations logs CRUD pages */}
               <Route path="trips" element={<Trips />} />
-              <Route path="expenses" element={<GenericCrud resource="expenses" title="Trip & Vehicle Expenses" fields={expenseFields} />} />
-              <Route path="diesels" element={<GenericCrud resource="diesels" title="Diesel Refueling Log Register" fields={dieselFields} />} />
-              <Route path="pump-payments" element={<GenericCrud resource="pumpPayments" title="Fuel Pump Payments Settlements" fields={pumpPaymentFields} />} />
-              <Route path="driver-advances" element={<GenericCrud resource="driverAdvances" title="Trip Driver Advances Register" fields={driverAdvanceFields} />} />
-              <Route path="income-logs" element={<GenericCrud resource="incomeLogs" title="Freight Collections Income Ledger" fields={incomeLogFields} />} />
+              <Route path="expenses" element={<GenericCrud key="expenses" resource="expenses" title="Trip & Vehicle Expenses" fields={expenseFields} />} />
+              <Route path="diesels" element={<GenericCrud key="diesels" resource="diesels" title="Diesel entries" fields={dieselFields} />} />
+              <Route path="pump-payments" element={<GenericCrud key="pumpPayments" resource="pumpPayments" title="Pump payments" fields={pumpPaymentFields} />} />
+              <Route path="driver-advances" element={<GenericCrud key="driverAdvances" resource="driverAdvances" title="Driver advances" fields={driverAdvanceFields} />} />
+              <Route path="income-logs" element={<GenericCrud key="incomeLogs" resource="incomeLogs" title="Freight collections" fields={incomeLogFields} />} />
 
               {/* Financial Books */}
               <Route path="ledgers/pumps" element={<Ledgers />} />

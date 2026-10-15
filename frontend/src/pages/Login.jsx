@@ -92,7 +92,7 @@ const Login = () => {
         minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
-        background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', // Deep slate space background
+        background: 'linear-gradient(135deg, #153d40 0%, #244f48 100%)', // Deep slate space background
         py: 6
       }}
     >
@@ -114,10 +114,10 @@ const Login = () => {
             </Box>
 
             <Typography variant="h5" component="h1" gutterBottom sx={{ fontWeight: 700, color: 'text.primary' }}>
-              Welcome back
+              Namaste, welcome back
             </Typography>
             <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 3 }}>
-              Bombay Uttaranchal Tempo Service Portal
+              Bombay Uttaranchal Tempo Service · Office login
             </Typography>
 
             {errorMsg && (
@@ -138,7 +138,9 @@ const Login = () => {
                   margin="normal"
                   value={otpCode}
                   onChange={(e) => setOtpCode(e.target.value)}
-                  placeholder="Enter Code"
+                  placeholder="Enter 6-digit code"
+                  autoComplete="one-time-code"
+                  inputProps={{ inputMode: 'numeric', pattern: '[0-9]{6}', maxLength: 6 }}
                   required
                   autoFocus
                 />
@@ -149,7 +151,7 @@ const Login = () => {
                   variant="contained"
                   size="large"
                   disabled={loading}
-                  sx={{ mt: 3, mb: 1, py: 1.5, background: 'linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%)' }}
+                  sx={{ mt: 3, mb: 1, py: 1.5, background: '#197769' }}
                 >
                   {loading ? <CircularProgress size={24} color="inherit" /> : 'Verify & Log In'}
                 </Button>
@@ -168,6 +170,7 @@ const Login = () => {
               <form onSubmit={handleSubmit(onSubmit)} style={{ width: '100%' }}>
                 <TextField
                   fullWidth
+                  autoComplete="username"
                   label="Email Address"
                   margin="normal"
                   type="email"
@@ -184,6 +187,7 @@ const Login = () => {
 
                 <TextField
                   fullWidth
+                  autoComplete="current-password"
                   label="Password"
                   margin="normal"
                   type="password"
